@@ -15,6 +15,13 @@ export default tseslint.config(
       '**/*.min.js',
     ],
   },
+  {
+    files: ['**/*.cjs'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: { module: 'readonly' },
+    },
+  },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
 );

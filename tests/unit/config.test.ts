@@ -228,3 +228,28 @@ describe('build configuration', () => {
     ).toEqual({ phase: 'build' });
   });
 });
+
+describe('environment TLS isolation', () => {
+  it.each(['staging', 'production'])(
+    'rejects a global TLS-verification bypass in %s',
+    (APP_ENV) => {
+      expect(() =>
+        parseRuntimeConfig({
+          APP_ENV,
+          DATABASE_URL:
+            'postgresql://db.invalid/foundation?sslmode=verify-full',
+          NODE_TLS_REJECT_UNAUTHORIZED: '0',
+        }),
+      ).toThrow('NODE_TLS_REJECT_UNAUTHORIZED');
+    },
+  );
+  it('accepts explicitly verified production TLS without unused provider credentials', () => {
+    expect(
+      parseRuntimeConfig({
+        APP_ENV: 'production',
+        DATABASE_URL: 'postgresql://db.invalid/foundation?sslmode=verify-full',
+        NODE_TLS_REJECT_UNAUTHORIZED: '1',
+      }).identityAdapter,
+    ).toBe('disabled');
+  });
+});

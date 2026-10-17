@@ -1,6 +1,6 @@
 # AI DSA Interview Practice Platform — Documentation Baseline
 
-This repository contains the planning/design baseline, canonical contracts and Application Foundation tooling, tested configuration, a custom Next.js server lifecycle and an uncached liveness route. Product features and dependency readiness remain unbuilt. Follow [the local development guide](docs/development.md) and the canonical Kanban for current task status.
+This repository contains the planning/design baseline, canonical contracts and Application Foundation tooling, tested configuration, a custom Next.js server lifecycle, enforced module boundaries, startup/HMR regression coverage and an uncached liveness route. Product features and dependency readiness remain unbuilt. Follow [the local development guide](docs/development.md) and the canonical Kanban for current task status.
 
 ## Start here
 
@@ -40,4 +40,4 @@ Clerk authentication; turn-based voice with visible transcript and speech output
 
 ## Current next step
 
-K-001 workflow acceptance is verified. K-002 is In Progress: lifecycle/liveness composition is implemented; module-boundary and full production/HMR regression evidence remain Phase 3. K-028 remains incomplete until local and authorized external environment evidence exists. The [Kanban](project_management/kanban_board.md) and its CSV export own status; the V1 choices remain in the ADR register.
+K-001 and K-002 acceptance is verified. Phases 1–3 cover tooling, configuration, lifecycle/liveness, module boundaries and production/HMR regressions; the next group adds request correlation, privacy-safe logging and readiness. K-028 remains incomplete until local and authorized external environment evidence exists. The [Kanban](project_management/kanban_board.md) and its CSV export own status; the V1 choices remain in the ADR register.

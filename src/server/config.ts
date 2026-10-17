@@ -11,6 +11,7 @@ const publicSecrets = {
 const schema = z
   .object({
     APP_ENV: z.enum(['development', 'staging', 'production', 'test']),
+    NODE_TLS_REJECT_UNAUTHORIZED: z.enum(['0', '1']).optional(),
     DATABASE_URL: z
       .string()
       .min(1)
@@ -53,6 +54,8 @@ const schema = z
       (remote && settings.IDENTITY_ADAPTER === 'test')
     )
       reject('IDENTITY_ADAPTER');
+    if (remote && settings.NODE_TLS_REJECT_UNAUTHORIZED === '0')
+      reject('NODE_TLS_REJECT_UNAUTHORIZED');
     if (remote) {
       try {
         const url = new URL(settings.DATABASE_URL);

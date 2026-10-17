@@ -18,7 +18,10 @@
     "test:unit": "vitest run tests/unit",
     "build": "node --import tsx scripts/build-migration-manifest.ts && next build && node scripts/build-server.mjs",
     "dev": "NODE_ENV=development node --env-file-if-exists=.env.local --import tsx src/server/bootstrap.ts",
-    "start": "NODE_ENV=production node --env-file-if-exists=.env.local dist/server.mjs"
+    "start": "NODE_ENV=production node --env-file-if-exists=.env.local dist/server.mjs",
+    "check:architecture": "node --import tsx scripts/check-boundaries.ts",
+    "test:architecture": "vitest run tests/architecture",
+    "test:process": "vitest run tests/process"
   },
   "dependencies": {
     "next": "16.4.2",
@@ -37,6 +40,7 @@
     "prettier": "3.9.10",
     "tsx": "4.23.15",
     "vitest": "5.0.5",
-    "esbuild": "0.28.2"
+    "esbuild": "0.28.2",
+    "dependency-cruiser": "18.6.0"
   }
 }

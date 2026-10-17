@@ -152,3 +152,153 @@ scope inspection and the observed commit result. Full HMR mutation/registry acqu
 regressions remain T009/T010/T017; the development smoke above does not replace
 them. No readiness handler, storage connection/migration, provider, candidate UI,
 container, hosted CI or cloud mutation is delivered in this group.
+
+## Environment isolation and secret injection handoff
+
+This is the local baseline and deployment-owner handoff required by T011. Actual
+AWS targets, credentials, roles, injection and rotation evidence remain T034 /
+K-028. No account, region, networking or IaC tool is selected here.
+
+| Environment | Required separation                                                                                                  |
+| ----------- | -------------------------------------------------------------------------------------------------------------------- |
+| development | Dedicated local PostgreSQL target; ignored local runtime values; dedicated test storage arrives in T015              |
+| staging     | Separate database, runtime/migration roles, secret references and eventual provider/sandbox projects from production |
+| production  | Production-only resources and least-privilege identity; no test identity adapter or staging/development credentials  |
+
+Tracked JSON examples contain logical reference names such as
+`staging/foundation/database-url`; they are not resolved secret values. The
+application parser consumes runtime environment variables, not those JSON files
+or an unresolved reference. Resolve values only inside the authorized workload.
+Never request secret plaintext through an agent, put it in command arguments,
+copy it to this document, or fetch it into diagnostic output. The installed
+aws-secrets-manager guidance is used for reference safety; its optional asm-exec
+integration is not configured or required by this application.
+
+For the selected ECS/Fargate baseline, use deployment-owned Secrets Manager
+references in the task definition's `secrets`/`valueFrom` mapping, so injection
+occurs before the process starts. Keep application images, build arguments and
+NEXT_PUBLIC variables free of credentials. The ECS **execution role** owns the
+permissions needed by ECS to pull the image, initialize configured logging and
+resolve only the referenced injected secrets (plus narrowly scoped KMS decrypt
+when applicable). The application **task role** owns only its actual AWS API
+operations; foundation performs no AWS API call and does not need a blanket
+Secrets Manager reader. Candidate execution receives neither role nor secrets.
+This distinction is a handoff convention, not an IAM policy or deployed role.
+
+Use verified TLS outside local/test. `DATABASE_URL` requires
+`sslmode=verify-full`; conflicting SSL URL flags and an explicit global
+`NODE_TLS_REJECT_UNAUTHORIZED=0` are rejected in staging/production. The database
+adapter must still enforce certificate verification with the approved trust
+material when implemented. An approved CA trust bundle may be required by the
+selected deployment; do not fix trust errors by disabling verification.
+Configuration checks alone do not prove a successful verified database connection.
+
+Configuration is immutable per process. Environment-injected secrets are not
+refreshed by mutating a running process: rotate through the authorized
+secret-owner procedure, validate the new version using a replacement task,
+roll tasks with readiness/drain gates, verify old tasks are stopped, then retire
+the old credential after its rollback window. Changing a Secrets Manager value
+alone does not refresh existing tasks. No rotation/deployment is performed here.
+See [ECS secret injection](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/secrets-envvar-secrets-manager.html).
+
+T034 evidence must identify safe environment/resource/secret-version references,
+execution-role versus task-role permission scope, redacted task-definition mapping,
+verified TLS outcome, authorized replacement/rotation outcome and rollback owner.
+Do not include values, full connection strings, token dumps or raw error payloads.
+Record failed/unavailable checks honestly; keep K-028 incomplete without actual
+staging/production evidence. Region/VPC/sizing/provider/deployment decisions stay
+with their existing release gates. A local config test cannot establish them.
+
+## Phase 3 boundaries and process review — 2026-10-18
+
+Scope: T007–T011, T039/T040; K-002 acceptance and local K-028 guards.
+Applied using-superpowers, test-driven-development, systematic-debugging,
+mastering-typescript, vercel-react-best-practices (server/client boundaries),
+vitest, requesting-code-review, receiving-code-review,
+verification-before-completion, mastering-git-cli and mastering-github-cli.
+The secret-reference handoff above uses aws-secrets-manager guidance without
+fetching values or configuring its optional integration.
+
+Architecture TDD evidence (`npm test -- tests/architecture --reporter=dot`):
+
+- Explicit checker stub: 14 forbidden fixtures failed their assertions while
+  five allowed cases passed. The implementation then rejected those violations.
+- Wrong provider owner, public secret alias and computed environment read:
+  three new assertion failures with 19 passes, then 22/22 green.
+- Route-to-private-repository and opaque client dynamic import: two new
+  assertion failures with 22 passes, then included in the 121/121 combined run.
+- Independent review found three Important gaps (shared provider helper,
+  unlisted source-directory private import, bare Node builtin) and one Minor
+  false positive (client NODE_ENV). Four new fixtures failed with 24 passes
+  before fixes; the final architecture suite has 28 passing cases.
+
+Rules now cover every source folder, retain owning-adapter/public-interface
+exceptions and recognize bare/prefixed Node builtins. Client reachability follows
+aliases and re-exports. This static guard does not establish semantic DTO safety
+or replace future per-feature code review and the separate execution sandbox.
+
+Process evidence (`npm test -- tests/process --reporter=dot`): six tests passed,
+including a secret-free production build, actual liveness/registry access,
+four pre-listen invalid-setting cases and two actual development HMR mutations.
+Instrumentation exists only in owned copies; it acquires a fake resource through
+the actual registry before the baseline and observes one acquisition, identical
+handle, stable PID and one listener after each reload. Port release is checked.
+Existing Phase 2 bootstrap/runtime behavior satisfied these regressions: no
+production runtime change or fabricated red result was needed for T010.
+
+One initial process run failed during fixture prerendering because fs.cp rewrote
+Next's .bin symlink to the original checkout, loading two React instances.
+Preserving verbatim dependency symlinks and asserting the copied Next executable
+resolves inside its owned root fixed the test harness. This was not a production
+runtime failure. Disposers stop only owned process groups and remove owned copies.
+
+TLS TDD: two new staging/production tests failed with 66 existing config tests
+passing before rejecting global verification disablement. The explicit verified
+case passed. After the guard, unit tests passed 91/91. Neither this guard nor the
+unreachable test URL proves a real database TLS connection.
+
+Fresh final verification, Node 24.22.0/npm 11.19.1:
+
+- `npm ci --cache /tmp/foundation-npm-cache`: passed, 193 packages added,
+  194 audited, zero vulnerabilities. Existing esbuild 0.28.2 install-script
+  warning remains; no blanket script approval or tool upgrade performed.
+- `env -i PATH=/tmp/foundation-node-verified/node-v24.22.0-linux-x64/bin:/usr/bin:/bin HOME=/tmp/foundation-build-home NEXT_TELEMETRY_DISABLED=1 npm run build`:
+  passed without runtime/DB/provider values; canonical liveness is dynamic.
+- `npm test -- --reporter=dot`: 125/125 passed across ten files in 84.23 s:
+  91 unit, 28 architecture and six process tests.
+- `npm run lint`, `npm run typecheck`, `npm run check:architecture`: passed;
+  actual-source architecture output `[]`.
+- `npm audit --audit-level=high`: passed, zero vulnerabilities.
+
+Independent reviewer `review_phase3_implementation` reproduced all four findings,
+then re-reviewed the fixes and development/TLS documentation. Fresh focused
+checks rejected the shared provider helper, src/lib private import and bare fs /
+fs/promises client imports; accepted NODE_ENV; actual-source checker passed.
+All findings resolved, no new blockers. No checkout mutation by the reviewer.
+
+Bounded `$speckit-converge` assessment used the explicit application_foundation
+pointer and prerequisite check, the 15 functional requirements, seven success
+criteria, architecture/lifecycle/import decisions and five constitutional
+principles. Phase 3 has no additional uncovered work. Full feature is incomplete:
+
+| Remaining gap                                                       | Severity | Existing coverage    |
+| ------------------------------------------------------------------- | -------- | -------------------- |
+| Request correlation and privacy telemetry (FR-005/006, SC-004)      | High     | T012–T013, T017–T018 |
+| Readiness and real-storage/schema health (FR-007/008, SC-003)       | High     | T014–T018, T024      |
+| Explicit migrations and isolated test storage (FR-009/010, SC-005)  | High     | T019–T024            |
+| CI/container/scanners and failure controls (FR-011, SC-006)         | High     | T025–T030            |
+| Actual environment/secret-role evidence (FR-004/015, SC-007)        | High     | T034                 |
+| Final full journey, review and handoff (FR-001/012/015, SC-001/007) | Medium   | T031–T033, T047–T048 |
+
+These gaps already have dependency-ordered tasks; no duplicate convergence tasks
+were appended. No new contradictory/unrequested implementation was found.
+No extension hook file is installed. K-002's own local acceptance passes and its
+Kanban/CSV status is Done; K-003–K-006 and K-028 retain their existing incomplete
+statuses. T040 still requires exact staged-scope inspection and the observed
+commit. Later work extends the same draft feature PR #49; no merge is claimed.
+Pre-existing planning and skill-installation edits remain outside this increment.
+
+Final evidence/status cross-check by the same independent reviewer found no
+blockers. `npm run format:check` passed. The final whitespace check
+`git -c core.whitespace=cr-at-eol diff --check` passed after removing new trailing
+spaces from local canonical status annotations; existing CSV CRLF was retained.

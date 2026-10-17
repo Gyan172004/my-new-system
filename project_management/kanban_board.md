@@ -135,17 +135,19 @@ _None._
 
 ## In Progress
 
-### K-002 — Establish application skeleton and module boundaries
-- Milestone: M0 · Priority: P0
-- Depends on: K-001
-- Acceptance: application starts locally; module boundaries follow the modular-monolith design; no feature logic bypasses another module's public interface.
-- Progress evidence: Phase 2 lifecycle/liveness composition under implementation; boundary and production/HMR acceptance remain Phase 3.
+_None._
 
 ## In Review
 
 _None._
 
 ## Done
+
+### K-002 — Establish application skeleton and module boundaries
+- Milestone: M0 · Priority: P0
+- Depends on: K-001
+- Acceptance: application starts locally; module boundaries follow the modular-monolith design; no feature logic bypasses another module's public interface.
+- Completion evidence: reviewed Phase 3 module/public-interface and client/provider boundary checks; production startup and two actual HMR reloads preserve the shared runtime handle and single listener. Final suite: 125/125 tests passed; secret-free build, lint, typecheck and architecture checks passed. See [foundation runbook](../docs/runbooks/foundation.md). Readiness/storage/CI and external environment gates retain their own cards.
 
 ### K-001 — Confirm repository conventions and local developer workflow
 - Milestone: M0 · Priority: P0

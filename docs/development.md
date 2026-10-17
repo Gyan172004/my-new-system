@@ -63,6 +63,9 @@ npm run format:check
 npm run lint
 npm run typecheck
 npm run test:unit
+npm run check:architecture
+npm run test:architecture
+npm run test:process
 npm test
 npm audit --audit-level=high
 ```
@@ -74,6 +77,19 @@ Never disable verification to fix a connection error. `APP_ENV` is mandatory:
 Missing unused Clerk/OpenAI/E2B credentials are allowed. `IDENTITY_ADAPTER`
 defaults to `disabled`; `test` is restricted to development/test and the
 unimplemented `clerk` mode fails closed.
+
+Architecture verification checks the actual `src/` import graph and deliberate
+forbidden/allowed fixtures. Module ownership and `public.ts` rules are documented
+in [the module map](../src/modules/README.md). These static checks protect trusted
+source boundaries; candidate execution still requires its separate sandbox.
+
+Process tests build and run production and development servers in disposable
+copies, without database/provider access. The development test performs two
+real HMR reloads and verifies one runtime resource acquisition and listener.
+Only owned copies are instrumented or edited; the real checkout is untouched.
+Allow disk space for two dependency copies and up to 120 seconds for development
+startup; each reload and normal shutdown has a 30-second deadline. `npm test`
+includes these process and architecture suites; `test:unit` is the focused unit run.
 
 | Variable                  | Default                             | Constraint                               |
 | ------------------------- | ----------------------------------- | ---------------------------------------- |

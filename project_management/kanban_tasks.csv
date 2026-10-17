@@ -1,6 +1,6 @@
 ID,Title,Status,Milestone,Priority,Dependencies,Acceptance Criteria,Labels
 K-001,Confirm repository conventions and local developer workflow,Done,M0,P0,,Clean checkout instructions; config validated; format/lint/test commands discoverable,foundation
-K-002,Establish application skeleton and module boundaries,In Progress,M0,P0,K-001,App starts locally; modular boundaries explicit; no cross-module repository bypass,foundation
+K-002,Establish application skeleton and module boundaries,Done,M0,P0,K-001,App starts locally; modular boundaries explicit; no cross-module repository bypass,foundation
 K-003,Add structured logging and request correlation,Backlog,M0,P0,K-002,Correlation IDs in logs; secrets and sensitive payloads redacted,observability
 K-004,Add health and readiness endpoints,Backlog,M0,P0,K-002,Liveness/readiness distinct and tested,"foundation,observability"
 K-005,Configure database migrations and test database workflow,Backlog,M0,P0,K-002,Migrations apply to empty DB; integration tests isolated,database

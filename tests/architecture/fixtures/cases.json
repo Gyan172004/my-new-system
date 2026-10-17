@@ -1,0 +1,177 @@
+{
+  "private_repository": {
+    "rule": "module-public-interface",
+    "files": {
+      "src/modules/interview/application/use.ts": "import { load } from '../../problem-catalogue/persistence/repository'; export const use = load;",
+      "src/modules/problem-catalogue/persistence/repository.ts": "export const load = () => 1;"
+    }
+  },
+  "alias_private_repository": {
+    "rule": "module-public-interface",
+    "files": {
+      "src/modules/interview/application/use.ts": "import { load } from '@/modules/problem-catalogue/persistence/repository'; export const use = load;",
+      "src/modules/problem-catalogue/persistence/repository.ts": "export const load = () => 1;"
+    }
+  },
+  "domain_provider": {
+    "rule": "provider-adapter-only",
+    "files": {
+      "src/modules/interview/domain/use.ts": "import OpenAI from 'openai'; export const client = OpenAI;"
+    }
+  },
+  "route_provider": {
+    "rule": "provider-adapter-only",
+    "files": {
+      "src/app/api/v1/interview/route.ts": "import OpenAI from 'openai'; export const client = OpenAI;"
+    }
+  },
+  "candidate_eval": {
+    "rule": "no-candidate-execution",
+    "files": {
+      "src/modules/interview/domain/run.ts": "export const run = (code: string) => eval(code);"
+    }
+  },
+  "candidate_function": {
+    "rule": "no-candidate-execution",
+    "files": {
+      "src/app/api/v1/submissions/route.ts": "export const run = (code: string) => new Function(code)();"
+    }
+  },
+  "candidate_subprocess": {
+    "rule": "no-candidate-execution",
+    "files": {
+      "src/modules/submissions/application/run.ts": "import {exec} from 'node:child_process'; export const run = exec;"
+    }
+  },
+  "candidate_vm": {
+    "rule": "no-candidate-execution",
+    "files": {
+      "src/app/api/v1/submissions/route.ts": "import vm from 'node:vm'; export const run = vm.runInNewContext;"
+    }
+  },
+  "candidate_dynamic_import": {
+    "rule": "no-candidate-execution",
+    "files": {
+      "src/modules/submissions/domain/run.ts": "export const run = (code: string) => import(code);"
+    }
+  },
+  "public_storage_export": {
+    "rule": "public-no-storage",
+    "files": {
+      "src/modules/history/public.ts": "export {load} from './persistence/repository';",
+      "src/modules/history/persistence/repository.ts": "export const load = () => 1;"
+    }
+  },
+  "client_direct_server": {
+    "rule": "client-server-boundary",
+    "files": {
+      "src/widgets/Panel.ts": "'use client'; import {secret} from '../server/config'; export const x = secret;",
+      "src/server/config.ts": "export const secret = 'fixture';"
+    }
+  },
+  "client_transitive_server": {
+    "rule": "client-server-boundary",
+    "files": {
+      "src/widgets/Panel.ts": "'use client'; export {value} from '../shared/bridge';",
+      "src/shared/bridge.ts": "export {secret as value} from '../server/config';",
+      "src/server/config.ts": "export const secret = 'fixture';"
+    }
+  },
+  "client_pg": {
+    "rule": "client-server-boundary",
+    "files": {
+      "src/components/Db.ts": "'use client'; import pg from 'pg'; export const db = pg;"
+    }
+  },
+  "client_secret_env": {
+    "rule": "client-server-boundary",
+    "files": {
+      "src/components/Settings.ts": "'use client'; export const secret = process.env.DATABASE_URL;"
+    }
+  },
+  "allowed_public": {
+    "files": {
+      "src/modules/interview/application/use.ts": "import {load} from '../../problem-catalogue/public'; export const use = load;",
+      "src/modules/problem-catalogue/public.ts": "export {load} from './application/load';",
+      "src/modules/problem-catalogue/application/load.ts": "export const load = () => 1;"
+    }
+  },
+  "allowed_own_private": {
+    "files": {
+      "src/modules/interview/application/use.ts": "import {load} from '../persistence/repository'; export const use = load;",
+      "src/modules/interview/persistence/repository.ts": "export const load = () => 1;"
+    }
+  },
+  "allowed_provider_adapter": {
+    "files": {
+      "src/modules/model-gateway/adapters/openai.ts": "import OpenAI from 'openai'; export const client = OpenAI;"
+    }
+  },
+  "allowed_client": {
+    "files": {
+      "src/components/Settings.ts": "'use client'; import {label} from '../shared/label'; export const x = label;",
+      "src/shared/label.ts": "export const label = 'public';"
+    }
+  },
+  "allowed_boot_tool": {
+    "files": {
+      "src/server/bootstrap.ts": "import {spawn} from 'node:child_process'; export const boot = spawn;"
+    }
+  },
+  "wrong_provider_adapter": {
+    "rule": "provider-adapter-only",
+    "files": {
+      "src/modules/interview/adapters/openai.ts": "import OpenAI from 'openai'; export const client = OpenAI;"
+    }
+  },
+  "client_public_secret": {
+    "rule": "client-server-boundary",
+    "files": {
+      "src/components/Secret.ts": "'use client'; export const secret = process.env.NEXT_PUBLIC_DATABASE_URL;"
+    }
+  },
+  "client_computed_env": {
+    "rule": "client-server-boundary",
+    "files": {
+      "src/components/Secret.ts": "'use client'; export const secret = process['env']['DATABASE_URL'];"
+    }
+  },
+  "route_private_repository": {
+    "rule": "module-public-interface-external",
+    "files": {
+      "src/app/api/v1/interview/route.ts": "import {load} from '../../../../modules/interview/persistence/repository'; export const read = load;",
+      "src/modules/interview/persistence/repository.ts": "export const load = () => 1;"
+    }
+  },
+  "client_dynamic_import": {
+    "rule": "client-server-boundary",
+    "files": {
+      "src/components/Dynamic.ts": "'use client'; export const use = (path: string) => import(path);"
+    }
+  },
+  "shared_provider": {
+    "rule": "provider-adapter-only",
+    "files": {
+      "src/shared/model.ts": "import OpenAI from 'openai'; export const client = OpenAI;",
+      "src/modules/interview/domain/use.ts": "export {client} from '../../../shared/model';"
+    }
+  },
+  "lib_private_repository": {
+    "rule": "module-public-interface-external",
+    "files": {
+      "src/lib/use.ts": "export {load} from '../modules/history/persistence/repository';",
+      "src/modules/history/persistence/repository.ts": "export const load = () => 1;"
+    }
+  },
+  "client_bare_builtin": {
+    "rule": "client-server-boundary",
+    "files": {
+      "src/components/Read.ts": "'use client'; import {readFileSync} from 'fs'; export const read = readFileSync;"
+    }
+  },
+  "allowed_client_node_env": {
+    "files": {
+      "src/components/Mode.ts": "'use client'; export const debug = process.env.NODE_ENV !== 'production';"
+    }
+  }
+}
