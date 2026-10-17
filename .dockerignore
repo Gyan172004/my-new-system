@@ -17,3 +17,5 @@ coverage/
 *.pfx
 Dockerfile*
 .dockerignore
+next-env.d.ts
+*.tsbuildinfo

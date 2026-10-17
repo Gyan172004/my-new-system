@@ -1,8 +1,9 @@
 # Local development
 
 Use this guide from the repository root. Application Foundation is being built
-in reviewed increments; runtime, database and container commands arrive in later
-phases. No provider account is needed for this tooling/configuration increment.
+in reviewed increments. The custom server and liveness route are now available;
+database and container commands arrive in later phases. No provider account is
+needed for the current tooling/runtime increment.
 
 ## Toolchain
 
@@ -39,10 +40,9 @@ runbook; a version pin alone is not a security or compatibility test.
 
 ## Configuration and verification
 
-Runtime settings and tested commands are documented below when their
-implementation passes. `npm run` lists only implemented commands. Installation,
+Runtime settings and implemented commands are documented below. `npm run` lists only implemented commands. Installation,
 formatting, linting, type checking and unit tests never need database/provider
-credentials. No production startup/build/database command is advertised yet.
+credentials. Build/dev/start commands are available below; database/migration commands remain pending.
 
 ### Runtime settings
 
@@ -89,8 +89,8 @@ unimplemented `clerk` mode fails closed.
 Invalid settings cause a nonzero config-check exit with fixed key names and
 stable codes only. Valid settings print `configuration_valid`; no listener,
 provider request or database connection is opened. Settings are immutable.
-`parseBuildConfig` deliberately excludes runtime secrets; the actual Next build
-will be added and verified with the runtime composition phase.
+`parseBuildConfig` deliberately excludes runtime secrets. The actual Next build
+has also been verified with an empty environment and without database/provider access.
 
 ### Clean setup and recovery
 
@@ -108,3 +108,42 @@ preset was unused in this configuration and introduced the unpatched
 removed rather than downgrading Next or suppressing audit findings. React/Next
 specific lint rules can be selected with their owning implementation and the
 same security gate. This increment contains no React components.
+
+## Start the operational skeleton
+
+```bash
+npm run build
+APP_ENV=development DATABASE_URL=postgresql://localhost/foundation npm run dev
+```
+
+In another terminal, query `http://localhost:3000/api/v1/health/live`. Expect
+HTTP 200, `Cache-Control: no-store`, and JSON containing `status: "ok"` and a
+UTC timestamp. This probe requires no login and does not contact the database.
+Use Ctrl+C to stop; SIGINT and SIGTERM stop admission and drain existing work
+before closing Next and acquired resources. A stuck startup/shutdown fails
+within its configured budget and exits nonzero.
+
+For the built server, stop development first, then:
+
+```bash
+APP_ENV=development DATABASE_URL=postgresql://localhost/foundation npm start
+```
+
+`npm start` selects Next's production mode (`NODE_ENV=production`); `APP_ENV`
+selects operational settings independently. Build never opens a database or
+validates deployment credentials. The custom server compiles to `dist/server.mjs`
+with framework packages external, so runtime dependencies must remain installed.
+No Next standalone output is used. Never run a build over an active dev cache;
+stop the owned dev process first or use an isolated work copy.
+
+Configuration validation precedes Next preparation and binding. An unavailable
+DB does not stop liveness. Readiness, database/schema checks, structured
+request logging, architecture fixtures and full production/HMR regression suites
+are pending later tasks. Do not use liveness as a readiness/deployment gate.
+
+`dist/migration-manifest.json` is built from sorted local SQL filenames. It is
+currently empty because the baseline migration belongs to the storage phase;
+this does not establish schema readiness. Generated `.next`, `dist`,
+`next-env.d.ts` and TypeScript caches are ignored. Strict TypeScript remains
+active; automatic Next suggestions were reviewed with JavaScript sources still
+disabled. Build regenerates framework type declarations for its active output.

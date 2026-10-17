@@ -15,7 +15,10 @@
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:unit": "vitest run tests/unit"
+    "test:unit": "vitest run tests/unit",
+    "build": "node --import tsx scripts/build-migration-manifest.ts && next build && node scripts/build-server.mjs",
+    "dev": "NODE_ENV=development node --env-file-if-exists=.env.local --import tsx src/server/bootstrap.ts",
+    "start": "NODE_ENV=production node --env-file-if-exists=.env.local dist/server.mjs"
   },
   "dependencies": {
     "next": "16.4.2",
@@ -33,6 +36,7 @@
     "@types/react-dom": "19.3.0",
     "prettier": "3.9.10",
     "tsx": "4.23.15",
-    "vitest": "5.0.5"
+    "vitest": "5.0.5",
+    "esbuild": "0.28.2"
   }
 }

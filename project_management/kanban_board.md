@@ -25,10 +25,7 @@
 
 ## Ready
 
-### K-002 — Establish application skeleton and module boundaries
-- Milestone: M0 · Priority: P0
-- Depends on: K-001
-- Acceptance: application starts locally; module boundaries follow the modular-monolith design; no feature logic bypasses another module's public interface.
+_None._
 
 ## Backlog
 
@@ -138,7 +135,11 @@
 
 ## In Progress
 
-_None._
+### K-002 — Establish application skeleton and module boundaries
+- Milestone: M0 · Priority: P0
+- Depends on: K-001
+- Acceptance: application starts locally; module boundaries follow the modular-monolith design; no feature logic bypasses another module's public interface.
+- Progress evidence: Phase 2 lifecycle/liveness composition under implementation; boundary and production/HMR acceptance remain Phase 3.
 
 ## In Review
 

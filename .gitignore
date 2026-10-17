@@ -32,3 +32,6 @@ build/
 Thumbs.db
 .vscode/
 .idea/
+
+# Next regenerates this declaration for the active build directory.
+/next-env.d.ts

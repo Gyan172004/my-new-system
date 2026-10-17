@@ -6,7 +6,7 @@ function check(overrides: Record<string, string>) {
     process.execPath,
     ['--import', 'tsx', 'scripts/check-config.ts'],
     {
-      env: { PATH: process.env.PATH, ...overrides },
+      env: { PATH: process.env.PATH, NODE_ENV: 'test', ...overrides },
       encoding: 'utf8',
       timeout: 4000,
     },

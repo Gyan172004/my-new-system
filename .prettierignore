@@ -20,3 +20,4 @@ docs/development_workflow_setup.md
 docs/04_design/
 artifacts/
 first-principles-teacher/
+next-env.d.ts
