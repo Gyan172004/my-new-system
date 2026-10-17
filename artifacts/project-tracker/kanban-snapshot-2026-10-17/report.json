@@ -1,0 +1,85 @@
+{
+  "source_sha256": "dd8bd283784a189061a328040e845a6d26807e2ee1005a9a195e6dc7baeefe80",
+  "sheets": [
+    "Project Plan"
+  ],
+  "blocked_features": [],
+  "opaque_parts_preserved": [],
+  "limitations": [
+    "Scalar cells only; no row/column/sheet insertion or formatting redesign.",
+    "Formula caches are refreshed; chart/pivot caches and objects are not rewritten.",
+    "PDF/PNG previews reflect LibreOffice rendering, not pixel-identical Excel output."
+  ],
+  "verified": true,
+  "outputs": [
+    "workbook.xlsx",
+    "preview.pdf",
+    "page-1.png",
+    "page-2.png",
+    "page-3.png",
+    "page-4.png",
+    "page-5.png",
+    "overview.pdf",
+    "overview.png"
+  ],
+  "visual_review": "passed",
+  "altered_parts": [
+    "xl/worksheets/sheet1.xml"
+  ],
+  "unexpected_changes": [],
+  "edited_cells": 218,
+  "formula_cells_recalculated": 655,
+  "pages": 5,
+  "source_unchanged": true,
+  "verification_scope": "Package fidelity and preview readability; agent visual review and task-specific assertions still required.",
+  "visual_review_notes": [
+    "Viewed all five inherited-print-layout PNGs and the full-sheet overview PNG.",
+    "Labels and task IDs fit; original colors, dimensions, sheet structure, formulas and validation retained.",
+    "Inherited print settings paginate the wide sheet across five pages; overview.pdf/overview.png provide a single-page full-sheet view without changing workbook print settings."
+  ],
+  "source_data": {
+    "canonical_status": "project_management/kanban_board.md",
+    "derived_from": "project_management/kanban_tasks.csv",
+    "snapshot_date": "2026-10-17",
+    "source_files_unchanged": {
+      "/home/gyandeep.katiyar/.codex/plugins/cache/openai-curated-remote/openai-templates/0.1.1/skills/artifact-template-project-tracker/assets/reference.xlsx": true,
+      "/home/gyandeep.katiyar/Desktop/hackassess/my-new-system/project_management/kanban_board.md": true,
+      "/home/gyandeep.katiyar/Desktop/hackassess/my-new-system/project_management/kanban_tasks.csv": true
+    }
+  },
+  "status_mapping": {
+    "Backlog": "Not Started",
+    "Ready": "Not Started",
+    "In Progress": "In Progress",
+    "Done": "Complete"
+  },
+  "data_notes": [
+    "Exact canonical statuses retained in each task label; abbreviated task titles are identified by canonical K- IDs.",
+    "Workstreams derive from canonical labels and use existing template categories.",
+    "Unknown owners, manager, company, start and end dates are blank. Gantt headers use the snapshot date, not committed dates.",
+    "Ready/Backlog map to template Not Started; Done maps to Complete.",
+    "No application implementation is marked complete; K-027 is the existing documented owner decision."
+  ],
+  "task_specific_checks": {
+    "task_count": 29,
+    "complete": 1,
+    "in_progress": 0,
+    "at_risk": 0,
+    "p0_tasks": 23,
+    "original_formulas_preserved": 655,
+    "unknown_assignments_and_task_dates_blank": true
+  },
+  "helper_validation": {
+    "command": "RUN_OFFICE_TESTS=1 python3 skills/spreadsheets/scripts/test_workbook.py",
+    "tests": 18,
+    "passed": 18,
+    "skipped": 0,
+    "execution": "User-approved execution outside the restricted sandbox."
+  },
+  "overview": {
+    "pdf": "overview.pdf",
+    "image": "overview.png",
+    "pages": 1,
+    "mode": "Full-sheet preview; workbook print settings unchanged."
+  }
+}

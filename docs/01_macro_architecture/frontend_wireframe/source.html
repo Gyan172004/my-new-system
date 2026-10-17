@@ -1,0 +1,1282 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}</style></head><body>
+
+<title>DSA Interview Canvas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+
+<style>
+:root{
+  --void:#090D15; --deep:#0E1420; --raised:#1A2332; --raised2:#222C3D; --sunk:#0B111C;
+  --parch:#E8DFD2; --mute:#8A93A4; --dim:#6B7588;
+  --cool:#7FA8D8; --warm:#D99A4E;
+  --ok:#7FA87F; --fail:#C8615A; --infra:#8A8F9E;
+  --line:rgba(232,223,210,.10); --line2:rgba(232,223,210,.20);
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--void);color:var(--parch);font-family:var(--sans);overflow:hidden;height:100vh}
+
+/* ── board chrome ───────────────────────────────────────── */
+#hud{position:fixed;inset:0 0 auto 0;z-index:40;display:flex;align-items:center;gap:18px;
+  padding:11px 18px;background:rgba(9,13,21,.88);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px}
+#hud .mark{color:var(--parch);font-weight:600;letter-spacing:.02em}
+#hud .mark em{color:var(--cool);font-style:normal}
+#hud .sub{color:var(--dim)}
+#hud .spacer{flex:1}
+.jump{display:flex;gap:4px;flex-wrap:wrap}
+.jump button,.zb{font-family:var(--mono);font-size:11px;color:var(--mute);background:transparent;
+  border:1px solid var(--line);padding:4px 9px;cursor:pointer;border-radius:2px}
+.jump button:hover,.zb:hover{color:var(--parch);border-color:var(--line2);background:var(--raised)}
+.jump button:focus-visible,.zb:focus-visible{outline:2px solid var(--cool);outline-offset:1px}
+.jump button[aria-current="true"]{color:var(--deep);background:var(--cool);border-color:var(--cool)}
+#zoomwrap{display:flex;gap:4px;align-items:center}
+#zlevel{color:var(--dim);min-width:42px;text-align:right;font-variant-numeric:tabular-nums}
+
+#legend{position:fixed;left:18px;bottom:18px;z-index:40;font-family:var(--mono);font-size:10.5px;
+  background:rgba(9,13,21,.9);border:1px solid var(--line);padding:10px 12px;border-radius:3px;
+  backdrop-filter:blur(10px);max-width:290px}
+#legend h4{margin:0 0 7px;font-size:10px;letter-spacing:.09em;color:var(--dim);font-weight:500}
+#legend .row{display:flex;align-items:center;gap:7px;color:var(--mute);line-height:1.8}
+#legend .sw{width:9px;height:9px;border-radius:2px;flex:none}
+#legend .note{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);color:var(--dim);line-height:1.5}
+#legend .note b{color:var(--infra);font-weight:500}
+
+#help{position:fixed;right:18px;bottom:18px;z-index:40;font-family:var(--mono);font-size:10.5px;
+  color:var(--dim);background:rgba(9,13,21,.9);border:1px solid var(--line);padding:8px 11px;border-radius:3px}
+#help kbd{font-family:var(--mono);color:var(--mute);border:1px solid var(--line2);border-radius:2px;
+  padding:0 4px;font-size:10px}
+
+#viewport{position:absolute;inset:0;cursor:grab;touch-action:none}
+#viewport.drag{cursor:grabbing}
+#board{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
+
+/* ── lanes & frames ─────────────────────────────────────── */
+.lane{position:absolute}
+.lane-h{font-family:var(--mono);margin-bottom:22px;display:flex;align-items:baseline;gap:14px}
+.lane-h .n{font-size:26px;font-weight:600;color:var(--parch);letter-spacing:-.01em}
+.lane-h .c{font-size:13px;color:var(--cool)}
+.lane-h .d{font-size:13px;color:var(--dim)}
+.lane-row{display:flex;align-items:flex-start;gap:56px}
+
+.fr{position:relative;flex:none}
+.fr-cap{font-family:var(--mono);margin-bottom:9px;display:flex;align-items:baseline;gap:10px}
+.fr-cap .t{font-size:14px;color:var(--parch);font-weight:500}
+.fr-cap .s{font-size:11px;color:var(--warm)}
+.fr-body{background:var(--deep);border:1px solid var(--line2);border-radius:4px;overflow:hidden;
+  box-shadow:0 20px 50px -20px rgba(0,0,0,.8)}
+.fr-meta{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:9px;line-height:1.7;max-width:100%}
+.fr-meta b{color:var(--mute);font-weight:400}
+.fr-meta code{color:var(--cool);font-size:10.5px}
+
+/* stage track — the spine of the session lane */
+.track{position:absolute;left:0;height:1px;background:var(--line2);z-index:0}
+.tdot{position:absolute;width:11px;height:11px;border-radius:50%;background:var(--deep);
+  border:1px solid var(--line2);z-index:1}
+.tdot.done{background:var(--dim);border-color:var(--dim)}
+.tdot.live{background:var(--warm);border-color:var(--warm);box-shadow:0 0 0 4px rgba(217,154,78,.16)}
+.tdot.term{background:var(--cool);border-color:var(--cool)}
+
+/* ── the mocked application ─────────────────────────────── */
+.app{width:100%;height:100%;display:flex;flex-direction:column;background:var(--deep);
+  font-family:var(--sans);font-size:13px;color:var(--parch);line-height:1.5}
+.app *{box-sizing:border-box}
+
+.bar{display:flex;align-items:center;gap:12px;padding:0 14px;height:38px;flex:none;
+  border-bottom:1px solid var(--line);background:var(--sunk);font-family:var(--mono);font-size:11.5px}
+.bar .path{color:var(--mute)}
+.bar .path b{color:var(--parch);font-weight:500}
+.bar .path i{color:var(--dim);font-style:normal}
+.bar .sp{flex:1}
+.bar .st{color:var(--warm)}
+.bar .tm{color:var(--mute);font-variant-numeric:tabular-nums}
+.bar .ck{color:var(--dim);border:1px solid var(--line);padding:1px 6px;border-radius:2px}
+.dotl{width:6px;height:6px;border-radius:50%;background:var(--warm);flex:none}
+.dotl.rec{background:var(--fail)}
+
+.body{flex:1;display:flex;min-height:0}
+.col{display:flex;flex-direction:column;min-width:0;min-height:0}
+.col+.col{border-left:1px solid var(--line)}
+
+.pnl{display:flex;flex-direction:column;min-height:0;flex:none}
+.pnl.grow{flex:1}
+.pnl+.pnl{border-top:1px solid var(--line)}
+.pnl-h{display:flex;align-items:center;gap:8px;padding:7px 13px;flex:none;
+  font-family:var(--mono);font-size:10px;letter-spacing:.11em;color:var(--dim);background:var(--sunk)}
+.pnl-h .sp{flex:1}
+.pnl-h .k{letter-spacing:0;color:var(--dim)}
+.pnl-b{padding:12px 13px;overflow:hidden;flex:1;min-height:0}
+
+.k{font-family:var(--mono);font-size:10px;color:var(--mute);border:1px solid var(--line);
+  border-radius:2px;padding:1px 4px;background:var(--raised)}
+
+h3.ph{margin:0 0 7px;font-size:14px;font-weight:600;letter-spacing:-.01em}
+p.pt{margin:0 0 9px;color:var(--parch);opacity:.9;max-width:58ch}
+.cons{font-family:var(--mono);font-size:11px;color:var(--mute);line-height:1.85}
+.cons b{color:var(--dim);font-weight:400}
+
+/* transcript */
+.ts{display:flex;flex-direction:column;gap:9px;font-size:12.5px}
+.turn{display:flex;gap:8px;align-items:flex-start}
+.turn .w{font-family:var(--mono);font-size:11px;flex:none;width:34px;padding-top:1px}
+.turn.int .w{color:var(--cool)}
+.turn.you .w{color:var(--warm)}
+.turn .x{color:var(--parch);opacity:.92;max-width:52ch}
+.turn.sys .w{color:var(--infra)} .turn.sys .x{color:var(--infra);font-style:italic}
+.turn .ev{display:inline-block;margin-left:6px;font-family:var(--mono);font-size:9.5px;
+  color:var(--cool);border:1px solid rgba(127,168,216,.3);border-radius:2px;padding:0 4px;vertical-align:1px}
+
+/* editor */
+.ed{font-family:var(--mono);font-size:11.5px;line-height:1.75;padding:10px 0;flex:1;overflow:hidden}
+.ed .l{display:flex;gap:12px;padding:0 13px}
+.ed .l.hl{background:rgba(217,154,78,.07)}
+.ed .n{color:var(--dim);width:16px;text-align:right;flex:none;font-variant-numeric:tabular-nums}
+.ed .c{white-space:pre;color:var(--parch)}
+.kw{color:var(--cool)} .str{color:var(--ok)} .num{color:var(--warm)} .cm{color:var(--dim)} .fn{color:var(--parch)}
+.caret{display:inline-block;width:6px;height:13px;background:var(--warm);vertical-align:-2px;opacity:.85}
+
+/* output / cases */
+.cs{display:flex;flex-direction:column;gap:5px;font-family:var(--mono);font-size:11px}
+.cs .r{display:flex;align-items:center;gap:9px}
+.cs .r .v{width:52px;flex:none}
+.cs .r .m{color:var(--mute);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.v.ok{color:var(--ok)} .v.fail{color:var(--fail)} .v.inf{color:var(--infra)} .v.run{color:var(--warm)} .v.wait{color:var(--dim)}
+
+/* chips + buttons */
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:10.5px;color:var(--mute);border:1px solid var(--line);
+  border-radius:2px;padding:2px 7px;background:var(--raised)}
+.chip.on{color:var(--deep);background:var(--cool);border-color:var(--cool)}
+.chip.w{color:var(--warm);border-color:rgba(217,154,78,.35)}
+.chip.g{color:var(--ok);border-color:rgba(127,168,216,.0);background:rgba(127,168,127,.1)}
+.chip.r{color:var(--fail);background:rgba(200,97,90,.1)}
+.chip.i{color:var(--infra);background:rgba(138,143,158,.12)}
+
+.btn{font-family:var(--mono);font-size:11px;color:var(--parch);background:var(--raised2);
+  border:1px solid var(--line2);border-radius:2px;padding:5px 11px;display:inline-flex;gap:7px;align-items:center}
+.btn.pri{background:var(--cool);border-color:var(--cool);color:var(--deep);font-weight:500}
+.btn.wrm{background:var(--warm);border-color:var(--warm);color:var(--deep);font-weight:500}
+.btn.gh{background:transparent;color:var(--mute)}
+.btn .kk{opacity:.6;font-size:10px}
+
+/* mic footer */
+.ft{flex:none;border-top:1px solid var(--line);background:var(--sunk);padding:9px 13px;
+  display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+.ft .sp{flex:1}
+.ft .keys{display:flex;gap:14px}
+.ft .keys span b{color:var(--mute);font-weight:400}
+.wave{display:flex;align-items:flex-end;gap:2px;height:16px}
+.wave i{width:2px;background:var(--warm);border-radius:1px;display:block}
+
+/* meters */
+.meter{height:4px;background:var(--raised2);border-radius:2px;overflow:hidden;margin:5px 0}
+.meter i{display:block;height:100%;background:var(--cool)}
+.meter i.w{background:var(--warm)} .meter i.g{background:var(--ok)} .meter i.r{background:var(--fail)}
+.mlab{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--dim)}
+.mlab b{color:var(--mute);font-weight:400}
+
+/* tables */
+.tb{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px}
+.tb th{text-align:left;color:var(--dim);font-weight:400;letter-spacing:.08em;font-size:9.5px;
+  padding:0 10px 6px 0;border-bottom:1px solid var(--line)}
+.tb td{padding:6px 10px 6px 0;color:var(--mute);border-bottom:1px solid var(--line)}
+.tb td b{color:var(--parch);font-weight:500}
+.tb tr:last-child td{border-bottom:none}
+
+/* cards / lists */
+.lst{display:flex;flex-direction:column;gap:7px}
+.card{border:1px solid var(--line);border-radius:3px;background:var(--raised);padding:10px 12px}
+.card .ct{font-size:13px;font-weight:600;margin-bottom:3px}
+.card .cd{font-family:var(--mono);font-size:10.5px;color:var(--dim);display:flex;gap:10px;flex-wrap:wrap}
+.card.sel{border-color:var(--cool);background:rgba(127,168,216,.07)}
+
+.side{width:196px;flex:none;border-right:1px solid var(--line);background:var(--sunk);padding:12px 0}
+.side .sh{font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;color:var(--dim);padding:0 14px 7px}
+.side a{display:flex;gap:9px;padding:6px 14px;font-family:var(--mono);font-size:11.5px;color:var(--mute);
+  text-decoration:none;align-items:center}
+.side a.on{color:var(--parch);background:var(--raised);box-shadow:inset 2px 0 0 var(--cool)}
+.side .sp{height:14px}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.stat{border:1px solid var(--line);border-radius:3px;padding:10px 12px;background:var(--raised)}
+.stat .sv{font-family:var(--mono);font-size:22px;color:var(--parch);font-variant-numeric:tabular-nums;line-height:1.1}
+.stat .sl{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:4px}
+.stat .sv.c{color:var(--cool)} .stat .sv.w{color:var(--warm)} .stat .sv.g{color:var(--ok)}
+
+/* modal/dialog frames */
+.dlg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  background:rgba(9,13,21,.72);padding:24px}
+.dlg .box{width:100%;max-width:430px;background:var(--raised);border:1px solid var(--line2);
+  border-radius:4px;padding:18px 20px;box-shadow:0 24px 60px -20px #000}
+.dlg h4{margin:0 0 8px;font-size:15px;font-weight:600}
+.dlg p{margin:0 0 12px;font-size:12.5px;color:var(--mute);line-height:1.6;max-width:50ch}
+.dlg .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.dlg .ico{font-family:var(--mono);font-size:10px;letter-spacing:.1em;margin-bottom:9px}
+.dlg .ico.n{color:var(--infra)} .dlg .ico.w{color:var(--warm)} .dlg .ico.c{color:var(--cool)}
+
+/* landing */
+.hero{flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 56px;gap:18px}
+.hero .pre{font-family:var(--mono);font-size:11.5px;color:var(--cool)}
+.hero h1{margin:0;font-size:44px;line-height:1.08;font-weight:700;letter-spacing:-.025em;max-width:16ch;
+  text-wrap:balance}
+.hero h1 span{color:var(--mute)}
+.hero .sub{font-size:14px;color:var(--mute);max-width:52ch;line-height:1.65}
+.hero .cta{display:flex;gap:10px;margin-top:6px}
+.demo{position:absolute;right:40px;top:50%;transform:translateY(-50%);width:330px;
+  border:1px solid var(--line2);border-radius:4px;background:var(--sunk);overflow:hidden}
+.demo .dh{font-family:var(--mono);font-size:10px;color:var(--dim);padding:7px 11px;border-bottom:1px solid var(--line)}
+.demo .db{padding:11px;display:flex;flex-direction:column;gap:8px}
+
+.sep{height:1px;background:var(--line);margin:11px 0}
+.mono{font-family:var(--mono)}
+.sm{font-size:11px;color:var(--dim);font-family:var(--mono)}
+.rt{text-align:right}
+</style>
+
+<div id="hud">
+  <span class="mark">~/<em>dsa-interview</em></span>
+  <span class="sub">design canvas · 37 frames · terminal warm</span>
+  <span class="spacer"></span>
+  <nav class="jump" id="jump" aria-label="Jump to lane"></nav>
+  <span id="zoomwrap">
+    <button class="zb" id="zout" aria-label="Zoom out">−</button>
+    <span id="zlevel">100%</span>
+    <button class="zb" id="zin" aria-label="Zoom in">+</button>
+    <button class="zb" id="zfit">fit</button>
+  </span>
+</div>
+
+<div id="legend">
+  <h4>VERDICT COLOUR IS A POLICY, NOT A PALETTE</h4>
+  <div class="row"><span class="sw" style="background:#7FA87F"></span> pass — candidate evidence</div>
+  <div class="row"><span class="sw" style="background:#C8615A"></span> fail — candidate evidence</div>
+  <div class="row"><span class="sw" style="background:#8A8F9E"></span> infrastructure — never scored</div>
+  <div class="row"><span class="sw" style="background:#D99A4E"></span> your turn / attention</div>
+  <div class="row"><span class="sw" style="background:#7FA8D8"></span> interviewer / structure</div>
+  <div class="note">PRD §5: a sandbox outage, model failure or transcription issue must not be scored as a candidate failure. <b>Infra states never render red.</b></div>
+</div>
+
+<div id="help"><kbd>drag</kbd> pan · <kbd>scroll</kbd> / <kbd>⌘scroll</kbd> zoom · <kbd>click</kbd> focus frame · <kbd>esc</kbd> fit</div>
+
+<div id="viewport"><div id="board"></div></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   content helpers — every frame is real HTML, no images
+   ═══════════════════════════════════════════════════════════ */
+const h = (s) => s;
+const bar = (o={}) => `<div class="bar">
+  <span class="path">~/<b>${o.p || 'two-sum'}</b>${o.seg ? ` <i>/</i> ${o.seg}` : ''}</span>
+  ${o.stage ? `<span class="st">stage:${o.stage}</span>` : ''}
+  ${o.live ? `<span class="dotl ${o.rec ? 'rec' : ''}"></span>` : ''}
+  <span class="sp"></span>
+  ${o.right || ''}
+  ${o.tm ? `<span class="tm">${o.tm}</span>` : ''}
+  <span class="ck">⌘K</span>
+</div>`;
+
+const pnl = (title, key, body, cls = '') =>
+  `<div class="pnl ${cls}"><div class="pnl-h"><span>${title}</span><span class="sp"></span>${key ? `<span class="k">${key}</span>` : ''}</div><div class="pnl-b">${body}</div></div>`;
+
+const turn = (w, x, ev) =>
+  `<div class="turn ${w}"><span class="w">${w === 'int' ? 'int&gt;' : w === 'you' ? 'you&gt;' : 'sys&gt;'}</span><span class="x">${x}${ev ? `<span class="ev">${ev}</span>` : ''}</span></div>`;
+
+const ts = (...t) => `<div class="ts">${t.join('')}</div>`;
+
+const ed = (lines, hlIdx) => `<div class="ed">${lines.map((c, i) =>
+  `<div class="l${hlIdx === i ? ' hl' : ''}"><span class="n">${i + 1}</span><span class="c">${c}</span></div>`).join('')}</div>`;
+
+const cs = (rows) => `<div class="cs">${rows.map(r =>
+  `<div class="r"><span class="v ${r[0]}">${r[1]}</span><span class="m">${r[2]}</span></div>`).join('')}</div>`;
+
+const keys = (arr, extra = '') => `<div class="ft">${extra}<span class="sp"></span><span class="keys">${
+  arr.map(k => `<span><b>${k[0]}</b> ${k[1]}</span>`).join('')}</span></div>`;
+
+const wave = (n = 22, amp = 1) => `<span class="wave">${Array.from({length: n}, (_, i) => {
+  const v = [3,6,11,15,12,7,4,3,5,9,14,16,13,8,5,3,4,8,12,10,6,3][i % 22];
+  return `<i style="height:${Math.max(2, Math.round(v * amp))}px"></i>`;
+}).join('')}</span>`;
+
+const PROBLEM = `<h3 class="ph">Two Sum</h3>
+  <p class="pt">Given an array of integers <span class="mono">nums</span> and an integer <span class="mono">target</span>, return the indices of the two numbers that add up to <span class="mono">target</span>.</p>
+  <div class="cons"><b>constraints</b> &nbsp;2 ≤ n ≤ 10⁵ &nbsp;·&nbsp; −10⁹ ≤ nums[i] ≤ 10⁹<br><b>guarantee</b> &nbsp;&nbsp;exactly one valid answer<br><b>pack</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;two-sum@v4 · pinned at start</div>`;
+
+const CODE = [
+  '<span class="kw">def</span> <span class="fn">two_sum</span>(nums, target):',
+  '    seen = {}',
+  '    <span class="kw">for</span> i, n <span class="kw">in</span> <span class="fn">enumerate</span>(nums):',
+  '        <span class="kw">if</span> target - n <span class="kw">in</span> seen:',
+  '            <span class="kw">return</span> [seen[target - n], i]',
+  '        seen[n] = i',
+  '    <span class="kw">return</span> []'
+];
+
+const MICFOOT = (state) => {
+  const m = {
+    idle:  `<span class="btn wrm">⌥space &nbsp;hold to speak</span><span class="btn gh">type instead</span>`,
+    rec:   `<span class="btn wrm">● recording &nbsp;0:04</span>${wave(22, 1)}<span class="sm">release to send</span>`,
+    tx:    `<span class="btn gh">transcribing…</span>${wave(22, .3)}<span class="sm">gpt-transcribe</span>`,
+    think: `<span class="btn gh">interviewer is responding…</span><span class="sm">gpt-6.1-sol</span>`,
+    off:   `<span class="btn gh">voice off</span><span class="sm">typed input · transcript identical</span>`,
+    ro:    `<span class="sm">session is read-only</span>`
+  }[state];
+  return m;
+};
+
+/* ═══════════════════════════════════════════════════════════
+   the session shell — shared by all 16 stage frames
+   ═══════════════════════════════════════════════════════════ */
+function session({stage, tm, transcript, left, right, out, outTitle, foot, mic, live = true, rec = false, leftTitle = 'PROBLEM'}) {
+  return `<div class="app">
+    ${bar({stage, tm, live, rec})}
+    <div class="body">
+      <div class="col" style="width:46%">
+        ${pnl(leftTitle, '⌘1', left || PROBLEM)}
+        ${pnl('TRANSCRIPT', '⌘3', transcript || '<div class="sm">Transcript retained with the session record.</div>', 'grow')}
+      </div>
+      <div class="col" style="flex:1">
+        ${pnl('solution.py &nbsp;·&nbsp; python 3.12', '⌘2', right === undefined ? ed(CODE) : right, 'grow')}
+        ${pnl(outTitle || 'OUT', '⌘↵', out || cs([['wait', 'idle', 'no run yet this stage']]))}
+      </div>
+    </div>
+    ${keys(foot, MICFOOT(mic))}
+  </div>`;
+}
+
+const FK = {
+  base:  [['⌘H', 'hint 0/3'], ['⌘↵', 'run'], ['⌘⇧↵', 'submit'], ['⌘.', 'pause']],
+  nohint:[['⌘↵', 'run'], ['⌘⇧↵', 'submit'], ['⌘.', 'pause']],
+  ro:    [['⌘P', 'print'], ['⌘J', 'history']]
+};
+
+/* ═══════════════════════════════════════════════════════════
+   LANE 1 — public
+   ═══════════════════════════════════════════════════════════ */
+const F_LANDING = `<div class="app">
+  ${bar({p: '', seg: '', right: `<span class="btn gh">sign in</span>`})}
+  <div class="body" style="position:relative">
+    <div class="hero">
+      <span class="pre">turn-based voice interview · python · c++ · java</span>
+      <h1>Solving it once<br>doesn't mean <span>you understand it.</span></h1>
+      <p class="sub">An interviewer that makes you say the approach out loud, trace your own failing case, and defend the complexity — then shows you the evidence behind every score.</p>
+      <div class="cta"><span class="btn pri">Start an interview</span><span class="btn">Hear a sample turn</span></div>
+    </div>
+    <div class="demo">
+      <div class="dh">live transcript · two-sum · stage:initial_approach</div>
+      <div class="db">
+        ${ts(
+          turn('int', 'Walk me through your approach before you write anything.'),
+          turn('you', "I'd store each number's complement in a hash map as I scan.", 'evidence'),
+          turn('int', "What's the space cost of that, and when would it hurt?")
+        )}
+        <div class="sep"></div>
+        <div style="display:flex;align-items:center;gap:9px">${wave(18, .9)}<span class="sm">your turn</span></div>
+      </div>
+    </div>
+  </div>
+</div>`;
+
+const F_AUTH = `<div class="app">
+  ${bar({p: '', right: ''})}
+  <div class="body" style="align-items:center;justify-content:center">
+    <div style="width:330px">
+      <div class="mono" style="color:var(--cool);font-size:11.5px;margin-bottom:14px">~/dsa-interview</div>
+      <h3 class="ph" style="font-size:19px;margin-bottom:5px">Sign in to continue</h3>
+      <p class="sm" style="margin:0 0 16px;line-height:1.6">Sessions, transcripts and feedback are tied to your account.</p>
+      <div class="lst">
+        <div class="card" style="display:flex;align-items:center;gap:10px"><span class="mono" style="font-size:11px">Continue with Google</span></div>
+        <div class="card" style="display:flex;align-items:center;gap:10px"><span class="mono" style="font-size:11px">Continue with GitHub</span></div>
+      </div>
+      <div class="sep"></div>
+      <div class="sm" style="line-height:1.6">Email<div class="card" style="margin-top:5px;padding:7px 10px"><span class="mono" style="color:var(--dim)">you@example.com</span><span class="caret"></span></div></div>
+      <div style="margin-top:12px"><span class="btn pri" style="width:100%;justify-content:center">Continue</span></div>
+      <div class="sm" style="margin-top:14px;line-height:1.6;color:var(--dim)">Clerk-hosted · we never see your password</div>
+    </div>
+  </div>
+</div>`;
+
+/* ═══════════════════════════════════════════════════════════
+   LANE 2 — candidate core
+   ═══════════════════════════════════════════════════════════ */
+const SIDE = (on) => `<div class="side">
+  <div class="sh">PRACTICE</div>
+  <a class="${on === 'home' ? 'on' : ''}">home</a>
+  <a class="${on === 'cat' ? 'on' : ''}">problems</a>
+  <a class="${on === 'hist' ? 'on' : ''}">history</a>
+  <div class="sp"></div>
+  <div class="sh">ACCOUNT</div>
+  <a class="${on === 'prof' ? 'on' : ''}">profile</a>
+  <a class="${on === 'voice' ? 'on' : ''}">voice &amp; privacy</a>
+</div>`;
+
+const F_DASH = `<div class="app">
+  ${bar({p: '', seg: 'home', right: `<span class="sm">gk@qi-cap.com</span>`})}
+  <div class="body">
+    ${SIDE('home')}
+    <div class="col" style="flex:1">
+      <div class="pnl-b" style="padding:18px 20px;overflow:auto">
+        <div class="card sel" style="margin-bottom:16px;display:flex;align-items:center;gap:14px">
+          <div style="flex:1">
+            <div class="sm" style="color:var(--warm);margin-bottom:3px">PAUSED · 2 days ago</div>
+            <div class="ct">Longest Substring Without Repeating Characters</div>
+            <div class="cd"><span>stage:test_and_debug</span><span>18:22 elapsed</span><span>hints 1/3</span></div>
+          </div>
+          <span class="btn wrm">Resume</span><span class="btn gh">Abandon</span>
+        </div>
+
+        <div class="grid3" style="margin-bottom:16px">
+          <div class="stat"><div class="sv">14</div><div class="sl">interviews completed</div></div>
+          <div class="stat"><div class="sv w">1.4</div><div class="sl">avg hints used</div></div>
+          <div class="stat"><div class="sv g">9/14</div><div class="sl">reached optimal unaided</div></div>
+        </div>
+
+        <div class="pnl-h" style="padding-left:0;background:none">WEAKEST DIMENSIONS · LAST 5 SESSIONS</div>
+        <div style="margin:8px 0 18px">
+          ${[['Complexity analysis', 42, 'r'], ['Edge-case handling', 58, 'w'], ['Variant transfer', 61, 'w'], ['Reasoning clarity', 84, 'g']]
+            .map(([n, v, c]) => `<div style="margin-bottom:9px"><div class="mlab"><b>${n}</b><span>${v}</span></div><div class="meter"><i class="${c}" style="width:${v}%"></i></div></div>`).join('')}
+        </div>
+
+        <div class="pnl-h" style="padding-left:0;background:none">PICKED FOR YOUR WEAK SPOTS</div>
+        <div class="lst" style="margin-top:8px">
+          ${[['Container With Most Water', 'two pointers', 'medium', 'practises complexity trade-offs'],
+             ['Merge Intervals', 'sorting', 'medium', 'practises edge-case handling'],
+             ['Subarray Sum Equals K', 'prefix sum', 'medium', 'variant of a pattern you know']]
+            .map(([t, p, d, w]) => `<div class="card"><div class="ct">${t}</div><div class="cd"><span>${p}</span><span>${d}</span><span style="color:var(--cool)">${w}</span></div></div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>`;
+
+const F_CAT = `<div class="app">
+  ${bar({p: '', seg: 'problems'})}
+  <div class="body">
+    ${SIDE('cat')}
+    <div class="col" style="flex:1">
+      <div class="pnl-h"><span>FILTER</span><span class="sp"></span><span class="k">⌘F</span></div>
+      <div class="pnl-b" style="padding:11px 16px;flex:none">
+        <div class="chips">
+          <span class="chip on">all</span><span class="chip">arrays</span><span class="chip">hashing</span>
+          <span class="chip">two pointers</span><span class="chip">sliding window</span><span class="chip">graphs</span>
+          <span class="chip">dp</span>
+          <span style="width:14px"></span>
+          <span class="chip">easy</span><span class="chip on">medium</span><span class="chip">hard</span>
+          <span style="width:14px"></span>
+          <span class="chip">not attempted</span><span class="chip">needs rework</span>
+        </div>
+      </div>
+      <div class="pnl-b" style="overflow:auto;padding-top:4px">
+        <table class="tb">
+          <tr><th>PROBLEM</th><th>PATTERN</th><th>DIFF</th><th>PACK</th><th>YOUR LAST</th><th></th></tr>
+          ${[['Two Sum', 'hashing', 'easy', 'v4', '—', 'never attempted', ''],
+             ['Valid Parentheses', 'stack', 'easy', 'v2', 'strong', 'ok', 'g'],
+             ['Container With Most Water', 'two pointers', 'medium', 'v3', 'needs rework', 'complexity', 'w'],
+             ['Longest Substring…', 'sliding window', 'medium', 'v5', 'paused', 'in progress', 'w'],
+             ['Merge Intervals', 'sorting', 'medium', 'v1', '—', 'never attempted', ''],
+             ['Word Ladder', 'bfs', 'hard', 'v2', 'hint-dependent', '3/3 hints used', 'r']]
+            .map(([n, p, d, v, l, note, c]) => `<tr><td><b>${n}</b></td><td>${p}</td><td>${d}</td><td>${v}</td>
+              <td>${c ? `<span class="chip ${c}">${l}</span>` : `<span style="color:var(--dim)">${l}</span>`}</td>
+              <td class="rt"><span class="btn gh" style="padding:2px 8px">open</span></td></tr>`).join('')}
+        </table>
+      </div>
+    </div>
+  </div>
+</div>`;
+
+const F_PROB = `<div class="app">
+  ${bar({p: 'two-sum', right: `<span class="sm">pack two-sum@v4</span>`})}
+  <div class="body">
+    <div class="col" style="width:55%">
+      ${pnl('PROBLEM', '', PROBLEM, 'grow')}
+    </div>
+    <div class="col" style="flex:1">
+      ${pnl('BEFORE YOU START', '', `
+        <div class="sm" style="line-height:1.75;margin-bottom:12px">This is a spoken interview. You'll be asked to restate the problem, trace the samples, and defend your complexity before you write code.</div>
+        <table class="tb">
+          <tr><td>Expected length</td><td><b>25–35 min</b></td></tr>
+          <tr><td>Hints available</td><td><b>3</b> · each one is recorded</td></tr>
+          <tr><td>Languages</td><td><b>python · c++ · java</b></td></tr>
+          <tr><td>Voice</td><td><b>on</b> · typed fallback always available</td></tr>
+          <tr><td>Pack version</td><td><b>two-sum@v4</b> · pinned when you start</td></tr>
+        </table>`)}
+      ${pnl('HOW YOU\'LL BE SCORED', '', `
+        <div class="chips">${['problem understanding', 'clarification quality', 'sample tracing', 'approach quality', 'reasoning clarity', 'hint use', 'implementation', 'edge cases', 'complexity', 'variant transfer'].map(d => `<span class="chip">${d}</span>`).join('')}</div>
+        <div class="sm" style="margin-top:11px;line-height:1.6">Each dimension cites the moment in your transcript or test run that produced it. There is no single score.</div>`, 'grow')}
+      <div class="ft"><span class="btn pri">Start interview</span><span class="sp"></span><span class="sm">⌘↵</span></div>
+    </div>
+  </div>
+</div>`;
+
+const F_MIC = `<div class="app">
+  ${bar({p: 'two-sum', seg: 'mic check'})}
+  <div class="dlg"><div class="box" style="max-width:480px">
+    <div class="ico c">VOICE CONSENT · NOTICE v3</div>
+    <h4>Record your voice for this interview?</h4>
+    <p>Your audio is sent to OpenAI for transcription and is <b style="color:var(--parch);font-weight:500">never stored</b> — only the text transcript is kept, under your account's retention setting. Granting your browser's microphone permission is not consent on its own.</p>
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:11px">${wave(26, 1)}<span class="sm" style="color:var(--ok)">input detected · −18 dB</span></div>
+      <div class="sep"></div>
+      <div class="sm">Say “testing one two” to check your level.</div>
+    </div>
+    <table class="tb" style="margin-bottom:14px">
+      <tr><td>Audio retention</td><td><b>not stored</b></td></tr>
+      <tr><td>Transcript retention</td><td><b>180 days</b></td></tr>
+      <tr><td>Revoke any time</td><td><b>profile → voice &amp; privacy</b></td></tr>
+    </table>
+    <div class="acts"><span class="btn gh">Use text only</span><span class="btn pri">Accept and start</span></div>
+  </div></div>
+</div>`;
+
+const F_REPORT = `<div class="app">
+  ${bar({p: 'two-sum', seg: 'feedback', right: `<span class="sm">session 0f3a·completed·31:12</span>`})}
+  <div class="body">
+    <div class="col" style="width:50%">
+      ${pnl('DIMENSIONS · EVIDENCE-LINKED', '', `
+        ${[['Problem understanding', 88, 'g', 'restated constraints unprompted · 02:14'],
+           ['Clarification quality', 71, 'w', 'asked about duplicates, missed negatives · 03:40'],
+           ['Sample tracing', 90, 'g', 'traced both samples correctly · 05:02'],
+           ['Approach quality', 82, 'g', 'went brute force → hash map unaided · 09:18'],
+           ['Reasoning clarity', 76, 'w', 'explained before coding · 09:18'],
+           ['Hint use', 100, 'g', '0 of 3 hints used'],
+           ['Implementation', 86, 'g', '3/3 public, 11/12 hidden · run #4'],
+           ['Edge-case handling', 48, 'r', 'missed the negative-target case · run #3'],
+           ['Complexity analysis', 55, 'r', 'said O(n) time, hesitated on space · 27:55'],
+           ['Variant transfer', 69, 'w', 'solved 3Sum variant with prompting · 24:40']]
+          .map(([n, v, c, e]) => `<div style="margin-bottom:10px">
+            <div class="mlab"><b>${n}</b><span>${v}</span></div>
+            <div class="meter"><i class="${c}" style="width:${v}%"></i></div>
+            <div class="sm" style="margin-top:3px;color:var(--dim)">${e}</div></div>`).join('')}`, 'grow')}
+    </div>
+    <div class="col" style="flex:1">
+      ${pnl('WHAT TO PRACTISE NEXT', '', `
+        <div class="lst">
+          <div class="card"><div class="ct" style="font-size:12.5px">Name the space cost out loud</div>
+            <div class="sm" style="margin-top:4px;line-height:1.6">You reached O(n) time quickly but paused on space twice. Next session, state both before writing code.</div></div>
+          <div class="card"><div class="ct" style="font-size:12.5px">Negative and duplicate inputs</div>
+            <div class="sm" style="margin-top:4px;line-height:1.6">Hidden case 12 used a negative target. Add a habit of asking about value ranges during clarification.</div></div>
+        </div>
+        <div class="sep"></div>
+        <div class="sm" style="line-height:1.65">Recommended next: <span style="color:var(--cool)">Subarray Sum Equals K</span> — same hashing pattern, forces the complexity conversation.</div>`)}
+      ${pnl('REPRODUCIBILITY', '', `<table class="tb">
+          <tr><td>Problem pack</td><td><b>two-sum@v4</b></td></tr>
+          <tr><td>Rubric</td><td><b>dsa-core@v2</b></td></tr>
+          <tr><td>Policy</td><td><b>interview-policy@v7</b></td></tr>
+          <tr><td>Models</td><td><b>gpt-6.1-sol · gpt-transcribe</b></td></tr>
+          <tr><td>Runtime</td><td><b>python 3.12.4 · e2b pinned</b></td></tr>
+        </table>`, 'grow')}
+      <div class="ft"><span class="btn">Replay transcript</span><span class="btn gh">Export</span><span class="sp"></span><span class="btn pri">Next problem</span></div>
+    </div>
+  </div>
+</div>`;
+
+const F_HIST = `<div class="app">
+  ${bar({p: '', seg: 'history'})}
+  <div class="body">
+    ${SIDE('hist')}
+    <div class="col" style="flex:1">
+      <div class="pnl-b" style="overflow:auto">
+        <table class="tb">
+          <tr><th>WHEN</th><th>PROBLEM</th><th>OUTCOME</th><th>HINTS</th><th>WEAKEST</th><th>PACK</th><th></th></tr>
+          ${[['2d ago', 'Longest Substring…', 'paused', '1/3', '—', 'v5', 'w', 'paused'],
+             ['4d ago', 'Two Sum', 'completed', '0/3', 'complexity', 'v4', 'g', 'completed'],
+             ['6d ago', 'Word Ladder', 'completed', '3/3', 'hint dependence', 'v2', 'r', 'completed'],
+             ['9d ago', 'Valid Parentheses', 'completed', '0/3', 'edge cases', 'v2', 'g', 'completed'],
+             ['11d ago', 'Merge Intervals', 'abandoned', '2/3', '—', 'v1', 'i', 'abandoned'],
+             ['14d ago', 'Container With Water', 'completed', '1/3', 'variant transfer', 'v3', 'w', 'completed']]
+            .map(([w, p, o, hh, wk, v, c]) => `<tr><td>${w}</td><td><b>${p}</b></td>
+              <td><span class="chip ${c}">${o}</span></td><td>${hh}</td>
+              <td style="color:${wk === '—' ? 'var(--dim)' : 'var(--warm)'}">${wk}</td><td>${v}</td>
+              <td class="rt"><span class="btn gh" style="padding:2px 8px">replay</span></td></tr>`).join('')}
+        </table>
+        <div class="sm" style="margin-top:14px;line-height:1.6">Abandoned and paused sessions keep their last stage and stay read-only. Packs are pinned at start — a later pack revision never rewrites your history.</div>
+      </div>
+    </div>
+  </div>
+</div>`;
+
+const F_REPLAY = `<div class="app">
+  ${bar({p: 'two-sum', seg: 'replay', right: `<span class="sm">read-only · 4d ago</span>`})}
+  <div class="body">
+    <div class="col" style="width:46%">
+      ${pnl('TIMELINE', '', `
+        <div class="sm" style="line-height:2">
+        ${[['00:00', 'intro', ''], ['01:10', 'experience_context', ''], ['02:14', 'problem_read_and_clarify', 'ev'],
+           ['04:02', 'problem_restatement', 'ev'], ['05:02', 'sample_trace', 'ev'], ['09:18', 'initial_approach', 'ev'],
+           ['11:30', 'code', ''], ['16:40', 'test_and_debug', 'fail'], ['21:05', 'improve_approach', ''],
+           ['24:40', 'variants_and_followups', ''], ['27:55', 'complexity_analysis', 'ev'], ['30:40', 'feedback', '']]
+          .map(([t, s, m]) => `<div style="display:flex;gap:11px"><span style="color:var(--dim);width:42px">${t}</span>
+            <span style="color:${m === 'fail' ? 'var(--fail)' : m === 'ev' ? 'var(--cool)' : 'var(--mute)'}">${s}</span></div>`).join('')}
+        </div>`, 'grow')}
+    </div>
+    <div class="col" style="flex:1">
+      ${pnl('TRANSCRIPT · 16:40 test_and_debug', '', ts(
+        turn('int', 'Case 3 fails. Before I say anything — walk me through what your code does with that input.'),
+        turn('you', "Oh. If the target is negative my complement lookup still works, but… let me trace it."),
+        turn('you', "At i=2, target − n is −7, and that was never inserted, so it skips.", 'evidence'),
+        turn('int', 'Good — you found it yourself. What does that tell you about your assumption?')
+      ), 'grow')}
+      ${pnl('RUN #3 · AT THIS MOMENT', '', cs([
+        ['ok', 'pass', 'case 1 · nums=[2,7,11,15] target=9'],
+        ['ok', 'pass', 'case 2 · nums=[3,2,4] target=6'],
+        ['fail', 'fail', 'case 3 · negative target · expected [1,3]']
+      ]))}
+      <div class="ft"><span class="btn gh">◀ prev stage</span><span class="btn gh">next stage ▶</span><span class="sp"></span><span class="btn">Open feedback</span></div>
+    </div>
+  </div>
+</div>`;
+
+const F_PROF = `<div class="app">
+  ${bar({p: '', seg: 'voice & privacy'})}
+  <div class="body">
+    ${SIDE('voice')}
+    <div class="col" style="flex:1">
+      <div class="pnl-b" style="padding:18px 20px;overflow:auto">
+        <h3 class="ph">Voice &amp; privacy</h3>
+        <p class="sm" style="margin:0 0 16px;line-height:1.6">You accepted notice <b style="color:var(--mute)">v3</b> on 13 Oct 2026.</p>
+
+        <div class="card" style="margin-bottom:11px;display:flex;align-items:center;gap:14px">
+          <div style="flex:1"><div class="ct" style="font-size:12.5px">Voice input</div>
+            <div class="sm" style="margin-top:3px">Record spoken turns and transcribe them. Typed input stays available either way.</div></div>
+          <span class="chip on">on</span>
+        </div>
+        <div class="card" style="margin-bottom:11px;display:flex;align-items:center;gap:14px">
+          <div style="flex:1"><div class="ct" style="font-size:12.5px">Spoken interviewer replies</div>
+            <div class="sm" style="margin-top:3px">Generate speech for interviewer turns. Text is always shown.</div></div>
+          <span class="chip on">on</span>
+        </div>
+        <div class="sep"></div>
+        <table class="tb" style="margin-bottom:16px">
+          <tr><th>WHAT</th><th>KEPT</th><th>FOR</th></tr>
+          <tr><td><b>Raw audio</b></td><td><span class="chip g">never stored</span></td><td>—</td></tr>
+          <tr><td><b>Transcripts</b></td><td>stored</td><td>180 days</td></tr>
+          <tr><td><b>Code submissions</b></td><td>stored</td><td>180 days</td></tr>
+          <tr><td><b>Feedback reports</b></td><td>stored</td><td>until you delete them</td></tr>
+          <tr><td><b>Security audit log</b></td><td>consent events only</td><td>90 days</td></tr>
+        </table>
+        <div style="display:flex;gap:9px"><span class="btn">Revoke voice consent</span><span class="btn gh">Export my data</span><span class="btn gh" style="color:var(--fail)">Delete account</span></div>
+        <div class="sm" style="margin-top:12px;line-height:1.6">Revoking stops new recordings immediately. Existing transcripts stay until their retention window ends or you delete them.</div>
+      </div>
+    </div>
+  </div>
+</div>`;
+
+/* ═══════════════════════════════════════════════════════════
+   LANE 3 — the 16 stages
+   ═══════════════════════════════════════════════════════════ */
+const STAGES = [
+{ id: 'created', t: 'Pack pinned, not started', api: 'POST /interview-sessions', act: 'start',
+  w: 1180, h: 700, html: `<div class="app">
+  ${bar({stage: 'created', tm: '00:00'})}
+  <div class="body">
+    <div class="col" style="width:46%">${pnl('PROBLEM', '⌘1', PROBLEM, 'grow')}</div>
+    <div class="col" style="flex:1">
+      ${pnl('SESSION', '', `<table class="tb">
+        <tr><td>Pack version</td><td><b>two-sum@v4</b> <span class="chip">pinned</span></td></tr>
+        <tr><td>Rubric</td><td><b>dsa-core@v2</b></td></tr>
+        <tr><td>Language</td><td><b>python 3.12</b> · changeable until first run</td></tr>
+        <tr><td>Voice</td><td><b>accepted</b> notice v3</td></tr>
+      </table>
+      <div class="sm" style="margin-top:14px;line-height:1.65">Nothing is recorded until you start. Once started, the pack version is frozen for this session even if a newer revision ships.</div>`, 'grow')}
+      <div class="ft"><span class="sp"></span><span class="btn pri">Start interview &nbsp;<span class="kk">⌘↵</span></span></div>
+    </div>
+  </div></div>` },
+
+{ id: 'intro', t: 'Interviewer opens', api: 'POST …/turns', act: 'candidate_response · continue',
+  html: session({stage: 'intro', tm: '00:24', mic: 'idle', foot: FK.base,
+    transcript: ts(turn('int', "Hi — I'm your interviewer today. We'll spend about half an hour on one problem. I'll ask you to think out loud; you can type instead of speaking at any point. Ready?"))}) },
+
+{ id: 'experience_context', t: 'Optional background — context, never score', api: 'POST …/turns', act: 'candidate_response · continue · skip_optional',
+  html: session({stage: 'experience_context', tm: '01:10', mic: 'idle',
+    foot: [['⌘H', 'hint 0/3'], ['⌘S', 'skip'], ['⌘.', 'pause']],
+    transcript: ts(
+      turn('int', 'Before we start — roughly how much DSA practice have you done, and where?'),
+      turn('you', "Maybe 150 LeetCode problems, mostly easy and medium."),
+      turn('sys', 'Recorded as context. Self-reported practice never affects your score.')
+    )}) },
+
+{ id: 'problem_read_and_clarify', t: 'Clarifying questions, tracked', api: 'POST …/turns', act: 'candidate_response · request_clarification · continue',
+  html: session({stage: 'problem_read_and_clarify', tm: '02:14', mic: 'idle', foot: FK.base,
+    left: PROBLEM + `<div class="sep"></div><div class="sm" style="margin-bottom:5px">CLARIFIED SO FAR</div>
+      <div class="chips"><span class="chip g">duplicates allowed ✓</span><span class="chip g">exactly one answer ✓</span><span class="chip w">value range — unasked</span></div>`,
+    transcript: ts(
+      turn('int', 'Take a moment with the statement. Anything you want to pin down before you think about a solution?'),
+      turn('you', 'Can the same element be used twice?'),
+      turn('int', 'No — two distinct indices.', ''),
+      turn('you', 'And is there always exactly one answer?'),
+      turn('int', 'Yes. Anything else, or shall we move on?')
+    )}) },
+
+{ id: 'problem_restatement', t: 'In your own words — statement collapsed', api: 'POST …/turns', act: 'candidate_response · continue',
+  html: session({stage: 'problem_restatement', tm: '04:02', mic: 'rec',
+    foot: FK.base, leftTitle: 'PROBLEM · COLLAPSED FOR THIS STAGE',
+    left: `<div class="card" style="background:var(--sunk);border-style:dashed">
+      <div class="sm" style="line-height:1.7">The statement is hidden while you restate it, so you're recalling rather than reading.</div>
+      <div style="margin-top:9px"><span class="btn gh" style="padding:3px 9px">Show anyway — noted in feedback</span></div></div>
+      <div class="sep"></div><div class="cons"><b>still visible</b> &nbsp;constraints · samples</div>`,
+    transcript: ts(
+      turn('int', 'Close the statement for a second. Tell me what this problem is asking, in your own words.'),
+      turn('you', "I'm given a list of numbers and a target, and I need to find the two positions whose values sum to it…")
+    )}) },
+
+{ id: 'sample_trace', t: 'Trace the given examples', api: 'POST …/turns', act: 'candidate_response · continue',
+  html: session({stage: 'sample_trace', tm: '05:02', mic: 'idle', foot: FK.base,
+    left: PROBLEM + `<div class="sep"></div>
+      <table class="tb"><tr><th>SAMPLE</th><th>INPUT</th><th>EXPECTED</th></tr>
+      <tr><td><b>1</b></td><td>[2,7,11,15] · 9</td><td>[0,1]</td></tr>
+      <tr><td><b>2</b></td><td>[3,2,4] · 6</td><td>[1,2]</td></tr>
+      <tr><td><b>3</b></td><td>[3,3] · 6</td><td>[0,1]</td></tr></table>`,
+    transcript: ts(
+      turn('int', 'Walk me through sample 2 by hand. What should come out, and why?'),
+      turn('you', 'Target is 6. 3 and 2 give 5, 3 and 4 give 7, 2 and 4 give 6 — so indices 1 and 2.', 'evidence'),
+      turn('int', 'And sample 3 — does anything about it worry you?')
+    )}) },
+
+{ id: 'initial_approach', t: 'Approach matching with an honest UNKNOWN', api: 'POST …/turns', act: 'candidate_response · request_clarification · continue',
+  html: session({stage: 'initial_approach', tm: '09:18', mic: 'think', foot: FK.base,
+    left: PROBLEM + `<div class="sep"></div>
+      <div class="sm" style="margin-bottom:6px">APPROACH MATCH</div>
+      <div class="mlab"><b>hash map · one pass</b><span>0.81 confident</span></div><div class="meter"><i style="width:81%"></i></div>
+      <div class="mlab"><b>brute force · nested loop</b><span>0.12</span></div><div class="meter"><i class="w" style="width:12%"></i></div>
+      <div class="sm" style="margin-top:8px;line-height:1.6">Above 0.75 the interviewer proceeds. Below it, it asks rather than assumes — an unmatched approach is never forced into a reference category.</div>`,
+    transcript: ts(
+      turn('int', 'Before you write anything — what is your plan?'),
+      turn('you', "I'd scan once and keep a map from value to index, checking for the complement as I go.", 'evidence'),
+      turn('int', 'That matches a known approach. What does it cost you in space?')
+    )}) },
+
+{ id: 'approach_clarification', t: 'Ambiguous — ask, do not force-match', api: 'POST …/turns', act: 'candidate_response · continue',
+  html: session({stage: 'approach_clarification', tm: '10:05', mic: 'idle', foot: FK.base,
+    left: PROBLEM + `<div class="sep"></div>
+      <div class="sm" style="margin-bottom:6px">APPROACH MATCH</div>
+      <div class="mlab"><b>no confident match</b><span class="mono" style="color:var(--warm)">UNKNOWN</span></div>
+      <div class="meter"><i class="w" style="width:38%"></i></div>
+      <div class="sm" style="margin-top:8px;line-height:1.6">Best candidate <span style="color:var(--mute)">sorting + two pointers</span> at 0.38 — below threshold. The interviewer asks a targeted question instead of assuming, and your approach is evaluated on its own terms if it stays unmatched.</div>`,
+    transcript: ts(
+      turn('you', "I'd sort it first and then walk inward from both ends."),
+      turn('int', "Sorting changes the indices you'd have to return. How are you planning to handle that?"),
+      turn('you', "Hm — I'd need to keep the original positions somehow.")
+    )}) },
+
+{ id: 'hints', t: 'Bounded ladder — cost shown before you spend', api: 'POST …/turns', act: 'candidate_response · request_hint · continue',
+  html: session({stage: 'hints', tm: '12:40', mic: 'idle',
+    foot: [['⌘H', 'hint 1/3 used'], ['⌘↵', 'run'], ['⌘.', 'pause']],
+    left: PROBLEM + `<div class="sep"></div>
+      <div class="sm" style="margin-bottom:6px">HINT LADDER · 1 OF 3 USED</div>
+      <div class="lst">
+        <div class="card" style="border-color:rgba(217,154,78,.35)"><div class="sm" style="color:var(--warm);margin-bottom:4px">HINT 1 · REVEALED 12:38</div>
+          <div style="font-size:12.5px;line-height:1.55">You're checking every pair. What would you need to remember about earlier numbers to avoid the inner loop?</div></div>
+        <div class="card" style="background:var(--sunk);border-style:dashed"><div class="sm">HINT 2 · locked — reveals the data structure</div></div>
+        <div class="card" style="background:var(--sunk);border-style:dashed"><div class="sm">HINT 3 · locked — reveals the full approach</div></div>
+      </div>
+      <div class="sm" style="margin-top:9px;line-height:1.6">Hints are recorded and appear in your feedback as hint dependence. They are never offered unprompted.</div>`,
+    transcript: ts(
+      turn('you', "I'm stuck on getting below O(n²)."),
+      turn('int', "Want a hint? It'll be recorded. Or we can keep going and you can tell me what you've ruled out."),
+      turn('you', 'Give me the first one.'),
+      turn('int', "You're checking every pair. What would you need to remember about earlier numbers to avoid the inner loop?")
+    )}) },
+
+{ id: 'code', t: 'Editor live, language pinned on first run', api: 'POST …/submissions', act: 'candidate_response · submit_code · continue',
+  html: session({stage: 'code', tm: '14:20', mic: 'idle', foot: FK.base,
+    right: ed([...CODE.slice(0, 6), '        <span class="caret"></span>'], 6),
+    out: cs([['wait', 'idle', 'nothing run yet · ⌘↵ to run public samples']]),
+    transcript: ts(
+      turn('int', 'Go ahead and write it. Talk me through anything you are unsure about as you go.'),
+      turn('you', "I'll build the map as I iterate rather than up front, so I don't match a number with itself.", 'evidence')
+    )}) },
+
+{ id: 'test_and_debug', t: 'It fails — trace it yourself, no reveal', api: 'GET …/submissions/{id}', act: 'candidate_response · submit_code · continue',
+  html: session({stage: 'test_and_debug', tm: '16:40', mic: 'idle', foot: FK.base,
+    outTitle: 'OUT · RUN #3',
+    out: cs([
+      ['ok', 'pass', 'case 1 · [2,7,11,15] target 9 → [0,1]'],
+      ['ok', 'pass', 'case 2 · [3,2,4] target 6 → [1,2]'],
+      ['fail', 'fail', 'case 3 · negative target · got [] expected [1,3]'],
+      ['wait', 'hidden', '9 hidden cases · shown after submit']
+    ]),
+    transcript: ts(
+      turn('int', "Case 3 fails. Don't change anything yet — walk me through what your code does with that input."),
+      turn('you', 'Let me trace it… at i=2 the complement is −7, and that was never inserted.', 'evidence'),
+      turn('int', 'Good — you found it. What assumption did you make that broke there?')
+    )}) },
+
+{ id: 'improve_approach', t: 'v1 against v2, with the delta named', api: 'POST …/turns', act: 'candidate_response · continue',
+  html: session({stage: 'improve_approach', tm: '21:05', mic: 'idle', foot: FK.base,
+    outTitle: 'OUT · RUN #4',
+    out: cs([['ok', 'pass', 'case 1 · case 2 · case 3'], ['ok', '11/12', 'hidden cases · 1 timeout on n=10⁵']]),
+    left: PROBLEM + `<div class="sep"></div>
+      <table class="tb"><tr><th></th><th>TIME</th><th>SPACE</th><th>CASES</th></tr>
+      <tr><td><b>v1 brute force</b></td><td>O(n²)</td><td>O(1)</td><td><span style="color:var(--fail)">2/3</span></td></tr>
+      <tr><td><b>v2 hash map</b></td><td><span style="color:var(--ok)">O(n)</span></td><td>O(n)</td><td><span style="color:var(--ok)">3/3</span></td></tr></table>
+      <div class="sm" style="margin-top:9px;line-height:1.6">You traded space for time. The interviewer will ask you to say that out loud before moving on.</div>`,
+    transcript: ts(
+      turn('int', "That passes now. Compare it to what you started with — what did you give up?"),
+      turn('you', "Memory. The map is O(n) where the nested loop was constant.", 'evidence'),
+      turn('int', 'When would that trade be the wrong one?')
+    )}) },
+
+{ id: 'variants_and_followups', t: 'Curated variant, skippable', api: 'POST …/turns', act: 'candidate_response · request_clarification · continue · skip_optional',
+  html: session({stage: 'variants_and_followups', tm: '24:40', mic: 'idle',
+    foot: [['⌘S', 'skip optional'], ['⌘↵', 'run'], ['⌘.', 'pause']],
+    left: `<div class="sm" style="margin-bottom:7px">VARIANT · FROM PACK two-sum@v4</div>
+      <h3 class="ph">Three Sum</h3>
+      <p class="pt">Find all unique triplets that sum to zero.</p>
+      <div class="chips"><span class="chip w">tests: pattern transfer</span><span class="chip">curated · reviewed</span></div>
+      <div class="sep"></div>
+      <div class="sm" style="line-height:1.65">Selected because you reached the hash-map solution unaided. A candidate who used all three hints gets an easier variant.</div>`,
+    transcript: ts(
+      turn('int', "One more. If I asked for all triplets summing to zero, does your hash-map idea still carry over?"),
+      turn('you', 'Partly — I could fix one element and two-sum the rest, but I\'d have to dedupe.', 'evidence'),
+      turn('int', 'What does fixing one element do to the running time?')
+    )}) },
+
+{ id: 'complexity_analysis', t: 'Say both, then justify', api: 'POST …/turns', act: 'candidate_response · continue',
+  html: session({stage: 'complexity_analysis', tm: '27:55', mic: 'rec', foot: FK.nohint,
+    left: `<div class="sm" style="margin-bottom:7px">YOUR STATED COMPLEXITY</div>
+      <div class="lst">
+        <div class="card"><div class="mlab"><b>time</b><span class="chip g">O(n) · accepted</span></div>
+          <div class="sm" style="margin-top:5px">“One pass, constant work per element.”</div></div>
+        <div class="card" style="border-color:rgba(217,154,78,.35)"><div class="mlab"><b>space</b><span class="chip w">awaiting justification</span></div>
+          <div class="sm" style="margin-top:5px">You said O(n) but hesitated. The interviewer is asking why.</div></div>
+      </div>
+      <div class="sep"></div>
+      <div class="sm" style="line-height:1.6">A stated answer without reasoning is recorded as stated-only, not as understanding.</div>`,
+    transcript: ts(
+      turn('int', 'Time and space for your final solution.'),
+      turn('you', "O(n) time… and I think O(n) space?"),
+      turn('int', "Don't guess — tell me what grows and with what.")
+    )}) },
+
+{ id: 'feedback', t: 'Inputs frozen, report generating', api: 'GET …/feedback', act: 'continue',
+  html: session({stage: 'feedback', tm: '30:40', mic: 'off', foot: FK.ro, live: false,
+    leftTitle: 'EVALUATION INPUTS · FROZEN',
+    left: `<table class="tb">
+      <tr><td>Transcript turns</td><td><b>48</b></td></tr>
+      <tr><td>Evidence spans</td><td><b>17</b></td></tr>
+      <tr><td>Submissions</td><td><b>4</b> runs · best 12/12</td></tr>
+      <tr><td>Hints used</td><td><b>0 of 3</b></td></tr>
+      <tr><td>Pack · rubric</td><td><b>two-sum@v4 · dsa-core@v2</b></td></tr>
+    </table>
+    <div class="sep"></div>
+    <div class="mlab"><b>generating report</b><span>8 of 10 dimensions</span></div>
+    <div class="meter"><i style="width:80%"></i></div>
+    <div class="sm" style="margin-top:8px;line-height:1.6">Nothing further is accepted into this session. Every dimension must cite a transcript span or a run before it can be written.</div>`,
+    right: `<div class="lst">
+      ${['problem understanding', 'clarification quality', 'sample tracing', 'approach quality', 'reasoning clarity', 'hint use', 'implementation', 'edge cases'].map(d =>
+        `<div style="display:flex;gap:9px;align-items:center" class="sm"><span style="color:var(--ok)">✓</span><span style="color:var(--mute)">${d}</span></div>`).join('')}
+      ${['complexity analysis', 'variant transfer'].map(d =>
+        `<div style="display:flex;gap:9px;align-items:center" class="sm"><span style="color:var(--warm)">·</span><span style="color:var(--dim)">${d}</span></div>`).join('')}
+    </div>`,
+    out: cs([['run', 'writing', 'evidence links resolved · 17 spans']])}) },
+
+{ id: 'completed', t: 'Terminal — mutations rejected', api: '409 on any mutating action', act: 'read-only',
+  html: session({stage: 'completed', tm: '31:12', mic: 'ro', foot: FK.ro, live: false,
+    leftTitle: 'SESSION COMPLETE',
+    left: `<div class="card" style="border-color:rgba(127,168,216,.35);margin-bottom:12px">
+      <div class="ct" style="font-size:13px">Your report is ready</div>
+      <div class="sm" style="margin-top:5px;line-height:1.6">10 dimensions, each linked to the moment that produced it.</div>
+      <div style="margin-top:10px"><span class="btn pri">Open feedback</span> <span class="btn gh">Replay</span></div></div>
+    <table class="tb">
+      <tr><td>Status</td><td><span class="chip">completed</span></td></tr>
+      <tr><td>Duration</td><td><b>31:12</b></td></tr>
+      <tr><td>Best run</td><td><b>12/12</b> hidden cases</td></tr>
+    </table>
+    <div class="sm" style="margin-top:12px;line-height:1.6">This session is terminal. Editing code, submitting or speaking now returns a conflict — start a new session to try the problem again.</div>`,
+    right: ed(CODE),
+    out: cs([['ok', 'final', 'run #4 · 12/12 · 41 ms · 9.2 MB']])}) }
+];
+
+/* ═══════════════════════════════════════════════════════════
+   LANE 4 — system & failure states
+   ═══════════════════════════════════════════════════════════ */
+const dlg = (kind, label, title, body, acts, note) => `<div class="app">
+  ${bar({stage: kind === 'infra' ? 'preserved' : 'preserved', tm: '18:22', live: kind !== 'infra'})}
+  <div class="dlg"><div class="box">
+    <div class="ico ${kind === 'infra' ? 'n' : kind === 'warn' ? 'w' : 'c'}">${label}</div>
+    <h4>${title}</h4><p>${body}</p>
+    ${note ? `<div class="card" style="margin-bottom:12px"><div class="sm" style="line-height:1.6">${note}</div></div>` : ''}
+    <div class="acts">${acts}</div>
+  </div></div></div>`;
+
+const STATES = [
+{ id: 'paused', t: 'Paused by you', w: 760, h: 440, api: 'state preserved · no side-effect replay',
+  html: dlg('cool', 'SESSION PAUSED', 'Paused at stage test_and_debug',
+    'Your transcript, code and the pinned pack are held exactly as they were. Resuming puts you back at the same stage — nothing is replayed and no turn is re-sent.',
+    `<span class="btn gh">Abandon session</span><span class="btn pri">Resume</span>`,
+    'Elapsed time stops while paused. 18:22 recorded.') },
+
+{ id: 'recoverable_error', t: 'Model failed — your work is intact', w: 760, h: 440, api: 'bounded retry → recoverable_error',
+  html: dlg('warn', 'INTERVIEWER UNAVAILABLE', "The interviewer didn't respond",
+    'We retried three times. Your stage, transcript and code are untouched — retry when you are ready, or pause and come back.',
+    `<span class="btn gh">Pause instead</span><span class="btn wrm">Retry</span>`,
+    'This is our failure, not yours. It is not recorded against any dimension.') },
+
+{ id: 'sandbox_failure', t: 'Infrastructure — neutral, never red', w: 760, h: 440, api: 'verdict: infrastructure_failure',
+  html: dlg('infra', 'INFRASTRUCTURE FAILURE', "We couldn't run your code",
+    'The sandbox failed to start. This says nothing about your solution — the run is discarded rather than marked wrong.',
+    `<span class="btn gh">Keep working</span><span class="btn">Run again</span>`,
+    'Rendered in neutral grey, never the fail colour. PRD §5: a sandbox outage must not be scored as a candidate failure.') },
+
+{ id: 'queue_saturation', t: 'Queue full — bounded, honest', w: 760, h: 440, api: '429 · retryable saturation',
+  html: dlg('warn', 'EXECUTION QUEUE FULL', 'Your run is queued behind 14 others',
+    'We cap how much work we accept rather than silently piling it up. Your submission is saved — it will run as soon as a slot frees, in about 40 seconds.',
+    `<span class="btn gh">Cancel run</span><span class="btn">Wait</span>`,
+    'Queue wait is never counted as execution time, and never against your implementation score.') },
+
+{ id: 'transcription_failed', t: 'Voice dropped — text takes over', w: 760, h: 440, api: 'transcription timeout → text fallback',
+  html: dlg('infra', 'TRANSCRIPTION UNAVAILABLE', "We couldn't transcribe that",
+    'The transcription service timed out. Your audio was not stored. Type your answer instead — typed and spoken turns go through exactly the same path and are scored identically.',
+    `<span class="btn gh">Try speaking again</span><span class="btn pri">Switch to typing</span>`,
+    'Switching to text has no effect on any score. Voice can be turned back on at any point.') },
+
+{ id: 'consent_revoked', t: 'Consent revoked mid-session', w: 760, h: 440, api: 'POST …/voice-consent · revoke',
+  html: dlg('cool', 'VOICE TURNED OFF', 'Voice input is off for this session',
+    'Recording stopped immediately and no further audio will be sent. Your existing transcript stays — delete it from voice & privacy if you want it gone.',
+    `<span class="btn gh">Voice &amp; privacy</span><span class="btn pri">Continue by typing</span>`) },
+
+{ id: 'not_found', t: '404 / 500', w: 760, h: 440, api: '—',
+  html: `<div class="app">${bar({p: '', seg: ''})}
+    <div class="body" style="align-items:center;justify-content:center">
+      <div style="text-align:center;max-width:360px">
+        <div class="mono" style="font-size:40px;color:var(--dim);letter-spacing:-.02em">404</div>
+        <h4 style="margin:10px 0 7px;font-size:15px">No session here</h4>
+        <p class="sm" style="line-height:1.65;margin:0 0 14px">This session doesn't exist, or it belongs to another account. Your own sessions are in history.</p>
+        <span class="btn pri">Go to history</span>
+      </div>
+    </div></div>` }
+];
+
+/* ═══════════════════════════════════════════════════════════
+   LANE 5 — admin & content ops
+   ═══════════════════════════════════════════════════════════ */
+const ASIDE = (on) => `<div class="side">
+  <div class="sh">CONTENT</div>
+  <a class="${on === 'packs' ? 'on' : ''}">packs</a>
+  <a class="${on === 'review' ? 'on' : ''}">review queue</a>
+  <a class="${on === 'tests' ? 'on' : ''}">test banks</a>
+  <div class="sp"></div>
+  <div class="sh">OPERATIONS</div>
+  <a class="${on === 'ops' ? 'on' : ''}">health</a>
+  <a>model gateway</a>
+  <a>audit log</a>
+</div>`;
+
+const F_PACKS = `<div class="app">
+  ${bar({p: 'admin', seg: 'packs', right: `<span class="sm">reviewer · gk</span>`})}
+  <div class="body">${ASIDE('packs')}
+    <div class="col" style="flex:1">
+      <div class="pnl-h"><span>PROBLEM PACKS</span><span class="sp"></span><span class="btn gh" style="padding:2px 8px">New pack</span></div>
+      <div class="pnl-b" style="overflow:auto">
+        <table class="tb">
+          <tr><th>PACK</th><th>VERSION</th><th>STATE</th><th>APPROACHES</th><th>TESTS</th><th>HINTS</th><th>AUTHOR</th></tr>
+          ${[['two-sum', 'v4', 'published', '3', '3 + 9', '3', 'ar', 'g'],
+             ['three-sum', 'v2', 'published', '2', '4 + 11', '3', 'ar', 'g'],
+             ['merge-intervals', 'v2', 'in review', '3', '3 + 8', '3', 'pn', 'w'],
+             ['word-ladder', 'v3', 'changes requested', '2', '2 + 6', '2', 'pn', 'r'],
+             ['lru-cache', 'v1', 'draft', '1', '0 + 0', '0', 'gk', 'i']]
+            .map(([n, v, s, a, t, hh, au, c]) => `<tr><td><b>${n}</b></td><td>${v}</td>
+              <td><span class="chip ${c}">${s}</span></td><td>${a}</td><td>${t}</td><td>${hh}</td><td>${au}</td></tr>`).join('')}
+        </table>
+        <div class="sm" style="margin-top:14px;line-height:1.6">Published versions are immutable. Editing a published pack creates the next version; sessions already running keep the version they pinned.</div>
+      </div>
+    </div>
+  </div>
+</div>`;
+
+const F_EDITOR = `<div class="app">
+  ${bar({p: 'admin', seg: 'merge-intervals@v2 · draft', right: `<span class="chip w">in review</span>`})}
+  <div class="body">
+    <div class="col" style="width:30%">
+      ${pnl('PACK SECTIONS', '', `<div class="lst">
+        ${[['Statement &amp; constraints', 'ok'], ['Examples', 'ok'], ['Edge cases &amp; invariants', 'ok'],
+           ['Reference approaches (3)', 'ok'], ['Complexity notes', 'warn'], ['Variants (2)', 'ok'],
+           ['Follow-ups &amp; rubrics', 'warn'], ['Public tests (3)', 'ok'], ['Hidden tests (8)', 'ok'],
+           ['Hint ladder (3)', 'ok'], ['Matching metadata', 'err']]
+          .map(([n, s]) => `<div style="display:flex;gap:9px;align-items:center;padding:4px 0" class="sm">
+            <span style="color:${s === 'ok' ? 'var(--ok)' : s === 'warn' ? 'var(--warm)' : 'var(--fail)'}">${s === 'ok' ? '✓' : s === 'warn' ? '!' : '✕'}</span>
+            <span style="color:var(--mute)">${n}</span></div>`).join('')}
+      </div>`, 'grow')}
+    </div>
+    <div class="col" style="flex:1">
+      ${pnl('HINT LADDER · MUST BE ORDERED, NON-REVEALING UNTIL LAST', '', `
+        <div class="lst">
+          <div class="card"><div class="sm" style="color:var(--warm);margin-bottom:4px">HINT 1 · NUDGE</div>
+            <div style="font-size:12.5px">What happens if you look at the intervals in a different order?</div></div>
+          <div class="card"><div class="sm" style="color:var(--warm);margin-bottom:4px">HINT 2 · STRUCTURE</div>
+            <div style="font-size:12.5px">Sort by start time. Now what must be true of two adjacent intervals that overlap?</div></div>
+          <div class="card"><div class="sm" style="color:var(--warm);margin-bottom:4px">HINT 3 · APPROACH</div>
+            <div style="font-size:12.5px">Sweep once, extending the current interval's end while the next start is not greater than it.</div></div>
+        </div>`, 'grow')}
+      ${pnl('VALIDATION', '', cs([
+        ['ok', 'pass', 'all reference approaches compile and pass every test'],
+        ['ok', 'pass', 'hidden tests disjoint from public tests'],
+        ['fail', 'fail', 'matching metadata: no keywords for approach 3 (sweep line)'],
+        ['inf', 'skip', 'provenance check queued — source links unreviewed']
+      ]))}
+      <div class="ft"><span class="sm">cannot publish while validation fails</span><span class="sp"></span><span class="btn gh">Save draft</span><span class="btn" style="opacity:.45">Submit for review</span></div>
+    </div>
+  </div>
+</div>`;
+
+const F_REVIEW = `<div class="app">
+  ${bar({p: 'admin', seg: 'review queue'})}
+  <div class="body">${ASIDE('review')}
+    <div class="col" style="flex:1">
+      ${pnl('word-ladder@v3 · AUTHORED BY pn · AWAITING YOUR REVIEW', '', `
+        <div class="sm" style="line-height:1.65;margin-bottom:12px">An author cannot approve their own pack. Publishing requires a structural pass, a correctness pass, and a human reviewer who is not the author.</div>
+        <table class="tb">
+          <tr><th>GATE</th><th>RESULT</th><th>DETAIL</th></tr>
+          <tr><td><b>Structural</b></td><td><span class="chip g">pass</span></td><td>all required sections present</td></tr>
+          <tr><td><b>Correctness</b></td><td><span class="chip g">pass</span></td><td>2 reference approaches · 8/8 tests</td></tr>
+          <tr><td><b>Provenance</b></td><td><span class="chip r">blocked</span></td><td>hint 2 paraphrases a LeetCode discussion post</td></tr>
+          <tr><td><b>Human review</b></td><td><span class="chip w">you</span></td><td>reviewer ≠ author ✓</td></tr>
+        </table>
+        <div class="sep"></div>
+        <div class="card"><div class="sm" style="color:var(--fail);margin-bottom:5px">PROVENANCE FLAG</div>
+          <div style="font-size:12.5px;line-height:1.55">Hint 2 closely matches a linked third-party discussion. Rewrite it independently or record a rights review before this pack can publish.</div></div>`, 'grow')}
+      <div class="ft"><span class="btn gh">Request changes</span><span class="sp"></span><span class="btn" style="opacity:.45">Approve &amp; publish</span><span class="sm">blocked by provenance</span></div>
+    </div>
+  </div>
+</div>`;
+
+const F_OPS = `<div class="app">
+  ${bar({p: 'admin', seg: 'health'})}
+  <div class="body">${ASIDE('ops')}
+    <div class="col" style="flex:1">
+      <div class="pnl-b" style="padding:16px 18px;overflow:auto">
+        <div class="grid3" style="margin-bottom:14px">
+          <div class="stat"><div class="sv g">37</div><div class="sl">active sessions</div></div>
+          <div class="stat"><div class="sv w">14</div><div class="sl">queue depth · cap 50</div></div>
+          <div class="stat"><div class="sv">1.9s</div><div class="sl">p95 interviewer turn</div></div>
+        </div>
+        <div class="grid3" style="margin-bottom:16px">
+          <div class="stat"><div class="sv g">0.4%</div><div class="sl">infra failure rate</div></div>
+          <div class="stat"><div class="sv">2</div><div class="sl">DLQ messages</div></div>
+          <div class="stat"><div class="sv g">99.1%</div><div class="sl">transcription success</div></div>
+        </div>
+        <div class="pnl-h" style="padding-left:0;background:none">EXECUTION OUTCOMES · LAST HOUR</div>
+        <table class="tb" style="margin-top:7px">
+          <tr><th>VERDICT</th><th>COUNT</th><th>COUNTS AGAINST CANDIDATE</th></tr>
+          <tr><td><span class="chip g">accepted</span></td><td>412</td><td>yes</td></tr>
+          <tr><td><span class="chip r">wrong_answer</span></td><td>188</td><td>yes</td></tr>
+          <tr><td><span class="chip r">time_limit</span></td><td>31</td><td>only if worker health trusted</td></tr>
+          <tr><td><span class="chip r">memory_limit</span></td><td>9</td><td>only if worker health trusted</td></tr>
+          <tr><td><span class="chip i">infrastructure_failure</span></td><td>4</td><td><b style="color:var(--infra)">never</b></td></tr>
+        </table>
+        <div class="sm" style="margin-top:14px;line-height:1.6">Infrastructure failures are tracked as an operations problem, not a candidate signal — they are excluded from every scoring path and alarm separately.</div>
+      </div>
+    </div>
+  </div>
+</div>`;
+
+/* ═══════════════════════════════════════════════════════════
+   board assembly
+   ═══════════════════════════════════════════════════════════ */
+const W = 1180, H = 740;
+const LANES = [
+  { id: 'public', n: 'Public', d: 'unauthenticated entry',
+    frames: [
+      { t: 'Landing', s: '/', html: F_LANDING, meta: 'The hero is a live transcript, not a feature grid — the product\'s whole claim is that you have to say it out loud.' },
+      { t: 'Sign in', s: '/sign-in', html: F_AUTH, meta: '<b>Clerk-hosted.</b> No password ever reaches our origin.' }
+    ]},
+  { id: 'core', n: 'Candidate core', d: 'the eight screens a candidate actually touches',
+    frames: [
+      { t: 'Home', s: '/', html: F_DASH, meta: 'Resume-first. Weakest dimensions drive the recommendations — the dashboard argues for the next problem rather than listing them.' },
+      { t: 'Problems', s: '/problems', html: F_CAT, meta: '<b>GET /problems</b> · filter by pattern, difficulty and your own history. “needs rework” is derived from feedback, not from pass/fail.' },
+      { t: 'Problem', s: '/problems/two-sum', html: F_PROB, meta: '<b>GET /problems/{id}</b> · sets expectations before the pack is pinned. Scoring dimensions are shown up front; nothing is hidden from the candidate.' },
+      { t: 'Mic check &amp; consent', s: 'modal', html: F_MIC, meta: '<b>POST …/voice-consent</b> · consent is explicit and versioned. Microphone permission alone is never treated as consent.' },
+      { t: 'Feedback report', s: '/sessions/{id}/feedback', html: F_REPORT, meta: 'Ten dimensions, never one score. Every bar carries the transcript timestamp or run that produced it, plus the versions needed to reproduce the judgement.' },
+      { t: 'History', s: '/sessions', html: F_HIST, meta: 'Paused, completed and abandoned sessions all persist with their last stage. Pack versions shown because a later revision never rewrites a past session.' },
+      { t: 'Replay', s: '/sessions/{id}/replay', html: F_REPLAY, meta: 'Read-only walk through the stage timeline with the run output as it stood at that moment.' },
+      { t: 'Voice &amp; privacy', s: '/settings/voice', html: F_PROF, meta: 'Retention stated as a table, not prose. “Raw audio: never stored” is the first row because it is the thing people actually want to know.' }
+    ]},
+  { id: 'stages', n: 'Interview session', d: 'all 16 stages of session_state_machine.md', track: true, frames: [] },
+  { id: 'states', n: 'System &amp; failure states', d: 'where the fairness principle is enforced', frames: [] },
+  { id: 'admin', n: 'Admin &amp; content ops', d: 'authoring, review gates, operations',
+    frames: [
+      { t: 'Packs', s: '/admin/packs', html: F_PACKS, meta: 'Published versions are immutable; editing forks the next version.' },
+      { t: 'Pack editor', s: '/admin/packs/{id}', html: F_EDITOR, meta: 'Validation is a publish gate, not a warning. The hint ladder must be ordered and non-revealing until the last rung.' },
+      { t: 'Review &amp; publish', s: '/admin/review', html: F_REVIEW, meta: 'Four gates: structural, correctness, provenance, human. <b>Reviewer ≠ author</b> is enforced, and provenance can block publication on its own.' },
+      { t: 'Operations', s: '/admin/health', html: F_OPS, meta: 'The verdict table states, per row, whether it counts against a candidate. The one that never does is rendered in the neutral infra grey.' }
+    ]}
+];
+
+STAGES.forEach((s, i) => {
+  LANES[2].frames.push({
+    t: s.id, s: `${i + 1}/16`, html: s.html, w: s.w || W, h: s.h || H,
+    meta: `<b>${s.t}</b><br>allowed: <code>${s.act}</code><br>${s.api}`,
+    kind: i === 0 ? 'done' : i === 15 ? 'term' : i === 10 ? 'live' : 'done'
+  });
+});
+STATES.forEach(s => {
+  LANES[3].frames.push({ t: s.id, s: '', html: s.html, w: s.w, h: s.h, meta: `<b>${s.t}</b><br>${s.api}` });
+});
+
+const board = document.getElementById('board');
+const LANE_GAP = 200, FRAME_GAP = 64, PAD = 80;
+let y = PAD, maxX = 0;
+const laneY = {};
+
+LANES.forEach(lane => {
+  const el = document.createElement('section');
+  el.className = 'lane';
+  el.style.left = PAD + 'px';
+  el.style.top = y + 'px';
+  laneY[lane.id] = y;
+
+  const frames = lane.frames.map(f => {
+    const w = f.w || W, hh = f.h || H;
+    return `<div class="fr" style="width:${w}px" data-w="${w}" data-h="${hh}">
+      <div class="fr-cap"><span class="t">${f.t}</span><span class="s">${f.s || ''}</span></div>
+      <div class="fr-body" style="width:${w}px;height:${hh}px">${f.html}</div>
+      <div class="fr-meta" style="width:${w}px">${f.meta || ''}</div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="lane-h"><span class="n">${lane.n}</span><span class="c">${lane.frames.length} frames</span><span class="d">${lane.d}</span></div>
+    <div class="lane-row">${frames}</div>`;
+  board.appendChild(el);
+
+  const rowH = Math.max(...lane.frames.map(f => f.h || H));
+  const rowW = lane.frames.reduce((a, f) => a + (f.w || W) + FRAME_GAP, 0) - FRAME_GAP;
+  maxX = Math.max(maxX, PAD + rowW);
+
+  if (lane.track) {
+    const row = el.querySelector('.lane-row');
+    const tr = document.createElement('div');
+    tr.className = 'track';
+    tr.style.width = rowW + 'px';
+    tr.style.top = '-14px';
+    row.appendChild(tr);
+    let cx = 0;
+    lane.frames.forEach(f => {
+      const d = document.createElement('div');
+      d.className = 'tdot ' + (f.kind || 'done');
+      d.style.left = (cx + (f.w || W) / 2 - 5) + 'px';
+      d.style.top = '-19px';
+      row.appendChild(d);
+      cx += (f.w || W) + FRAME_GAP;
+    });
+    row.style.position = 'relative';
+  }
+
+  y += rowH + 150 + LANE_GAP;
+});
+const BW = maxX + PAD, BH = y;
+
+/* ── jump nav ── */
+const jump = document.getElementById('jump');
+LANES.forEach(l => {
+  const b = document.createElement('button');
+  b.textContent = l.id;
+  b.onclick = () => goLane(l.id);
+  b.dataset.lane = l.id;
+  jump.appendChild(b);
+});
+
+/* ── pan / zoom ── */
+let z = 1, tx = 0, ty = 0;
+const vp = document.getElementById('viewport');
+const zl = document.getElementById('zlevel');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function apply(animate) {
+  board.style.transition = (animate && !reduce) ? 'transform .45s cubic-bezier(.22,.61,.36,1)' : 'none';
+  board.style.transform = `translate(${tx}px,${ty}px) scale(${z})`;
+  zl.textContent = Math.round(z * 100) + '%';
+  save();
+}
+function clampZ(v) { return Math.min(2.2, Math.max(0.035, v)); }
+
+function fit(animate = true) {
+  const vw = innerWidth, vh = innerHeight - 56;
+  z = clampZ(Math.min(vw / BW, vh / BH) * 0.94);
+  tx = (vw - BW * z) / 2;
+  ty = 56 + (vh - BH * z) / 2;
+  apply(animate);
+  mark(null);
+}
+function goLane(id) {
+  const vw = innerWidth, vh = innerHeight - 56;
+  const lane = LANES.find(l => l.id === id);
+  const rowW = lane.frames.reduce((a, f) => a + (f.w || W) + FRAME_GAP, 0) - FRAME_GAP;
+  const rowH = Math.max(...lane.frames.map(f => f.h || H)) + 150;
+  z = clampZ(Math.min(vw / (rowW + PAD * 2), vh / (rowH + 120)) * 0.95);
+  tx = (vw - rowW * z) / 2 - PAD * z;
+  ty = 56 + 40 - laneY[id] * z;
+  apply(true);
+  mark(id);
+}
+function mark(id) {
+  jump.querySelectorAll('button').forEach(b => b.setAttribute('aria-current', b.dataset.lane === id ? 'true' : 'false'));
+}
+
+/* click a frame to focus it */
+board.addEventListener('click', e => {
+  if (moved > 6) return;
+  const fr = e.target.closest('.fr');
+  if (!fr) return;
+  const r = fr.getBoundingClientRect();
+  const w = +fr.dataset.w, hh = +fr.dataset.h + 150;
+  const bx = (r.left - tx) / z, by = (r.top - ty) / z;
+  const vw = innerWidth, vh = innerHeight - 56;
+  z = clampZ(Math.min(vw / (w + 120), vh / (hh + 60)));
+  tx = (vw - w * z) / 2 - bx * z;
+  ty = 56 + (vh - hh * z) / 2 - by * z;
+  apply(true);
+  mark(null);
+});
+
+/* drag to pan */
+let down = false, sx = 0, sy = 0, moved = 0;
+vp.addEventListener('pointerdown', e => {
+  down = true; moved = 0; sx = e.clientX - tx; sy = e.clientY - ty;
+  vp.classList.add('drag'); vp.setPointerCapture(e.pointerId);
+});
+vp.addEventListener('pointermove', e => {
+  if (!down) return;
+  const nx = e.clientX - sx, ny = e.clientY - sy;
+  moved += Math.abs(nx - tx) + Math.abs(ny - ty);
+  tx = nx; ty = ny; apply(false);
+  if (moved > 6) vp.dataset.moved = '1';
+});
+vp.addEventListener('pointerup', e => { down = false; vp.classList.remove('drag'); });
+vp.addEventListener('pointercancel', () => { down = false; vp.classList.remove('drag'); });
+
+/* wheel zoom */
+vp.addEventListener('wheel', e => {
+  e.preventDefault();
+  if (e.ctrlKey || e.metaKey || Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+    const f = Math.exp(-e.deltaY * (e.ctrlKey || e.metaKey ? 0.012 : 0.0022));
+    const nz = clampZ(z * f);
+    const mx = e.clientX, my = e.clientY;
+    tx = mx - (mx - tx) * (nz / z);
+    ty = my - (my - ty) * (nz / z);
+    z = nz;
+  } else { tx -= e.deltaX; }
+  apply(false);
+}, { passive: false });
+
+document.getElementById('zin').onclick = () => { z = clampZ(z * 1.3); apply(true); };
+document.getElementById('zout').onclick = () => { z = clampZ(z / 1.3); apply(true); };
+document.getElementById('zfit').onclick = () => fit();
+addEventListener('keydown', e => {
+  if (e.key === 'Escape') fit();
+  if (e.key === '+' || e.key === '=') { z = clampZ(z * 1.3); apply(true); }
+  if (e.key === '-') { z = clampZ(z / 1.3); apply(true); }
+});
+
+/* remember the view, harmlessly */
+function save() { try { localStorage.setItem('canvas-view-flat', JSON.stringify({ z, tx, ty })); } catch (_) {} }
+let restored = false;
+try {
+  const v = JSON.parse(localStorage.getItem('canvas-view-flat') || 'null');
+  if (v && isFinite(v.z) && isFinite(v.tx) && isFinite(v.ty)) { z = clampZ(v.z); tx = v.tx; ty = v.ty; apply(false); restored = true; }
+} catch (_) {}
+if (!restored) fit(false);
+addEventListener('resize', () => { if (!restored) fit(false); });
+</script>
+
+
+</body></html>

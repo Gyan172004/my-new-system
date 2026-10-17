@@ -1,0 +1,24 @@
+# Disposable Spec Kit drafts; accepted content belongs in canonical project docs.
+/.specify/work/
+
+# Machine-local credentials and agent configuration.
+/.aws/
+/.codex/
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Dependencies, generated caches and local tool downloads.
+node_modules/
+.next/
+coverage/
+__pycache__/
+*.py[cod]
+*.log
+.DS_Store
+/skills/vendor/

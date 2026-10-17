@@ -1,0 +1,18 @@
+{
+  "owner_selected_date": "2026-10-17",
+  "source_artifact_id": "c28f5a82-81e1-40aa-8527-bdc02d6c2186",
+  "files": [
+    {
+      "original_filename": "DSA Interview Canvas.html",
+      "retained_file": "source.html",
+      "sha256": "b2e9e4da389fd2f878ab3a805bebc4a1694d23dc38e36c5871f17ff3bf84388c",
+      "bytes": 81275
+    },
+    {
+      "original_filename": "DSA Interview Canvas.md",
+      "retained_file": "source.md",
+      "sha256": "ddeae86621ead4a3375578e9ac71219ab74db202ffd4133f2d30dddd56e4856a",
+      "bytes": 467
+    }
+  ]
+}

@@ -1,0 +1,590 @@
+{
+  "kind": "Reference inventory; mock values are illustrative and do not establish product state or approved API contracts.",
+  "frame_count": 37,
+  "lanes": [
+    {
+      "frames": [
+        {
+          "height": 740,
+          "notes": "The hero is a live transcript, not a feature grid \u2014 the product's whole claim is that you have to say it out loud.",
+          "subtitle": "/",
+          "text": "~/two-sum\nsign in\n\u2318K\nturn-based voice interview \u00b7 python \u00b7 c++ \u00b7 java\nSolving it once\ndoesn't mean you understand it.\n\nAn interviewer that makes you say the approach out loud, trace your own failing case, and defend the complexity \u2014 then shows you the evidence behind every score.\n\nStart an interview\nHear a sample turn\nlive transcript \u00b7 two-sum \u00b7 stage:initial_approach\nint>\nWalk me through your approach before you write anything.\nyou>\nI'd store each number's complement in a hash map as I scan.evidence\nint>\nWhat's the space cost of that, and when would it hurt?\nyour turn",
+          "title": "Landing",
+          "width": 1180,
+          "preview": "previews/01-landing.png"
+        },
+        {
+          "height": 740,
+          "notes": "Clerk-hosted. No password ever reaches our origin.",
+          "subtitle": "/sign-in",
+          "text": "~/two-sum\n\u2318K\n~/dsa-interview\nSign in to continue\n\nSessions, transcripts and feedback are tied to your account.\n\nContinue with Google\nContinue with GitHub\nEmail\nyou@example.com\nContinue\nClerk-hosted \u00b7 we never see your password",
+          "title": "Sign in",
+          "width": 1180,
+          "preview": "previews/02-sign-in.png"
+        }
+      ],
+      "id": "public",
+      "name": "Public"
+    },
+    {
+      "frames": [
+        {
+          "height": 740,
+          "notes": "Resume-first. Weakest dimensions drive the recommendations \u2014 the dashboard argues for the next problem rather than listing them.",
+          "subtitle": "/",
+          "text": "~/two-sum / home\ngk@qi-cap.com\n\u2318K\nPRACTICE\nhome\nproblems\nhistory\nACCOUNT\nprofile\nvoice & privacy\nPAUSED \u00b7 2 days ago\nLongest Substring Without Repeating Characters\nstage:test_and_debug\n18:22 elapsed\nhints 1/3\nResume\nAbandon\n14\ninterviews completed\n1.4\navg hints used\n9/14\nreached optimal unaided\nWEAKEST DIMENSIONS \u00b7 LAST 5 SESSIONS\nComplexity analysis\n42\nEdge-case handling\n58\nVariant transfer\n61\nReasoning clarity\n84\nPICKED FOR YOUR WEAK SPOTS\nContainer With Most Water\ntwo pointers\nmedium\npractises complexity trade-offs\nMerge Intervals\nsorting\nmedium\npractises edge-case handling\nSubarray Sum Equals K\nprefix sum\nmedium\nvariant of a pattern you know",
+          "title": "Home",
+          "width": 1180,
+          "preview": "previews/03-home.png"
+        },
+        {
+          "height": 740,
+          "notes": "GET /problems \u00b7 filter by pattern, difficulty and your own history. \u201cneeds rework\u201d is derived from feedback, not from pass/fail.",
+          "subtitle": "/problems",
+          "text": "~/two-sum / problems\n\u2318K\nPRACTICE\nhome\nproblems\nhistory\nACCOUNT\nprofile\nvoice & privacy\nFILTER\n\u2318F\nall\narrays\nhashing\ntwo pointers\nsliding window\ngraphs\ndp\neasy\nmedium\nhard\nnot attempted\nneeds rework\nPROBLEM\tPATTERN\tDIFF\tPACK\tYOUR LAST\t\nTwo Sum\thashing\teasy\tv4\t\u2014\topen\nValid Parentheses\tstack\teasy\tv2\tstrong\topen\nContainer With Most Water\ttwo pointers\tmedium\tv3\tneeds rework\topen\nLongest Substring\u2026\tsliding window\tmedium\tv5\tpaused\topen\nMerge Intervals\tsorting\tmedium\tv1\t\u2014\topen\nWord Ladder\tbfs\thard\tv2\thint-dependent\topen",
+          "title": "Problems",
+          "width": 1180,
+          "preview": "previews/04-problems.png"
+        },
+        {
+          "height": 740,
+          "notes": "GET /problems/{id} \u00b7 sets expectations before the pack is pinned. Scoring dimensions are shown up front; nothing is hidden from the candidate.",
+          "subtitle": "/problems/two-sum",
+          "text": "~/two-sum\npack two-sum@v4\n\u2318K\nPROBLEM\nTwo Sum\n\nGiven an array of integers nums and an integer target, return the indices of the two numbers that add up to target.\n\nconstraints \u00a02 \u2264 n \u2264 10\u2075 \u00a0\u00b7\u00a0 \u221210\u2079 \u2264 nums[i] \u2264 10\u2079\nguarantee \u00a0\u00a0exactly one valid answer\npack \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0two-sum@v4 \u00b7 pinned at start\nBEFORE YOU START\nThis is a spoken interview. You'll be asked to restate the problem, trace the samples, and defend your complexity before you write code.\nExpected length\t25\u201335 min\nHints available\t3 \u00b7 each one is recorded\nLanguages\tpython \u00b7 c++ \u00b7 java\nVoice\ton \u00b7 typed fallback always available\nPack version\ttwo-sum@v4 \u00b7 pinned when you start\nHOW YOU'LL BE SCORED\nproblem understanding\nclarification quality\nsample tracing\napproach quality\nreasoning clarity\nhint use\nimplementation\nedge cases\ncomplexity\nvariant transfer\nEach dimension cites the moment in your transcript or test run that produced it. There is no single score.\nStart interview\n\u2318\u21b5",
+          "title": "Problem",
+          "width": 1180,
+          "preview": "previews/05-problem.png"
+        },
+        {
+          "height": 740,
+          "notes": "POST \u2026/voice-consent \u00b7 consent is explicit and versioned. Microphone permission alone is never treated as consent.",
+          "subtitle": "modal",
+          "text": "~/two-sum / mic check\n\u2318K\nVOICE CONSENT \u00b7 NOTICE v3\nRecord your voice for this interview?\n\nYour audio is sent to OpenAI for transcription and is never stored \u2014 only the text transcript is kept, under your account's retention setting. Granting your browser's microphone permission is not consent on its own.\n\ninput detected \u00b7 \u221218 dB\nSay \u201ctesting one two\u201d to check your level.\nAudio retention\tnot stored\nTranscript retention\t180 days\nRevoke any time\tprofile \u2192 voice & privacy\nUse text only\nAccept and start",
+          "title": "Mic check & consent",
+          "width": 1180,
+          "preview": "previews/06-mic-check-consent.png"
+        },
+        {
+          "height": 740,
+          "notes": "Ten dimensions, never one score. Every bar carries the transcript timestamp or run that produced it, plus the versions needed to reproduce the judgement.",
+          "subtitle": "/sessions/{id}/feedback",
+          "text": "~/two-sum / feedback\nsession 0f3a\u00b7completed\u00b731:12\n\u2318K\nDIMENSIONS \u00b7 EVIDENCE-LINKED\nProblem understanding\n88\nrestated constraints unprompted \u00b7 02:14\nClarification quality\n71\nasked about duplicates, missed negatives \u00b7 03:40\nSample tracing\n90\ntraced both samples correctly \u00b7 05:02\nApproach quality\n82\nwent brute force \u2192 hash map unaided \u00b7 09:18\nReasoning clarity\n76\nexplained before coding \u00b7 09:18\nHint use\n100\n0 of 3 hints used\nImplementation\n86\n3/3 public, 11/12 hidden \u00b7 run #4\nEdge-case handling\n48\nmissed the negative-target case \u00b7 run #3\nComplexity analysis\n55\nsaid O(n) time, hesitated on space \u00b7 27:55\nVariant transfer\n69\nsolved 3Sum variant with prompting \u00b7 24:40\nWHAT TO PRACTISE NEXT\nName the space cost out loud\nYou reached O(n) time quickly but paused on space twice. Next session, state both before writing code.\nNegative and duplicate inputs\nHidden case 12 used a negative target. Add a habit of asking about value ranges during clarification.\nRecommended next: Subarray Sum Equals K \u2014 same hashing pattern, forces the complexity conversation.\nREPRODUCIBILITY\nProblem pack\ttwo-sum@v4\nRubric\tdsa-core@v2\nPolicy\tinterview-policy@v7\nModels\tgpt-6.1-sol \u00b7 gpt-transcribe\nRuntime\tpython 3.12.4 \u00b7 e2b pinned\nReplay transcript\nExport\nNext problem",
+          "title": "Feedback report",
+          "width": 1180,
+          "preview": "previews/07-feedback-report.png"
+        },
+        {
+          "height": 740,
+          "notes": "Paused, completed and abandoned sessions all persist with their last stage. Pack versions shown because a later revision never rewrites a past session.",
+          "subtitle": "/sessions",
+          "text": "~/two-sum / history\n\u2318K\nPRACTICE\nhome\nproblems\nhistory\nACCOUNT\nprofile\nvoice & privacy\nWHEN\tPROBLEM\tOUTCOME\tHINTS\tWEAKEST\tPACK\t\n2d ago\tLongest Substring\u2026\tpaused\t1/3\t\u2014\tv5\treplay\n4d ago\tTwo Sum\tcompleted\t0/3\tcomplexity\tv4\treplay\n6d ago\tWord Ladder\tcompleted\t3/3\thint dependence\tv2\treplay\n9d ago\tValid Parentheses\tcompleted\t0/3\tedge cases\tv2\treplay\n11d ago\tMerge Intervals\tabandoned\t2/3\t\u2014\tv1\treplay\n14d ago\tContainer With Water\tcompleted\t1/3\tvariant transfer\tv3\treplay\nAbandoned and paused sessions keep their last stage and stay read-only. Packs are pinned at start \u2014 a later pack revision never rewrites your history.",
+          "title": "History",
+          "width": 1180,
+          "preview": "previews/08-history.png"
+        },
+        {
+          "height": 740,
+          "notes": "Read-only walk through the stage timeline with the run output as it stood at that moment.",
+          "subtitle": "/sessions/{id}/replay",
+          "text": "~/two-sum / replay\nread-only \u00b7 4d ago\n\u2318K\nTIMELINE\n00:00\nintro\n01:10\nexperience_context\n02:14\nproblem_read_and_clarify\n04:02\nproblem_restatement\n05:02\nsample_trace\n09:18\ninitial_approach\n11:30\ncode\n16:40\ntest_and_debug\n21:05\nimprove_approach\n24:40\nvariants_and_followups\n27:55\ncomplexity_analysis\n30:40\nfeedback\nTRANSCRIPT \u00b7 16:40 test_and_debug\nint>\nCase 3 fails. Before I say anything \u2014 walk me through what your code does with that input.\nyou>\nOh. If the target is negative my complement lookup still works, but\u2026 let me trace it.\nyou>\nAt i=2, target \u2212 n is \u22127, and that was never inserted, so it skips.evidence\nint>\nGood \u2014 you found it yourself. What does that tell you about your assumption?\nRUN #3 \u00b7 AT THIS MOMENT\npass\ncase 1 \u00b7 nums=[2,7,11,15] target=9\npass\ncase 2 \u00b7 nums=[3,2,4] target=6\nfail\ncase 3 \u00b7 negative target \u00b7 expected [1,3]\n\u25c0 prev stage\nnext stage \u25b6\nOpen feedback",
+          "title": "Replay",
+          "width": 1180,
+          "preview": "previews/09-replay.png"
+        },
+        {
+          "height": 740,
+          "notes": "Retention stated as a table, not prose. \u201cRaw audio: never stored\u201d is the first row because it is the thing people actually want to know.",
+          "subtitle": "/settings/voice",
+          "text": "~/two-sum / voice & privacy\n\u2318K\nPRACTICE\nhome\nproblems\nhistory\nACCOUNT\nprofile\nvoice & privacy\nVoice & privacy\n\nYou accepted notice v3 on 13 Oct 2026.\n\nVoice input\nRecord spoken turns and transcribe them. Typed input stays available either way.\non\nSpoken interviewer replies\nGenerate speech for interviewer turns. Text is always shown.\non\nWHAT\tKEPT\tFOR\nRaw audio\tnever stored\t\u2014\nTranscripts\tstored\t180 days\nCode submissions\tstored\t180 days\nFeedback reports\tstored\tuntil you delete them\nSecurity audit log\tconsent events only\t90 days\nRevoke voice consent\nExport my data\nDelete account\nRevoking stops new recordings immediately. Existing transcripts stay until their retention window ends or you delete them.",
+          "title": "Voice & privacy",
+          "width": 1180,
+          "preview": "previews/10-voice-privacy.png"
+        }
+      ],
+      "id": "core",
+      "name": "Candidate core"
+    },
+    {
+      "frames": [
+        {
+          "height": 700,
+          "notes": "Pack pinned, not started\nallowed: start\nPOST /interview-sessions",
+          "subtitle": "1/16",
+          "text": "~/two-sum\nstage:created\n00:00\n\u2318K\nPROBLEM\n\u23181\nTwo Sum\n\nGiven an array of integers nums and an integer target, return the indices of the two numbers that add up to target.\n\nconstraints \u00a02 \u2264 n \u2264 10\u2075 \u00a0\u00b7\u00a0 \u221210\u2079 \u2264 nums[i] \u2264 10\u2079\nguarantee \u00a0\u00a0exactly one valid answer\npack \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0two-sum@v4 \u00b7 pinned at start\nSESSION\nPack version\ttwo-sum@v4 pinned\nRubric\tdsa-core@v2\nLanguage\tpython 3.12 \u00b7 changeable until first run\nVoice\taccepted notice v3\nNothing is recorded until you start. Once started, the pack version is frozen for this session even if a newer revision ships.\nStart interview \u00a0\n\u2318\u21b5",
+          "title": "created",
+          "width": 1180,
+          "preview": "previews/11-created.png"
+        },
+        {
+          "height": 740,
+          "notes": "Interviewer opens\nallowed: candidate_response \u00b7 continue\nPOST \u2026/turns",
+          "subtitle": "2/16",
+          "text": "~/two-sum\nstage:intro\n00:24\n\u2318K\nPROBLEM\n\u23181\nTwo Sum\n\nGiven an array of integers nums and an integer target, return the indices of the two numbers that add up to target.\n\nconstraints \u00a02 \u2264 n \u2264 10\u2075 \u00a0\u00b7\u00a0 \u221210\u2079 \u2264 nums[i] \u2264 10\u2079\nguarantee \u00a0\u00a0exactly one valid answer\npack \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0two-sum@v4 \u00b7 pinned at start\nTRANSCRIPT\n\u23183\nint>\nHi \u2014 I'm your interviewer today. We'll spend about half an hour on one problem. I'll ask you to think out loud; you can type instead of speaking at any point. Ready?\nsolution.py \u00a0\u00b7\u00a0 python 3.12\n\u23182\n1\ndef two_sum(nums, target):\n2\n    seen = {}\n3\n    for i, n in enumerate(nums):\n4\n        if target - n in seen:\n5\n            return [seen[target - n], i]\n6\n        seen[n] = i\n7\n    return []\nOUT\n\u2318\u21b5\nidle\nno run yet this stage\n\u2325space \u00a0hold to speak\ntype instead\n\u2318H hint 0/3\n\u2318\u21b5 run\n\u2318\u21e7\u21b5 submit\n\u2318. pause",
+          "title": "intro",
+          "width": 1180,
+          "preview": "previews/12-intro.png"
+        },
+        {
+          "height": 740,
+          "notes": "Optional background \u2014 context, never score\nallowed: candidate_response \u00b7 continue \u00b7 skip_optional\nPOST \u2026/turns",
+          "subtitle": "3/16",
+          "text": "~/two-sum\nstage:experience_context\n01:10\n\u2318K\nPROBLEM\n\u23181\nTwo Sum\n\nGiven an array of integers nums and an integer target, return the indices of the two numbers that add up to target.\n\nconstraints \u00a02 \u2264 n \u2264 10\u2075 \u00a0\u00b7\u00a0 \u221210\u2079 \u2264 nums[i] \u2264 10\u2079\nguarantee \u00a0\u00a0exactly one valid answer\npack \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0two-sum@v4 \u00b7 pinned at start\nTRANSCRIPT\n\u23183\nint>\nBefore we start \u2014 roughly how much DSA practice have you done, and where?\nyou>\nMaybe 150 LeetCode problems, mostly easy and medium.\nsys>\nRecorded as context. Self-reported practice never affects your score.\nsolution.py \u00a0\u00b7\u00a0 python 3.12\n\u23182\n1\ndef two_sum(nums, target):\n2\n    seen = {}\n3\n    for i, n in enumerate(nums):\n4\n        if target - n in seen:\n5\n            return [seen[target - n], i]\n6\n        seen[n] = i\n7\n    return []\nOUT\n\u2318\u21b5\nidle\nno run yet this stage\n\u2325space \u00a0hold to speak\ntype instead\n\u2318H hint 0/3\n\u2318S skip\n\u2318. pause",
+          "title": "experience_context",
+          "width": 1180,
+          "preview": "previews/13-experience-context.png"
+        },
+        {
+          "height": 740,
+          "notes": "Clarifying questions, tracked\nallowed: candidate_response \u00b7 request_clarification \u00b7 continue\nPOST \u2026/turns",
+          "subtitle": "4/16",
+          "text": "~/two-sum\nstage:problem_read_and_clarify\n02:14\n\u2318K\nPROBLEM\n\u23181\nTwo Sum\n\nGiven an array of integers nums and an integer target, return the indices of the two numbers that add up to target.\n\nconstraints \u00a02 \u2264 n \u2264 10\u2075 \u00a0\u00b7\u00a0 \u221210\u2079 \u2264 nums[i] \u2264 10\u2079\nguarantee \u00a0\u00a0exactly one valid answer\npack \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0two-sum@v4 \u00b7 pinned at start\nCLARIFIED SO FAR\nduplicates allowed \u2713\nexactly one answer \u2713\nvalue range \u2014 unasked\nTRANSCRIPT\n\u23183\nint>\nTake a moment with the statement. Anything you want to pin down before you think about a solution?\nyou>\nCan the same element be used twice?\nint>\nNo \u2014 two distinct indices.\nyou>\nAnd is there always exactly one answer?\nint>\nYes. Anything else, or shall we move on?\nsolution.py \u00a0\u00b7\u00a0 python 3.12\n\u23182\n1\ndef two_sum(nums, target):\n2\n    seen = {}\n3\n    for i, n in enumerate(nums):\n4\n        if target - n in seen:\n5\n            return [seen[target - n], i]\n6\n        seen[n] = i\n7\n    return []\nOUT\n\u2318\u21b5\nidle\nno run yet this stage\n\u2325space \u00a0hold to speak\ntype instead\n\u2318H hint 0/3\n\u2318\u21b5 run\n\u2318\u21e7\u21b5 submit\n\u2318. pause",
+          "title": "problem_read_and_clarify",
+          "width": 1180,
+          "preview": "previews/14-problem-read-and-clarify.png"
+        },
+        {
+          "height": 740,
+          "notes": "In your own words \u2014 statement collapsed\nallowed: candidate_response \u00b7 continue\nPOST \u2026/turns",
+          "subtitle": "5/16",
+          "text": "~/two-sum\nstage:problem_restatement\n04:02\n\u2318K\nPROBLEM \u00b7 COLLAPSED FOR THIS STAGE\n\u23181\nThe statement is hidden while you restate it, so you're recalling rather than reading.\nShow anyway \u2014 noted in feedback\nstill visible \u00a0constraints \u00b7 samples\nTRANSCRIPT\n\u23183\nint>\nClose the statement for a second. Tell me what this problem is asking, in your own words.\nyou>\nI'm given a list of numbers and a target, and I need to find the two positions whose values sum to it\u2026\nsolution.py \u00a0\u00b7\u00a0 python 3.12\n\u23182\n1\ndef two_sum(nums, target):\n2\n    seen = {}\n3\n    for i, n in enumerate(nums):\n4\n        if target - n in seen:\n5\n            return [seen[target - n], i]\n6\n        seen[n] = i\n7\n    return []\nOUT\n\u2318\u21b5\nidle\nno run yet this stage\n\u25cf recording \u00a00:04\nrelease to send\n\u2318H hint 0/3\n\u2318\u21b5 run\n\u2318\u21e7\u21b5 submit\n\u2318. pause",
+          "title": "problem_restatement",
+          "width": 1180,
+          "preview": "previews/15-problem-restatement.png"
+        },
+        {
+          "height": 740,
+          "notes": "Trace the given examples\nallowed: candidate_response \u00b7 continue\nPOST \u2026/turns",
+          "subtitle": "6/16",
+          "text": "~/two-sum\nstage:sample_trace\n05:02\n\u2318K\nPROBLEM\n\u23181\nTwo Sum\n\nGiven an array of integers nums and an integer target, return the indices of the two numbers that add up to target.\n\nconstraints \u00a02 \u2264 n \u2264 10\u2075 \u00a0\u00b7\u00a0 \u221210\u2079 \u2264 nums[i] \u2264 10\u2079\nguarantee \u00a0\u00a0exactly one valid answer\npack \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0two-sum@v4 \u00b7 pinned at start\nSAMPLE\tINPUT\tEXPECTED\n1\t[2,7,11,15] \u00b7 9\t[0,1]\n2\t[3,2,4] \u00b7 6\t[1,2]\n3\t[3,3] \u00b7 6\t[0,1]\nTRANSCRIPT\n\u23183\nint>\nWalk me through sample 2 by hand. What should come out, and why?\nyou>\nTarget is 6. 3 and 2 give 5, 3 and 4 give 7, 2 and 4 give 6 \u2014 so indices 1 and 2.evidence\nint>\nAnd sample 3 \u2014 does anything about it worry you?\nsolution.py \u00a0\u00b7\u00a0 python 3.12\n\u23182\n1\ndef two_sum(nums, target):\n2\n    seen = {}\n3\n    for i, n in enumerate(nums):\n4\n        if target - n in seen:\n5\n            return [seen[target - n], i]\n6\n        seen[n] = i\n7\n    return []\nOUT\n\u2318\u21b5\nidle\nno run yet this stage\n\u2325space \u00a0hold to speak\ntype instead\n\u2318H hint 0/3\n\u2318\u21b5 run\n\u2318\u21e7\u21b5 submit\n\u2318. pause",
+          "title": "sample_trace",
+          "width": 1180,
+          "preview": "previews/16-sample-trace.png"
+        },
+        {
+          "height": 740,
+          "notes": "Approach matching with an honest UNKNOWN\nallowed: candidate_response \u00b7 request_clarification \u00b7 continue\nPOST \u2026/turns",
+          "subtitle": "7/16",
+          "text": "~/two-sum\nstage:initial_approach\n09:18\n\u2318K\nPROBLEM\n\u23181\nTwo Sum\n\nGiven an array of integers nums and an integer target, return the indices of the two numbers that add up to target.\n\nconstraints \u00a02 \u2264 n \u2264 10\u2075 \u00a0\u00b7\u00a0 \u221210\u2079 \u2264 nums[i] \u2264 10\u2079\nguarantee \u00a0\u00a0exactly one valid answer\npack \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0two-sum@v4 \u00b7 pinned at start\nAPPROACH MATCH\nhash map \u00b7 one pass\n0.81 confident\nbrute force \u00b7 nested loop\n0.12\nAbove 0.75 the interviewer proceeds. Below it, it asks rather than assumes \u2014 an unmatched approach is never forced into a reference category.\nTRANSCRIPT\n\u23183\nint>\nBefore you write anything \u2014 what is your plan?\nyou>\nI'd scan once and keep a map from value to index, checking for the complement as I go.evidence\nint>\nThat matches a known approach. What does it cost you in space?\nsolution.py \u00a0\u00b7\u00a0 python 3.12\n\u23182\n1\ndef two_sum(nums, target):\n2\n    seen = {}\n3\n    for i, n in enumerate(nums):\n4\n        if target - n in seen:\n5\n            return [seen[target - n], i]\n6\n        seen[n] = i\n7\n    return []\nOUT\n\u2318\u21b5\nidle\nno run yet this stage\ninterviewer is responding\u2026\ngpt-6.1-sol\n\u2318H hint 0/3\n\u2318\u21b5 run\n\u2318\u21e7\u21b5 submit\n\u2318. pause",
+          "title": "initial_approach",
+          "width": 1180,
+          "preview": "previews/17-initial-approach.png"
+        },
+        {
+          "height": 740,
+          "notes": "Ambiguous \u2014 ask, do not force-match\nallowed: candidate_response \u00b7 continue\nPOST \u2026/turns",
+          "subtitle": "8/16",
+          "text": "~/two-sum\nstage:approach_clarification\n10:05\n\u2318K\nPROBLEM\n\u23181\nTwo Sum\n\nGiven an array of integers nums and an integer target, return the indices of the two numbers that add up to target.\n\nconstraints \u00a02 \u2264 n \u2264 10\u2075 \u00a0\u00b7\u00a0 \u221210\u2079 \u2264 nums[i] \u2264 10\u2079\nguarantee \u00a0\u00a0exactly one valid answer\npack \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0two-sum@v4 \u00b7 pinned at start\nAPPROACH MATCH\nno confident match\nUNKNOWN\nBest candidate sorting + two pointers at 0.38 \u2014 below threshold. The interviewer asks a targeted question instead of assuming, and your approach is evaluated on its own terms if it stays unmatched.\nTRANSCRIPT\n\u23183\nyou>\nI'd sort it first and then walk inward from both ends.\nint>\nSorting changes the indices you'd have to return. How are you planning to handle that?\nyou>\nHm \u2014 I'd need to keep the original positions somehow.\nsolution.py \u00a0\u00b7\u00a0 python 3.12\n\u23182\n1\ndef two_sum(nums, target):\n2\n    seen = {}\n3\n    for i, n in enumerate(nums):\n4\n        if target - n in seen:\n5\n            return [seen[target - n], i]\n6\n        seen[n] = i\n7\n    return []\nOUT\n\u2318\u21b5\nidle\nno run yet this stage\n\u2325space \u00a0hold to speak\ntype instead\n\u2318H hint 0/3\n\u2318\u21b5 run\n\u2318\u21e7\u21b5 submit\n\u2318. pause",
+          "title": "approach_clarification",
+          "width": 1180,
+          "preview": "previews/18-approach-clarification.png"
+        },
+        {
+          "height": 740,
+          "notes": "Bounded ladder \u2014 cost shown before you spend\nallowed: candidate_response \u00b7 request_hint \u00b7 continue\nPOST \u2026/turns",
+          "subtitle": "9/16",
+          "text": "~/two-sum\nstage:hints\n12:40\n\u2318K\nPROBLEM\n\u23181\nTwo Sum\n\nGiven an array of integers nums and an integer target, return the indices of the two numbers that add up to target.\n\nconstraints \u00a02 \u2264 n \u2264 10\u2075 \u00a0\u00b7\u00a0 \u221210\u2079 \u2264 nums[i] \u2264 10\u2079\nguarantee \u00a0\u00a0exactly one valid answer\npack \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0two-sum@v4 \u00b7 pinned at start\nHINT LADDER \u00b7 1 OF 3 USED\nHINT 1 \u00b7 REVEALED 12:38\nYou're checking every pair. What would you need to remember about earlier numbers to avoid the inner loop?\nHINT 2 \u00b7 locked \u2014 reveals the data structure\nHINT 3 \u00b7 locked \u2014 reveals the full approach\nHints are recorded and appear in your feedback as hint dependence. They are never offered unprompted.\nTRANSCRIPT\n\u23183\nyou>\nI'm stuck on getting below O(n\u00b2).\nint>\nWant a hint? It'll be recorded. Or we can keep going and you can tell me what you've ruled out.\nyou>\nGive me the first one.\nint>\nYou're checking every pair. What would you need to remember about earlier numbers to avoid the inner loop?\nsolution.py \u00a0\u00b7\u00a0 python 3.12\n\u23182\n1\ndef two_sum(nums, target):\n2\n    seen = {}\n3\n    for i, n in enumerate(nums):\n4\n        if target - n in seen:\n5\n            return [seen[target - n], i]\n6\n        seen[n] = i\n7\n    return []\nOUT\n\u2318\u21b5\nidle\nno run yet this stage\n\u2325space \u00a0hold to speak\ntype instead\n\u2318H hint 1/3 used\n\u2318\u21b5 run\n\u2318. pause",
+          "title": "hints",
+          "width": 1180,
+          "preview": "previews/19-hints.png"
+        },
+        {
+          "height": 740,
+          "notes": "Editor live, language pinned on first run\nallowed: candidate_response \u00b7 submit_code \u00b7 continue\nPOST \u2026/submissions",
+          "subtitle": "10/16",
+          "text": "~/two-sum\nstage:code\n14:20\n\u2318K\nPROBLEM\n\u23181\nTwo Sum\n\nGiven an array of integers nums and an integer target, return the indices of the two numbers that add up to target.\n\nconstraints \u00a02 \u2264 n \u2264 10\u2075 \u00a0\u00b7\u00a0 \u221210\u2079 \u2264 nums[i] \u2264 10\u2079\nguarantee \u00a0\u00a0exactly one valid answer\npack \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0two-sum@v4 \u00b7 pinned at start\nTRANSCRIPT\n\u23183\nint>\nGo ahead and write it. Talk me through anything you are unsure about as you go.\nyou>\nI'll build the map as I iterate rather than up front, so I don't match a number with itself.evidence\nsolution.py \u00a0\u00b7\u00a0 python 3.12\n\u23182\n1\ndef two_sum(nums, target):\n2\n    seen = {}\n3\n    for i, n in enumerate(nums):\n4\n        if target - n in seen:\n5\n            return [seen[target - n], i]\n6\n        seen[n] = i\n7\n        \nOUT\n\u2318\u21b5\nidle\nnothing run yet \u00b7 \u2318\u21b5 to run public samples\n\u2325space \u00a0hold to speak\ntype instead\n\u2318H hint 0/3\n\u2318\u21b5 run\n\u2318\u21e7\u21b5 submit\n\u2318. pause",
+          "title": "code",
+          "width": 1180,
+          "preview": "previews/20-code.png"
+        },
+        {
+          "height": 740,
+          "notes": "It fails \u2014 trace it yourself, no reveal\nallowed: candidate_response \u00b7 submit_code \u00b7 continue\nGET \u2026/submissions/{id}",
+          "subtitle": "11/16",
+          "text": "~/two-sum\nstage:test_and_debug\n16:40\n\u2318K\nPROBLEM\n\u23181\nTwo Sum\n\nGiven an array of integers nums and an integer target, return the indices of the two numbers that add up to target.\n\nconstraints \u00a02 \u2264 n \u2264 10\u2075 \u00a0\u00b7\u00a0 \u221210\u2079 \u2264 nums[i] \u2264 10\u2079\nguarantee \u00a0\u00a0exactly one valid answer\npack \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0two-sum@v4 \u00b7 pinned at start\nTRANSCRIPT\n\u23183\nint>\nCase 3 fails. Don't change anything yet \u2014 walk me through what your code does with that input.\nyou>\nLet me trace it\u2026 at i=2 the complement is \u22127, and that was never inserted.evidence\nint>\nGood \u2014 you found it. What assumption did you make that broke there?\nsolution.py \u00a0\u00b7\u00a0 python 3.12\n\u23182\n1\ndef two_sum(nums, target):\n2\n    seen = {}\n3\n    for i, n in enumerate(nums):\n4\n        if target - n in seen:\n5\n            return [seen[target - n], i]\n6\n        seen[n] = i\n7\n    return []\nOUT \u00b7 RUN #3\n\u2318\u21b5\npass\ncase 1 \u00b7 [2,7,11,15] target 9 \u2192 [0,1]\npass\ncase 2 \u00b7 [3,2,4] target 6 \u2192 [1,2]\nfail\ncase 3 \u00b7 negative target \u00b7 got [] expected [1,3]\nhidden\n9 hidden cases \u00b7 shown after submit\n\u2325space \u00a0hold to speak\ntype instead\n\u2318H hint 0/3\n\u2318\u21b5 run\n\u2318\u21e7\u21b5 submit\n\u2318. pause",
+          "title": "test_and_debug",
+          "width": 1180,
+          "preview": "previews/21-test-and-debug.png"
+        },
+        {
+          "height": 740,
+          "notes": "v1 against v2, with the delta named\nallowed: candidate_response \u00b7 continue\nPOST \u2026/turns",
+          "subtitle": "12/16",
+          "text": "~/two-sum\nstage:improve_approach\n21:05\n\u2318K\nPROBLEM\n\u23181\nTwo Sum\n\nGiven an array of integers nums and an integer target, return the indices of the two numbers that add up to target.\n\nconstraints \u00a02 \u2264 n \u2264 10\u2075 \u00a0\u00b7\u00a0 \u221210\u2079 \u2264 nums[i] \u2264 10\u2079\nguarantee \u00a0\u00a0exactly one valid answer\npack \u00a0\u00a0\u00a0\u00a0\u00a0\u00a0two-sum@v4 \u00b7 pinned at start\n\tTIME\tSPACE\tCASES\nv1 brute force\tO(n\u00b2)\tO(1)\t2/3\nv2 hash map\tO(n)\tO(n)\t3/3\nYou traded space for time. The interviewer will ask you to say that out loud before moving on.\nTRANSCRIPT\n\u23183\nint>\nThat passes now. Compare it to what you started with \u2014 what did you give up?\nyou>\nMemory. The map is O(n) where the nested loop was constant.evidence\nint>\nWhen would that trade be the wrong one?\nsolution.py \u00a0\u00b7\u00a0 python 3.12\n\u23182\n1\ndef two_sum(nums, target):\n2\n    seen = {}\n3\n    for i, n in enumerate(nums):\n4\n        if target - n in seen:\n5\n            return [seen[target - n], i]\n6\n        seen[n] = i\n7\n    return []\nOUT \u00b7 RUN #4\n\u2318\u21b5\npass\ncase 1 \u00b7 case 2 \u00b7 case 3\n11/12\nhidden cases \u00b7 1 timeout on n=10\u2075\n\u2325space \u00a0hold to speak\ntype instead\n\u2318H hint 0/3\n\u2318\u21b5 run\n\u2318\u21e7\u21b5 submit\n\u2318. pause",
+          "title": "improve_approach",
+          "width": 1180,
+          "preview": "previews/22-improve-approach.png"
+        },
+        {
+          "height": 740,
+          "notes": "Curated variant, skippable\nallowed: candidate_response \u00b7 request_clarification \u00b7 continue \u00b7 skip_optional\nPOST \u2026/turns",
+          "subtitle": "13/16",
+          "text": "~/two-sum\nstage:variants_and_followups\n24:40\n\u2318K\nPROBLEM\n\u23181\nVARIANT \u00b7 FROM PACK two-sum@v4\nThree Sum\n\nFind all unique triplets that sum to zero.\n\ntests: pattern transfer\ncurated \u00b7 reviewed\nSelected because you reached the hash-map solution unaided. A candidate who used all three hints gets an easier variant.\nTRANSCRIPT\n\u23183\nint>\nOne more. If I asked for all triplets summing to zero, does your hash-map idea still carry over?\nyou>\nPartly \u2014 I could fix one element and two-sum the rest, but I'd have to dedupe.evidence\nint>\nWhat does fixing one element do to the running time?\nsolution.py \u00a0\u00b7\u00a0 python 3.12\n\u23182\n1\ndef two_sum(nums, target):\n2\n    seen = {}\n3\n    for i, n in enumerate(nums):\n4\n        if target - n in seen:\n5\n            return [seen[target - n], i]\n6\n        seen[n] = i\n7\n    return []\nOUT\n\u2318\u21b5\nidle\nno run yet this stage\n\u2325space \u00a0hold to speak\ntype instead\n\u2318S skip optional\n\u2318\u21b5 run\n\u2318. pause",
+          "title": "variants_and_followups",
+          "width": 1180,
+          "preview": "previews/23-variants-and-followups.png"
+        },
+        {
+          "height": 740,
+          "notes": "Say both, then justify\nallowed: candidate_response \u00b7 continue\nPOST \u2026/turns",
+          "subtitle": "14/16",
+          "text": "~/two-sum\nstage:complexity_analysis\n27:55\n\u2318K\nPROBLEM\n\u23181\nYOUR STATED COMPLEXITY\ntime\nO(n) \u00b7 accepted\n\u201cOne pass, constant work per element.\u201d\nspace\nawaiting justification\nYou said O(n) but hesitated. The interviewer is asking why.\nA stated answer without reasoning is recorded as stated-only, not as understanding.\nTRANSCRIPT\n\u23183\nint>\nTime and space for your final solution.\nyou>\nO(n) time\u2026 and I think O(n) space?\nint>\nDon't guess \u2014 tell me what grows and with what.\nsolution.py \u00a0\u00b7\u00a0 python 3.12\n\u23182\n1\ndef two_sum(nums, target):\n2\n    seen = {}\n3\n    for i, n in enumerate(nums):\n4\n        if target - n in seen:\n5\n            return [seen[target - n], i]\n6\n        seen[n] = i\n7\n    return []\nOUT\n\u2318\u21b5\nidle\nno run yet this stage\n\u25cf recording \u00a00:04\nrelease to send\n\u2318\u21b5 run\n\u2318\u21e7\u21b5 submit\n\u2318. pause",
+          "title": "complexity_analysis",
+          "width": 1180,
+          "preview": "previews/24-complexity-analysis.png"
+        },
+        {
+          "height": 740,
+          "notes": "Inputs frozen, report generating\nallowed: continue\nGET \u2026/feedback",
+          "subtitle": "15/16",
+          "text": "~/two-sum\nstage:feedback\n30:40\n\u2318K\nEVALUATION INPUTS \u00b7 FROZEN\n\u23181\nTranscript turns\t48\nEvidence spans\t17\nSubmissions\t4 runs \u00b7 best 12/12\nHints used\t0 of 3\nPack \u00b7 rubric\ttwo-sum@v4 \u00b7 dsa-core@v2\ngenerating report\n8 of 10 dimensions\nNothing further is accepted into this session. Every dimension must cite a transcript span or a run before it can be written.\nTRANSCRIPT\n\u23183\nTranscript retained with the session record.\nsolution.py \u00a0\u00b7\u00a0 python 3.12\n\u23182\n\u2713\nproblem understanding\n\u2713\nclarification quality\n\u2713\nsample tracing\n\u2713\napproach quality\n\u2713\nreasoning clarity\n\u2713\nhint use\n\u2713\nimplementation\n\u2713\nedge cases\n\u00b7\ncomplexity analysis\n\u00b7\nvariant transfer\nOUT\n\u2318\u21b5\nwriting\nevidence links resolved \u00b7 17 spans\nvoice off\ntyped input \u00b7 transcript identical\n\u2318P print\n\u2318J history",
+          "title": "feedback",
+          "width": 1180,
+          "preview": "previews/25-feedback.png"
+        },
+        {
+          "height": 740,
+          "notes": "Terminal \u2014 mutations rejected\nallowed: read-only\n409 on any mutating action",
+          "subtitle": "16/16",
+          "text": "~/two-sum\nstage:completed\n31:12\n\u2318K\nSESSION COMPLETE\n\u23181\nYour report is ready\n10 dimensions, each linked to the moment that produced it.\nOpen feedback Replay\nStatus\tcompleted\nDuration\t31:12\nBest run\t12/12 hidden cases\nThis session is terminal. Editing code, submitting or speaking now returns a conflict \u2014 start a new session to try the problem again.\nTRANSCRIPT\n\u23183\nTranscript retained with the session record.\nsolution.py \u00a0\u00b7\u00a0 python 3.12\n\u23182\n1\ndef two_sum(nums, target):\n2\n    seen = {}\n3\n    for i, n in enumerate(nums):\n4\n        if target - n in seen:\n5\n            return [seen[target - n], i]\n6\n        seen[n] = i\n7\n    return []\nOUT\n\u2318\u21b5\nfinal\nrun #4 \u00b7 12/12 \u00b7 41 ms \u00b7 9.2 MB\nsession is read-only\n\u2318P print\n\u2318J history",
+          "title": "completed",
+          "width": 1180,
+          "preview": "previews/26-completed.png"
+        }
+      ],
+      "id": "stages",
+      "name": "Interview session"
+    },
+    {
+      "frames": [
+        {
+          "height": 440,
+          "notes": "Paused by you\nstate preserved \u00b7 no side-effect replay",
+          "subtitle": "",
+          "text": "~/two-sum\nstage:preserved\n18:22\n\u2318K\nSESSION PAUSED\nPaused at stage test_and_debug\n\nYour transcript, code and the pinned pack are held exactly as they were. Resuming puts you back at the same stage \u2014 nothing is replayed and no turn is re-sent.\n\nElapsed time stops while paused. 18:22 recorded.\nAbandon session\nResume",
+          "title": "paused",
+          "width": 760,
+          "preview": "previews/27-paused.png"
+        },
+        {
+          "height": 440,
+          "notes": "Model failed \u2014 your work is intact\nbounded retry \u2192 recoverable_error",
+          "subtitle": "",
+          "text": "~/two-sum\nstage:preserved\n18:22\n\u2318K\nINTERVIEWER UNAVAILABLE\nThe interviewer didn't respond\n\nWe retried three times. Your stage, transcript and code are untouched \u2014 retry when you are ready, or pause and come back.\n\nThis is our failure, not yours. It is not recorded against any dimension.\nPause instead\nRetry",
+          "title": "recoverable_error",
+          "width": 760,
+          "preview": "previews/28-recoverable-error.png"
+        },
+        {
+          "height": 440,
+          "notes": "Infrastructure \u2014 neutral, never red\nverdict: infrastructure_failure",
+          "subtitle": "",
+          "text": "~/two-sum\nstage:preserved\n18:22\n\u2318K\nINFRASTRUCTURE FAILURE\nWe couldn't run your code\n\nThe sandbox failed to start. This says nothing about your solution \u2014 the run is discarded rather than marked wrong.\n\nRendered in neutral grey, never the fail colour. PRD \u00a75: a sandbox outage must not be scored as a candidate failure.\nKeep working\nRun again",
+          "title": "sandbox_failure",
+          "width": 760,
+          "preview": "previews/29-sandbox-failure.png"
+        },
+        {
+          "height": 440,
+          "notes": "Queue full \u2014 bounded, honest\n429 \u00b7 retryable saturation",
+          "subtitle": "",
+          "text": "~/two-sum\nstage:preserved\n18:22\n\u2318K\nEXECUTION QUEUE FULL\nYour run is queued behind 14 others\n\nWe cap how much work we accept rather than silently piling it up. Your submission is saved \u2014 it will run as soon as a slot frees, in about 40 seconds.\n\nQueue wait is never counted as execution time, and never against your implementation score.\nCancel run\nWait",
+          "title": "queue_saturation",
+          "width": 760,
+          "preview": "previews/30-queue-saturation.png"
+        },
+        {
+          "height": 440,
+          "notes": "Voice dropped \u2014 text takes over\ntranscription timeout \u2192 text fallback",
+          "subtitle": "",
+          "text": "~/two-sum\nstage:preserved\n18:22\n\u2318K\nTRANSCRIPTION UNAVAILABLE\nWe couldn't transcribe that\n\nThe transcription service timed out. Your audio was not stored. Type your answer instead \u2014 typed and spoken turns go through exactly the same path and are scored identically.\n\nSwitching to text has no effect on any score. Voice can be turned back on at any point.\nTry speaking again\nSwitch to typing",
+          "title": "transcription_failed",
+          "width": 760,
+          "preview": "previews/31-transcription-failed.png"
+        },
+        {
+          "height": 440,
+          "notes": "Consent revoked mid-session\nPOST \u2026/voice-consent \u00b7 revoke",
+          "subtitle": "",
+          "text": "~/two-sum\nstage:preserved\n18:22\n\u2318K\nVOICE TURNED OFF\nVoice input is off for this session\n\nRecording stopped immediately and no further audio will be sent. Your existing transcript stays \u2014 delete it from voice & privacy if you want it gone.\n\nVoice & privacy\nContinue by typing",
+          "title": "consent_revoked",
+          "width": 760,
+          "preview": "previews/32-consent-revoked.png"
+        },
+        {
+          "height": 440,
+          "notes": "404 / 500\n\u2014",
+          "subtitle": "",
+          "text": "~/two-sum\n\u2318K\n404\nNo session here\n\nThis session doesn't exist, or it belongs to another account. Your own sessions are in history.\n\nGo to history",
+          "title": "not_found",
+          "width": 760,
+          "preview": "previews/33-not-found.png"
+        }
+      ],
+      "id": "states",
+      "name": "System & failure states"
+    },
+    {
+      "frames": [
+        {
+          "height": 740,
+          "notes": "Published versions are immutable; editing forks the next version.",
+          "subtitle": "/admin/packs",
+          "text": "~/admin / packs\nreviewer \u00b7 gk\n\u2318K\nCONTENT\npacks\nreview queue\ntest banks\nOPERATIONS\nhealth\nmodel gateway\naudit log\nPROBLEM PACKS\nNew pack\nPACK\tVERSION\tSTATE\tAPPROACHES\tTESTS\tHINTS\tAUTHOR\ntwo-sum\tv4\tpublished\t3\t3 + 9\t3\tar\nthree-sum\tv2\tpublished\t2\t4 + 11\t3\tar\nmerge-intervals\tv2\tin review\t3\t3 + 8\t3\tpn\nword-ladder\tv3\tchanges requested\t2\t2 + 6\t2\tpn\nlru-cache\tv1\tdraft\t1\t0 + 0\t0\tgk\nPublished versions are immutable. Editing a published pack creates the next version; sessions already running keep the version they pinned.",
+          "title": "Packs",
+          "width": 1180,
+          "preview": "previews/34-packs.png"
+        },
+        {
+          "height": 740,
+          "notes": "Validation is a publish gate, not a warning. The hint ladder must be ordered and non-revealing until the last rung.",
+          "subtitle": "/admin/packs/{id}",
+          "text": "~/admin / merge-intervals@v2 \u00b7 draft\nin review\n\u2318K\nPACK SECTIONS\n\u2713\nStatement & constraints\n\u2713\nExamples\n\u2713\nEdge cases & invariants\n\u2713\nReference approaches (3)\n!\nComplexity notes\n\u2713\nVariants (2)\n!\nFollow-ups & rubrics\n\u2713\nPublic tests (3)\n\u2713\nHidden tests (8)\n\u2713\nHint ladder (3)\n\u2715\nMatching metadata\nHINT LADDER \u00b7 MUST BE ORDERED, NON-REVEALING UNTIL LAST\nHINT 1 \u00b7 NUDGE\nWhat happens if you look at the intervals in a different order?\nHINT 2 \u00b7 STRUCTURE\nSort by start time. Now what must be true of two adjacent intervals that overlap?\nHINT 3 \u00b7 APPROACH\nSweep once, extending the current interval's end while the next start is not greater than it.\nVALIDATION\npass\nall reference approaches compile and pass every test\npass\nhidden tests disjoint from public tests\nfail\nmatching metadata: no keywords for approach 3 (sweep line)\nskip\nprovenance check queued \u2014 source links unreviewed\ncannot publish while validation fails\nSave draft\nSubmit for review",
+          "title": "Pack editor",
+          "width": 1180,
+          "preview": "previews/35-pack-editor.png"
+        },
+        {
+          "height": 740,
+          "notes": "Four gates: structural, correctness, provenance, human. Reviewer \u2260 author is enforced, and provenance can block publication on its own.",
+          "subtitle": "/admin/review",
+          "text": "~/admin / review queue\n\u2318K\nCONTENT\npacks\nreview queue\ntest banks\nOPERATIONS\nhealth\nmodel gateway\naudit log\nword-ladder@v3 \u00b7 AUTHORED BY pn \u00b7 AWAITING YOUR REVIEW\nAn author cannot approve their own pack. Publishing requires a structural pass, a correctness pass, and a human reviewer who is not the author.\nGATE\tRESULT\tDETAIL\nStructural\tpass\tall required sections present\nCorrectness\tpass\t2 reference approaches \u00b7 8/8 tests\nProvenance\tblocked\thint 2 paraphrases a LeetCode discussion post\nHuman review\tyou\treviewer \u2260 author \u2713\nPROVENANCE FLAG\nHint 2 closely matches a linked third-party discussion. Rewrite it independently or record a rights review before this pack can publish.\nRequest changes\nApprove & publish\nblocked by provenance",
+          "title": "Review & publish",
+          "width": 1180,
+          "preview": "previews/36-review-publish.png"
+        },
+        {
+          "height": 740,
+          "notes": "The verdict table states, per row, whether it counts against a candidate. The one that never does is rendered in the neutral infra grey.",
+          "subtitle": "/admin/health",
+          "text": "~/admin / health\n\u2318K\nCONTENT\npacks\nreview queue\ntest banks\nOPERATIONS\nhealth\nmodel gateway\naudit log\n37\nactive sessions\n14\nqueue depth \u00b7 cap 50\n1.9s\np95 interviewer turn\n0.4%\ninfra failure rate\n2\nDLQ messages\n99.1%\ntranscription success\nEXECUTION OUTCOMES \u00b7 LAST HOUR\nVERDICT\tCOUNT\tCOUNTS AGAINST CANDIDATE\naccepted\t412\tyes\nwrong_answer\t188\tyes\ntime_limit\t31\tonly if worker health trusted\nmemory_limit\t9\tonly if worker health trusted\ninfrastructure_failure\t4\tnever\nInfrastructure failures are tracked as an operations problem, not a candidate signal \u2014 they are excluded from every scoring path and alarm separately.",
+          "title": "Operations",
+          "width": 1180,
+          "preview": "previews/37-operations.png"
+        }
+      ],
+      "id": "admin",
+      "name": "Admin & content ops"
+    }
+  ],
+  "render_environment": {
+    "browser": "145.0.7632.159",
+    "fonts": [
+      {
+        "family": "IBM Plex Mono",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "status": "loaded",
+        "weight": "400"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "status": "loaded",
+        "weight": "500"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "status": "loaded",
+        "weight": "600"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "400"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "loaded",
+        "weight": "400"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "500"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "loaded",
+        "weight": "500"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "600"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "loaded",
+        "weight": "600"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "unloaded",
+        "weight": "700"
+      },
+      {
+        "family": "IBM Plex Sans",
+        "status": "loaded",
+        "weight": "700"
+      }
+    ],
+    "console_errors": []
+  },
+  "visual_review": {
+    "scope": "Representative desktop previews; all 37 frames rendered and structurally checked.",
+    "reviewed_previews": [
+      "previews/01-landing.png",
+      "previews/03-home.png",
+      "previews/06-mic-check-consent.png",
+      "previews/07-feedback-report.png",
+      "previews/10-voice-privacy.png",
+      "previews/20-code.png",
+      "previews/29-sandbox-failure.png",
+      "previews/30-queue-saturation.png",
+      "previews/36-review-publish.png",
+      "previews/37-operations.png"
+    ],
+    "limitations": [
+      "Desktop canvas only; no mobile layouts supplied.",
+      "Mock controls and fixture text do not establish implemented interactions or canonical API contracts.",
+      "Required policy/copy reconciliation is documented in index.md."
+    ]
+  }
+}

@@ -1,0 +1,766 @@
+openapi: 3.1.0
+info:
+  title: AI DSA Interview Practice API
+  version: 1.0.0
+  summary: Initial candidate API contract for sessions, published problems, and turn-based voice.
+  description: >
+    Backend-owned interview workflow. This contract covers health/readiness, published
+    Problem Pack retrieval, persisted session operations, and the selected turn-based voice
+    path (versioned consent, bounded audio-turn transcription, and on-demand interviewer TTS).
+    Code submission/execution endpoints remain deferred until the submission and queued-result
+    contract is finalized. All state changes are validated by the backend state machine.
+servers:
+  - url: /api/v1
+    description: Versioned API base path
+tags:
+  - name: Health
+  - name: Problems
+  - name: Interview Sessions
+  - name: Voice
+security:
+  - bearerAuth: []
+paths:
+  /health/live:
+    get:
+      tags: [Health]
+      operationId: getLiveness
+      security: []
+      summary: Process liveness check
+      responses:
+        '200':
+          description: Process is alive
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+  /health/ready:
+    get:
+      tags: [Health]
+      operationId: getReadiness
+      security: []
+      summary: Dependency readiness check
+      responses:
+        '200':
+          description: Required dependencies are ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+        '503':
+          description: One or more required dependencies are unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+  /problems:
+    get:
+      tags: [Problems]
+      operationId: listPublishedProblems
+      summary: List published problems available to the current candidate
+      parameters:
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Published problem summaries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /problems/{problemId}:
+    get:
+      tags: [Problems]
+      operationId: getPublishedProblem
+      summary: Get candidate-visible details for a published problem
+      parameters:
+        - $ref: '#/components/parameters/ProblemId'
+      responses:
+        '200':
+          description: Candidate-visible problem details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /interview-sessions:
+    post:
+      tags: [Interview Sessions]
+      operationId: createInterviewSession
+      summary: Create an interview session pinned to a published Problem Pack version
+      description: >
+        The server selects the currently eligible published pack version and records
+        the exact version on the session. The client cannot submit an arbitrary pack
+        version or override session state; the created session response is authoritative
+        for the pinned version.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSessionRequest'
+      responses:
+        '201':
+          description: Session created in the `created` stage; the client starts it with a `start` action.
+          headers:
+            Location:
+              schema:
+                type: string
+              description: Relative URL of the created session
+            ETag:
+              schema:
+                type: string
+                example: '"0"'
+              description: Opaque entity tag containing the current session version.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterviewSession'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /interview-sessions/{sessionId}:
+    get:
+      tags: [Interview Sessions]
+      operationId: getInterviewSession
+      summary: Get the current session snapshot and latest turn
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Current session state
+          headers:
+            ETag:
+              schema:
+                type: string
+                example: '"3"'
+              description: Opaque entity tag containing the current session version.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterviewSession'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags: [Interview Sessions]
+      operationId: submitInterviewAction
+      summary: Submit a candidate action for the current interview stage
+      description: >
+        The backend validates the action against the persisted state, allowed-action
+        policy, and expected version. This endpoint does not allow clients to set the
+        next state directly. Use an idempotency key for safe retries.
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: If-Match
+          in: header
+          required: true
+          description: Standard HTTP If-Match entity tag. The quoted decimal value must match the current session version; for example, version zero is `"0"`.
+          schema:
+            type: string
+            pattern: '^"[0-9]+"$'
+            example: '"0"'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitActionRequest'
+      responses:
+        '200':
+          description: Action accepted and resulting session snapshot returned
+          headers:
+            ETag:
+              schema:
+                type: string
+                example: '"4"'
+              description: Opaque entity tag containing the resulting session version.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterviewSession'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: State/version conflict or idempotency key reused with different payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '412':
+          description: Session version does not match If-Match
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '503':
+          description: Required dependency temporarily unavailable; session state remains unchanged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /interview-sessions/{sessionId}/voice-consent:
+    post:
+      tags: [Voice]
+      operationId: recordVoiceConsent
+      summary: Record acceptance or revocation of the current voice-processing notice
+      description: >
+        Consent is explicit, versioned, and associated with the authenticated session owner.
+        Microphone permission alone is not consent. The server records the action and advances
+        the session version. Revoked or missing consent blocks voice-turn upload.
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: If-Match
+          in: header
+          required: true
+          description: Current session ETag; required because consent status is session-scoped state.
+          schema:
+            type: string
+            pattern: '^"[0-9]+"$'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoiceConsentRequest'
+      responses:
+        '200':
+          description: Consent status recorded
+          headers:
+            ETag:
+              schema:
+                type: string
+                example: '"4"'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceConsentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          description: Session version does not match If-Match
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+  /interview-sessions/{sessionId}/voice-turns:
+    post:
+      tags: [Voice]
+      operationId: submitVoiceTurn
+      summary: Transcribe one candidate utterance and process it as a normal session response
+      description: >
+        Requires a current accepted voice consent record. The uploaded audio is processed
+        transiently and is not durably stored by the application. Request bodies and audio
+        must be excluded from logs/traces. Transcription must succeed before the candidate
+        response is submitted to the normal backend state machine. The numeric upload/duration
+        limits are configured centrally and must be documented by the deployed client.
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: If-Match
+          in: header
+          required: true
+          description: Current session ETag; stale versions are rejected without committing a turn.
+          schema:
+            type: string
+            pattern: '^"[0-9]+"$'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [audio]
+              properties:
+                audio:
+                  type: string
+                  format: binary
+                  description: One bounded audio turn; accepted media types/size limits are deployment configuration.
+      responses:
+        '200':
+          description: Transcript accepted through the normal state machine and next interviewer turn returned
+          headers:
+            ETag:
+              schema:
+                type: string
+                example: '"5"'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceTurnResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          description: Session version does not match If-Match
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '413':
+          description: Audio payload exceeds configured upload limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '415':
+          description: Unsupported audio media type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '503':
+          description: Transcription or required model provider temporarily unavailable; session state is unchanged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+  /interview-sessions/{sessionId}/turns/{turnId}/speech:
+    post:
+      tags: [Voice]
+      operationId: generateInterviewerSpeech
+      summary: Stream speech for an existing interviewer text turn
+      description: >
+        Generates audio from the persisted interviewer response text only. It must reject
+        candidate/system turns and turn IDs that do not belong to this session. Generated
+        audio is streamed and not durably stored by the application. The operation does not
+        change interview state and is rate-limited.
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+        - name: turnId
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 1
+      responses:
+        '200':
+          description: Generated interviewer speech stream
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                example: 'no-store'
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '503':
+          description: Speech provider temporarily unavailable; interviewer text remains available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Clerk session token. Verify signature, issuer, expiry, and authorized party/server audience as configured; map the validated provider subject to an internal user ID. Never trust a browser-supplied user ID.
+  parameters:
+    ProblemId:
+      name: problemId
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+    SessionId:
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Unique per logical command. Repeating the same key and payload returns the original result.
+      schema:
+        type: string
+        minLength: 8
+        maxLength: 200
+  responses:
+    BadRequest:
+      description: Malformed request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    Unauthorized:
+      description: Authentication is missing or invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    Forbidden:
+      description: Caller is authenticated but not authorized for this resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    NotFound:
+      description: Resource does not exist or is not visible to the caller
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    Conflict:
+      description: Request conflicts with existing state
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    ValidationError:
+      description: Request fields are invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    RateLimited:
+      description: Caller or workload has exceeded a configured rate limit
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+            minimum: 0
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+  schemas:
+    HealthStatus:
+      type: object
+      required: [status, timestamp]
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, unavailable]
+        timestamp:
+          type: string
+          format: date-time
+        checks:
+          type: object
+          additionalProperties:
+            type: string
+            enum: [ok, degraded, unavailable, skipped]
+    ProblemSummary:
+      type: object
+      required: [problemId, title, difficulty]
+      properties:
+        problemId:
+          type: string
+        title:
+          type: string
+        difficulty:
+          type: string
+          enum: [easy, medium, hard, mixed]
+        topicTags:
+          type: array
+          items:
+            type: string
+        latestPublishedVersion:
+          type: string
+    ProblemListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProblemSummary'
+        nextCursor:
+          type: [string, 'null']
+    ProblemDetail:
+      allOf:
+        - $ref: '#/components/schemas/ProblemSummary'
+        - type: object
+          required: [statement, constraints, examples]
+          properties:
+            statement:
+              type: string
+            constraints:
+              type: array
+              items:
+                type: string
+            examples:
+              type: array
+              items:
+                type: object
+                required: [input, output]
+                properties:
+                  input:
+                    type: string
+                  output:
+                    type: string
+                  explanation:
+                    type: string
+            problemPackVersion:
+              type: string
+              description: Exact published version used for this candidate-visible problem detail. Session creation returns its authoritative pinned version.
+    CreateSessionRequest:
+      type: object
+      required: [problemId]
+      additionalProperties: false
+      properties:
+        problemId:
+          type: string
+        clientContext:
+          type: object
+          additionalProperties: false
+          properties:
+            selfReportedExperience:
+              type: string
+              maxLength: 2000
+            preferredInterviewLanguage:
+              type: string
+              description: Preferred natural language for interviewer/candidate conversation, not a programming language.
+        clientRequestId:
+          type: string
+          description: Optional client-generated trace identifier; not a substitute for Idempotency-Key.
+    SubmitActionRequest:
+      type: object
+      required: [actionType, payload]
+      additionalProperties: false
+      properties:
+        actionType:
+          type: string
+          enum:
+            - start
+            - candidate_response
+            - request_clarification
+            - continue
+            - skip_optional
+            - request_hint
+            - resume
+            - retry_current_action
+            - cancel
+        payload:
+          type: object
+          description: Payload schema depends on actionType and is validated by the backend. Empty objects are valid for control actions that need no payload.
+          additionalProperties: true
+        clientTurnId:
+          type: string
+          description: Optional stable client turn identifier for deduplication/traceability.
+    InterviewSession:
+      type: object
+      required:
+        - sessionId
+        - problemId
+        - problemPackVersion
+        - status
+        - currentStage
+        - version
+        - createdAt
+        - updatedAt
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+        problemId:
+          type: string
+        problemPackVersion:
+          type: string
+        status:
+          type: string
+          enum: [created, active, paused, completed, abandoned, recoverable_error]
+        currentStage:
+          type: string
+          enum:
+            - created
+            - intro
+            - experience_context
+            - problem_read_and_clarify
+            - problem_restatement
+            - sample_trace
+            - initial_approach
+            - approach_clarification
+            - hints
+            - code
+            - test_and_debug
+            - improve_approach
+            - variants_and_followups
+            - complexity_analysis
+            - feedback
+            - completed
+        version:
+          type: integer
+          minimum: 0
+        latestTurn:
+          type: [object, 'null']
+          properties:
+            turnId:
+              type: string
+            role:
+              type: string
+              enum: [interviewer, candidate, system]
+            text:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+        allowedActions:
+          type: array
+          items:
+            type: string
+        voiceConsent:
+          type: [object, 'null']
+          description: Current session-scoped consent metadata; excludes raw audio.
+          properties:
+            accepted:
+              type: boolean
+            noticeVersion:
+              type: string
+            recordedAt:
+              type: string
+              format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    VoiceConsentRequest:
+      type: object
+      required: [accepted, noticeVersion]
+      additionalProperties: false
+      properties:
+        accepted:
+          type: boolean
+          description: True accepts, false revokes, the notice version provided.
+        noticeVersion:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Must equal the current server-configured notice version; the server stores timestamp and actor.
+    VoiceConsentResponse:
+      type: object
+      required: [session, accepted, noticeVersion, recordedAt]
+      properties:
+        session:
+          $ref: '#/components/schemas/InterviewSession'
+        accepted:
+          type: boolean
+        noticeVersion:
+          type: string
+        recordedAt:
+          type: string
+          format: date-time
+    VoiceTurnResponse:
+      type: object
+      required: [session, candidateTurnId, interviewerTurnId, transcript, interviewerText, transcriptionModel]
+      properties:
+        session:
+          $ref: '#/components/schemas/InterviewSession'
+        candidateTurnId:
+          type: string
+        interviewerTurnId:
+          type: string
+        transcript:
+          type: string
+          description: Persisted candidate transcript, visible to the candidate, subject to the transcript retention policy.
+        interviewerText:
+          type: string
+          description: Text response generated through the normal backend-controlled interview flow.
+        transcriptionModel:
+          type: string
+          example: gpt-transcribe
+        speechAvailable:
+          type: boolean
+          description: Whether TTS can be requested for interviewerTurnId; text remains available if false.
+    ApiError:
+      type: object
+      required: [code, message, requestId]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+          description: Safe, user-facing message; must not expose secrets or hidden test data.
+        requestId:
+          type: string
+        retryable:
+          type: boolean
+        details:
+          type: object
+          description: Allowlisted, non-sensitive metadata only; never include hidden tests, expected outputs, prompts, source artifacts, credentials, or private reviewer notes.
+          additionalProperties: true

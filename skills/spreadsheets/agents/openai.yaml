@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spreadsheets"
+  short_description: "Edit, recalculate and preview XLSX templates"
+  default_prompt: "Use $spreadsheets to clone an XLSX template, apply requested edits, recalculate formulas, render previews, and report fidelity changes."

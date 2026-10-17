@@ -1,0 +1,400 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/contracts/events/async_schemas.json",
+  "title": "AI DSA Interview Platform Event Contracts",
+  "description": "Versioned asynchronous event envelope and initial event payload schemas. Replace example.invalid with the project-owned schema URI before external publication.",
+  "$defs": {
+    "EventEnvelope": {
+      "type": "object",
+      "required": [
+        "eventId",
+        "eventType",
+        "schemaVersion",
+        "occurredAt",
+        "producer",
+        "correlationId",
+        "payload"
+      ],
+      "properties": {
+        "eventId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "eventType": {
+          "type": "string"
+        },
+        "schemaVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "producer": {
+          "type": "string"
+        },
+        "correlationId": {
+          "type": "string"
+        },
+        "causationId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tenantId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Reserved for future multi-tenant deployments; omit/null in single-tenant V1."
+        },
+        "payload": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SessionEventPayload": {
+      "type": "object",
+      "required": [
+        "sessionId",
+        "userId",
+        "sessionVersion",
+        "problemId",
+        "problemPackVersion"
+      ],
+      "properties": {
+        "sessionId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "sessionVersion": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "problemId": {
+          "type": "string"
+        },
+        "problemPackVersion": {
+          "type": "string"
+        },
+        "stage": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "actionType": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "result": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "turnId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "inputModality": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "text",
+            "voice",
+            "system",
+            null
+          ],
+          "description": "Input modality for the turn; absent/null when not relevant."
+        },
+        "consentNoticeVersion": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Version of the accepted consent notice for voice processing; never an audio reference."
+        },
+        "modelId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Configured model ID for this event when relevant."
+        }
+      },
+      "additionalProperties": true
+    },
+    "CodeExecutionRequestedPayload": {
+      "type": "object",
+      "required": [
+        "executionId",
+        "submissionId",
+        "sessionId",
+        "problemId",
+        "problemPackVersion",
+        "language",
+        "sourceArtifactRef",
+        "testSuiteVersion",
+        "requestedLimitsProfile"
+      ],
+      "properties": {
+        "executionId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "submissionId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "sessionId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "problemId": {
+          "type": "string"
+        },
+        "problemPackVersion": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "sourceArtifactRef": {
+          "type": "string",
+          "description": "Opaque internal reference; never a public URL."
+        },
+        "testSuiteVersion": {
+          "type": "string"
+        },
+        "requestedLimitsProfile": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "CodeExecutionCompletedPayload": {
+      "type": "object",
+      "required": [
+        "executionId",
+        "submissionId",
+        "sessionId",
+        "outcome",
+        "durationMs",
+        "infrastructureFailure",
+        "testSuiteVersion",
+        "resultSchemaVersion"
+      ],
+      "properties": {
+        "executionId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "submissionId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "sessionId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "accepted",
+            "wrong_answer",
+            "compile_error",
+            "runtime_error",
+            "time_limit",
+            "memory_limit",
+            "output_limit",
+            "infrastructure_error",
+            "cancelled"
+          ]
+        },
+        "durationMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "infrastructureFailure": {
+          "type": "boolean"
+        },
+        "passedCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "totalCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "resourceUsage": {
+          "type": "object",
+          "properties": {
+            "cpuMs": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "peakMemoryKb": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
+        },
+        "testSuiteVersion": {
+          "type": "string"
+        },
+        "toolchainVersion": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Pinned compiler/runtime image or toolchain identifier; null when execution failed before toolchain resolution."
+        },
+        "resultSchemaVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Version of the persisted execution-result contract."
+        }
+      },
+      "additionalProperties": false
+    },
+    "ProblemPackPublishedPayload": {
+      "type": "object",
+      "required": [
+        "problemId",
+        "problemPackVersion",
+        "publishedAt",
+        "reviewStatus"
+      ],
+      "properties": {
+        "problemId": {
+          "type": "string"
+        },
+        "problemPackVersion": {
+          "type": "string"
+        },
+        "publishedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reviewStatus": {
+          "type": "string",
+          "enum": [
+            "approved"
+          ]
+        },
+        "contentChecksum": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    {
+      "allOf": [
+        {
+          "$ref": "#/$defs/EventEnvelope"
+        },
+        {
+          "properties": {
+            "eventType": {
+              "enum": [
+                "interview.session.created",
+                "interview.session.started",
+                "interview.session.transitioned",
+                "interview.candidate_response.accepted",
+                "interview.approach_assessed",
+                "interview.hint.exposed",
+                "interview.code_submission.created",
+                "interview.session.paused",
+                "interview.session.resumed",
+                "interview.session.recoverable_failure",
+                "interview.feedback.generated",
+                "interview.session.completed",
+                "interview.session.abandoned",
+                "interview.evaluation.evidence_recorded",
+                "interview.voice_consent.changed",
+                "interview.voice_turn.transcribed",
+                "interview.voice_response.speech_generated"
+              ]
+            },
+            "payload": {
+              "$ref": "#/$defs/SessionEventPayload"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        {
+          "$ref": "#/$defs/EventEnvelope"
+        },
+        {
+          "properties": {
+            "eventType": {
+              "const": "code.execution.requested"
+            },
+            "payload": {
+              "$ref": "#/$defs/CodeExecutionRequestedPayload"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        {
+          "$ref": "#/$defs/EventEnvelope"
+        },
+        {
+          "properties": {
+            "eventType": {
+              "const": "code.execution.completed"
+            },
+            "payload": {
+              "$ref": "#/$defs/CodeExecutionCompletedPayload"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "allOf": [
+        {
+          "$ref": "#/$defs/EventEnvelope"
+        },
+        {
+          "properties": {
+            "eventType": {
+              "const": "content.problem_pack.published"
+            },
+            "payload": {
+              "$ref": "#/$defs/ProblemPackPublishedPayload"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
