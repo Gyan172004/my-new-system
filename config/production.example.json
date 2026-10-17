@@ -1,0 +1,15 @@
+{
+  "APP_ENV": "production",
+  "PORT": "3000",
+  "LOG_LEVEL": "info",
+  "DB_POOL_MAX": "5",
+  "IDENTITY_ADAPTER": "disabled",
+  "DB_CONNECT_TIMEOUT_MS": "500",
+  "DB_STATEMENT_TIMEOUT_MS": "500",
+  "READINESS_TIMEOUT_MS": "2000",
+  "STARTUP_TIMEOUT_MS": "60000",
+  "SHUTDOWN_TIMEOUT_MS": "30000",
+  "secretReferences": {
+    "DATABASE_URL": "production/foundation/database-url"
+  }
+}

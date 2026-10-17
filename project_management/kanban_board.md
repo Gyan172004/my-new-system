@@ -1,7 +1,7 @@
 # Initial Kanban Board
 
 **Purpose:** Track implementation work derived from the dependency graph and V1 release plan.  
-**Status:** Initial backlog; no application implementation is claimed complete. K-027 is Done because the owner decision and required documentation/contract updates are complete.  
+**Status:** Application Foundation implementation started; K-001 workflow acceptance is verified. No application milestone is complete. K-027 is Done because the owner decision and required documentation/contract updates are complete.
 **Architecture source of truth:** Linked Markdown requirements, contracts, and design documents.  
 **Task status source of truth:** This board or its imported live equivalent.
 
@@ -24,11 +24,6 @@
 7. Do not put secrets, candidate data, hidden tests, or credentials in task descriptions.
 
 ## Ready
-
-### K-001 — Confirm repository conventions and local developer workflow
-- Milestone: M0 · Priority: P0
-- Depends on: None
-- Acceptance: clean-checkout instructions are documented; configuration is validated; format/lint/test commands are discoverable.
 
 ### K-002 — Establish application skeleton and module boundaries
 - Milestone: M0 · Priority: P0
@@ -150,6 +145,12 @@ _None._
 _None._
 
 ## Done
+
+### K-001 — Confirm repository conventions and local developer workflow
+- Milestone: M0 · Priority: P0
+- Depends on: None
+- Acceptance: clean-checkout instructions are documented; configuration is validated; format/lint/test commands are discoverable.
+- Completion evidence: locked clean-directory installation, configuration validation, format/lint/type checks and 67 unit tests passed; independent review found no blocking issues. See [foundation runbook](../docs/runbooks/foundation.md).
 
 ### K-027 — Resolve V1 voice interaction and transcription scope
 - Milestone: M0 · Priority: P0 · Depends on: None

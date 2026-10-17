@@ -22,3 +22,13 @@ __pycache__/
 *.log
 .DS_Store
 /skills/vendor/
+
+# Application build output and editor temporaries.
+dist/
+build/
+*.tsbuildinfo
+*.tmp
+*.swp
+Thumbs.db
+.vscode/
+.idea/

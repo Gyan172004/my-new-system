@@ -1,6 +1,6 @@
 # AI DSA Interview Practice Platform — Documentation Baseline
 
-This repository currently contains the planning/design baseline and contracts. It is not yet an application implementation. The documents define the product, architecture, feature sequence, core technical contracts, and initial task backlog.
+This repository contains the planning/design baseline, canonical contracts and the first reviewed Application Foundation increment: pinned tooling, tested configuration validation and developer commands. The application server and feature behavior remain unbuilt. Follow [the local development guide](docs/development.md) and the canonical Kanban for current task status.
 
 ## Start here
 
@@ -40,4 +40,4 @@ Clerk authentication; turn-based voice with visible transcript and speech output
 
 ## Current next step
 
-The initial Kanban marks K-001 and K-002 as Ready. Start implementation there, using the dependency graph and task dependencies to guide parallel work. The V1 choices are recorded in `docs/01_macro_architecture/05_architecture_decision_records.md`; K-027 (voice-scope decision) is marked Done after this decision/document update, while K-029 tracks the voice implementation. K-028 tracks environment separation and secret handling after the application skeleton is established.
+K-001 workflow acceptance is verified. Continue with K-002 application composition and module boundaries in the approved task order; its runtime, lifecycle and health evidence is still pending. K-028 remains incomplete until local and authorized external environment evidence exists. The [Kanban](project_management/kanban_board.md) and its CSV export own status; the V1 choices remain in the ADR register.
