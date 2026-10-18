@@ -1,7 +1,7 @@
-import type { PoolClient } from 'pg';
+import type { ClientBase } from 'pg';
 // Read library-owned metadata only. No DDL, migration or ledger repair in probes.
 export async function readSchemaHistory(
-  client: PoolClient,
+  client: Pick<ClientBase, 'query'>,
 ): Promise<readonly string[] | null> {
   const ledger = await client.query<{ ledger: string | null }>(
     "SELECT to_regclass('public.pgmigrations') AS ledger",

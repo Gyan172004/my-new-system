@@ -104,3 +104,31 @@ it('rejects missing explicit environment through the actual allocator before cre
   }
   expect(outcome).toBe('unsafe_test_target');
 });
+
+it('refuses recording a name that this owner never allocated', () => {
+  const owner = createTestOwnership('0123456789abcdef', 'worker');
+  expect(() =>
+    owner.record('foundation_test_0123456789abcdef_worker_forged'),
+  ).toThrow('unowned_test_database');
+});
+it('rejects unsupported fixture purposes and prepared-schema setup without an initializer before credential access', async () => {
+  const { allocateTestDatabase } = await import('../helpers/test-database');
+  vi.stubEnv('APP_ENV', 'test');
+  vi.stubEnv('FOUNDATION_TEST_PASSWORD_FILE', '/nonexistent/should-not-read');
+  try {
+    for (const options of [
+      { purpose: 'unknown' },
+      { purpose: 'prepared-schema-readiness' },
+    ]) {
+      let outcome = 'succeeded';
+      try {
+        await allocateTestDatabase(options as never);
+      } catch (error) {
+        outcome = error instanceof Error ? error.message : 'unexpected';
+      }
+      expect(outcome).toBe('unsafe_test_purpose');
+    }
+  } finally {
+    vi.unstubAllEnvs();
+  }
+});

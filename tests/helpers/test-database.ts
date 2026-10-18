@@ -31,16 +31,19 @@ export function createTestOwnership(run: string, worker: string) {
     throw new Error('unsafe_test_owner');
   const prefix = `foundation_test_${run}_${worker}_`;
   const owned = new Set<string>();
+  const issued = new Set<string>();
   let sequence = 0;
   return {
     allocateName() {
       const name = prefix + (sequence++).toString(36);
       validateTestDatabaseName(name);
+      issued.add(name);
       return name;
     },
     record(name: string) {
       validateTestDatabaseName(name);
-      if (!name.startsWith(prefix)) throw new Error('unowned_test_database');
+      if (!name.startsWith(prefix) || !issued.has(name))
+        throw new Error('unowned_test_database');
       owned.add(name);
     },
     assertOwned(name: string) {
@@ -80,7 +83,13 @@ export async function withinTestDeadline<T>(
 }
 const run = randomUUID().replaceAll('-', '').slice(0, 16);
 let worker = 0;
-export async function allocateTestDatabase() {
+export interface TestDatabaseOptions {
+  purpose?: string;
+  initialize?: (connectionString: string, signal: AbortSignal) => Promise<void>;
+  runId?: string;
+  workerId?: string;
+}
+export async function allocateTestDatabase(options: TestDatabaseOptions = {}) {
   const target = validateTestSettings({
     APP_ENV: process.env.APP_ENV,
     TEST_DB_HOST: process.env.TEST_DB_HOST ?? '127.0.0.1',
@@ -90,6 +99,19 @@ export async function allocateTestDatabase() {
     TEST_DB_ADMIN_DATABASE:
       process.env.TEST_DB_ADMIN_DATABASE ?? 'foundation_test_admin',
   });
+  const purpose = options.purpose ?? 'pool-deadline';
+  if (
+    ![
+      'pool-deadline',
+      'isolation',
+      'migration-under-test',
+      'no-ledger-readiness',
+      'prepared-schema-readiness',
+    ].includes(purpose) ||
+    (purpose === 'prepared-schema-readiness' &&
+      typeof options.initialize !== 'function')
+  )
+    throw new Error('unsafe_test_purpose');
   const password = await readFile(
     process.env.FOUNDATION_TEST_PASSWORD_FILE ??
       '.local/foundation/test-db-password',
@@ -97,7 +119,10 @@ export async function allocateTestDatabase() {
   ).catch(() => {
     throw new Error('test_database_secret_file_unavailable');
   });
-  const owner = createTestOwnership(run, (worker++).toString(36));
+  const owner = createTestOwnership(
+    options.runId ?? run,
+    options.workerId ?? (worker++).toString(36),
+  );
   const name = owner.allocateName();
   const configuration = {
     ...target,
@@ -152,17 +177,33 @@ export async function allocateTestDatabase() {
   } finally {
     await admin.end().catch(() => {});
   }
-  let released = false;
+  let cleanupPromise: Promise<void> | undefined;
   const url = new URL(`postgresql://${target.host}:${target.port}/${name}`);
   url.username = target.user;
   url.password = password;
-  return {
+  const lease = {
     name,
     connectionString: url.toString(),
-    async dispose() {
-      if (released) return;
-      await cleanup();
-      released = true;
+    dispose() {
+      return (cleanupPromise ??= cleanup().catch((error: unknown) => {
+        cleanupPromise = undefined;
+        throw error;
+      }));
     },
   };
+  if (purpose === 'prepared-schema-readiness') {
+    const remaining = 30000 - (performance.now() - started);
+    const abort = new AbortController();
+    try {
+      await withinTestDeadline(
+        options.initialize!(lease.connectionString, abort.signal),
+        () => abort.abort(),
+        Math.max(1, remaining - 5000),
+      );
+    } catch {
+      await lease.dispose();
+      throw new Error('test_database_initialization_failed');
+    }
+  }
+  return Object.freeze(lease);
 }

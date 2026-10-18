@@ -1,6 +1,6 @@
 # AI DSA Interview Practice Platform — Documentation Baseline
 
-This repository contains the planning/design baseline, canonical contracts and Application Foundation tooling, tested configuration, a custom Next.js server lifecycle, enforced module boundaries, startup/HMR and privacy regression coverage, safe request telemetry, uncached health adapters and a dedicated local PostgreSQL test service. Product features and full storage/release acceptance remain unbuilt. Follow [the local development guide](docs/development.md) and the canonical Kanban for current task status.
+This repository contains the planning/design baseline, canonical contracts and Application Foundation tooling, tested configuration, a custom Next.js server lifecycle, enforced module boundaries, startup/HMR and privacy regression coverage, safe request telemetry, uncached health adapters, a dedicated local PostgreSQL test service, explicit migrations and verified storage isolation/schema readiness. Product features and full release acceptance remain unbuilt. Follow [the local development guide](docs/development.md) and the canonical Kanban for current task status.
 
 ## Start here
 
@@ -40,4 +40,4 @@ Clerk authentication; turn-based voice with visible transcript and speech output
 
 ## Current next step
 
-K-001, K-002 and K-003 acceptance is verified. Phases 1–4 cover tooling, lifecycle, boundaries, safe request telemetry, health adapters and real driver deadlines. K-004/K-005 are In Progress; the next group adds explicit migrations and expanded storage/schema-isolation evidence. K-028 remains incomplete until local and authorized external environment evidence exists. The [Kanban](project_management/kanban_board.md) and its CSV export own status; the V1 choices remain in the ADR register.
+K-001–K-005 acceptance is verified. Phases 1–5 cover tooling, lifecycle, boundaries, safe telemetry, health adapters, explicit migrations and real storage/isolation/recovery checks. Next is Phase 6: CI/security stages, application containers and the integrated process journey. K-006/K-028 remain incomplete; external environment evidence is still required. The [Kanban](project_management/kanban_board.md) and its CSV export own status; the V1 choices remain in the ADR register.

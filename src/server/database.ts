@@ -1,3 +1,4 @@
+import { databaseConnectionOptions } from './database-options';
 import { Pool, type PoolClient } from 'pg';
 import type { RuntimeConfig } from './config';
 import { getRuntime, type RuntimeRegistry } from './runtime';
@@ -19,12 +20,13 @@ export function createDatabase(
     if (stopped) throw unavailable();
     if (!pool) {
       pool = new Pool({
-        connectionString: config.databaseUrl,
+        ...databaseConnectionOptions(config.databaseUrl),
         max: config.poolMax,
         connectionTimeoutMillis: config.connectTimeoutMs,
         statement_timeout: config.statementTimeoutMs,
         query_timeout: config.statementTimeoutMs,
         application_name: 'foundation_runtime',
+        options: `-c statement_timeout=${config.statementTimeoutMs}`,
         idleTimeoutMillis: 10000,
       });
       pool.on('error', () =>

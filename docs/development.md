@@ -2,8 +2,8 @@
 
 Use this guide from the repository root. Application Foundation is being built
 in reviewed increments. The custom server, health adapters, privacy-safe request
-telemetry and dedicated local PostgreSQL test service are available. Explicit
-migrations and application containers arrive later. No provider account is needed.
+telemetry, dedicated local PostgreSQL test service and explicit migrations are
+available. Application containers and CI/release stages arrive later. No provider account is needed.
 
 ## Toolchain
 
@@ -46,7 +46,7 @@ Runtime settings and implemented commands are documented below. `npm run` lists 
 formatting, linting, type checking and unit tests never need database/provider
 credentials. Build/dev/start commands are available below. Prepare local storage with the
 [Phase 4 service instructions](runbooks/foundation.md#local-postgresql-services-and-test-targets)
-before integration tests or the full suite; explicit migrations remain pending.
+before integration tests or the full suite. Explicit migration commands are below.
 
 ### Runtime settings
 
@@ -162,14 +162,38 @@ stop the owned dev process first or use an isolated work copy.
 Configuration validation precedes Next preparation and binding. An unavailable
 DB does not stop liveness. `/api/v1/health/ready` checks serving lifecycle and
 bounded storage/schema compatibility and returns 503 when the ledger is absent
-or differs from the packaged manifest. Local test storage is deliberately empty
-until the migration phase; 503 is expected. Do not use liveness as a deployment gate.
+or differs from the packaged manifest. An empty/no-ledger database returns 503; run the explicit migration command
+against the authorized target before expecting readiness 200. Do not use liveness as a deployment gate.
 Request completion records contain fresh server IDs and allowlisted bounded fields;
 incoming IDs, URLs/query strings, headers, bodies and raw errors are excluded.
 
-`dist/migration-manifest.json` is built from sorted local SQL filenames. It is
-currently empty because the baseline migration belongs to the storage phase;
-this does not establish schema readiness. Generated `.next`, `dist`,
+`dist/migration-manifest.json` is built from sorted local SQL filenames. It
+now contains `1781654400000_foundation`. The SQL baseline creates no domain
+tables; node-pg-migrate owns its ledger. Manifest presence alone does not prove
+that a target database has been migrated. Generated `.next`, `dist`,
 `next-env.d.ts` and TypeScript caches are ignored. Strict TypeScript remains
 active; automatic Next suggestions were reviewed with JavaScript sources still
 disabled. Build regenerates framework type declarations for its active output.
+
+## Explicit storage workflow
+
+`npm run db:migrate` loads ignored `.env.local` settings (exported values win),
+requires explicit APP_ENV plus MIGRATION_DATABASE_URL and applies up to the local
+SQL head. It never falls back to runtime DATABASE_URL. Resolve credentials through
+the authorized local/secret mechanism; do not put values in shell arguments or
+tracked examples. Outside local setup, use the separate approved migration role.
+
+```bash
+# After resolving explicit APP_ENV and MIGRATION_DATABASE_URL safely:
+npm run db:migrate
+# Repeating a successful migration is a no-op.
+APP_ENV=test npm run db:test
+APP_ENV=test npm run test:integration
+```
+
+`db:test` checks the guarded allocator and drops its own empty allocation; it does
+not migrate the development database. Integration suites select empty or prepared
+fixtures explicitly. Prepared-schema readiness invokes the actual migration runner;
+migration-under-test fixtures stay empty so first-apply behavior is observable.
+See [migration operations and recovery](runbooks/foundation.md#explicit-migrations-and-recovery)
+for locking, deadlines, failure classification and forward-fix/approved-restore rules.

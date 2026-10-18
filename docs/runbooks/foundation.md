@@ -515,3 +515,179 @@ explicit test environment: 26/26 passed, exit 0, 3.15 s. No blockers remained.
 `git -c core.whitespace=cr-at-eol diff --check` passed. A final read-only query of
 the dedicated allocator service found zero allocated test databases remaining;
 no foreign database or persistent service volume was removed.
+
+## Explicit migrations and recovery
+
+Phase 5 adds `npm run db:migrate` and `APP_ENV=test npm run db:test` while retaining
+Phase 4's services and shared fixture. Both commands execute from the repository
+root with pinned Node/npm. Migration reads explicit APP_ENV and the dedicated
+MIGRATION_DATABASE_URL via exported values or ignored `.env.local`; it does not
+fall back to DATABASE_URL or infer the target from JSON examples. Never put a
+credential-bearing URL in shell arguments, tracked examples or evidence. Resolve
+it only through the authorized environment/secret mechanism.
+
+Use the separate approved migration role for the intended database outside the
+local bootstrap setup. Runtime roles should only read migration history, never
+perform migration DDL. Keep staging/production target, TLS, credential and role
+verification under T034. No staging/production migration was executed here.
+The CLI supports forward/up only, and rejects extra arguments. It applies all
+pending SQL files; successful repetition reports zero applied changes.
+
+```bash
+# Resolve APP_ENV and MIGRATION_DATABASE_URL safely first.
+npm run db:migrate
+APP_ENV=test npm run db:test
+APP_ENV=test npm run test:integration
+```
+
+The pinned stable node-pg-migrate 9.0.0 package was inspected directly before
+selection; the live documentation site currently describes an alpha 10 line.
+Published 9 supports the legacy `-- Up Migration` / `-- Down Migration` markers,
+`singleTransaction: true`, `checkOrder: true`, locking enabled and fail-fast
+advisory-lock mode. The wrapper retains the library's lock; it adds no independent
+lock. A public legacy-SQL loader checks the complete applied history is a prefix
+of the packaged chain while that library lock is held, rejecting an unknown or
+newer suffix before applying anything. A final exact check runs after library
+unlock. If a newer artifact advances history immediately after unlock, this
+check can fail after this runner's batch committed: inspect the ledger and
+artifact versions, then follow the forward-fix procedure; do not blindly retry.
+It supplies a connected dedicated client and closes it on all outcomes.
+Raw library SQL/error logs are replaced with a silent adapter, with only safe
+wrapper result/error codes emitted. Output contains an event and applied count;
+connection strings, SQL and raw exception details are excluded.
+
+The no-domain `1781654400000_foundation.sql` baseline executes SELECT 1. The
+library creates `public.pgmigrations`; foundation does not create users, sessions,
+Problem Packs or other domain tables. The packaged expected manifest derives
+from SQL filenames; real readiness compares the complete ordered ledger with it.
+No startup, probe, default empty fixture or build runs migrations implicitly.
+
+Limits are 2 seconds to connect, 30 seconds per SQL statement and 60 seconds for
+the migration command. Internal tests may use smaller positive limits, never
+larger ones. Connection options are parsed once before owned limits are applied;
+URL timeout fields and raw startup options cannot override those limits.
+Connection-option parsing errors produce only a safe configuration code.
+Command timeout or cancellation ends the actual dedicated client;
+PostgreSQL session locks are released by disconnect, rather than left behind by a
+bare Promise.race. A competing runner fails immediately with `migration_busy`
+and does not release the first session's lock. There is no automatic retry.
+
+On failure, leave replicas blocked by incompatible readiness and record only the
+safe code, target/environment reference, approved artifact revision and recovery
+owner. The tested baseline and ordinary SQL use one transaction for the attempted
+batch: a failed revision is rolled back and never stamped as applied. The library
+can create its empty metadata ledger before the attempted batch; an empty ledger
+is not a successfully applied revision. Preserve applied filenames/order; never
+edit/delete already-applied revisions or manually stamp ledger rows to get green
+readiness. Correct a failed, never-applied artifact through review, then rerun;
+repair an already-applied defect with a new reviewed forward migration.
+
+Do not automatically run Down, drop schemas, or restore a different environment.
+If future nontransactional DDL is approved, document its recovery/compatibility
+plan first. An approved restore requires the designated operator to verify backup,
+target, role, version and rollback window, restore using that procedure, then
+rerun read-only compatibility/readiness checks. Production backup/restore and
+RPO/RTO evidence remain K-026; test-owned database recreation is not that evidence.
+Unexpected or failed cleanup is a failure to report, never a reason for broad
+volume/database deletion.
+
+The shared allocator supports pool-deadline, isolation, migration-under-test,
+no-ledger-readiness and prepared-schema-readiness purposes. Empty purposes never
+invoke the initializer. Prepared purpose requires an explicit actual migration
+initializer and receives an AbortSignal. Allocation identity is issued/recorded
+by one run/worker owner; a prefix alone cannot authorize cleanup. Failed creation
+must preserve a colliding pre-existing allocation. Initializer failure cleans the
+owned database; concurrent disposal shares one cleanup operation. Setup and
+teardown are bounded by the existing 30-second budgets, with initializer time
+reserved for cleanup. `db:test` outputs only a safe allocation name/status and
+checks connection cleanup; generated credentials stay in the ignored local files.
+
+Primary references: [published package source](https://github.com/salsita/node-pg-migrate/tree/v9.0.0),
+[pg client lifecycle](https://node-postgres.com/apis/client),
+[PostgreSQL advisory locks](https://www.postgresql.org/docs/17/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS).
+
+## Phase 5 migration, isolation and schema-readiness review — 2026-10-18
+
+Scope: T019–T024 and review T043/commit T044, following `f1b7f52`.
+Applied using-superpowers, test-driven-development, systematic-debugging,
+supabase-postgres-best-practices, mastering-typescript, vitest,
+requesting-code-review, receiving-code-review, verification-before-completion,
+mastering-git-cli and mastering-github-cli. Retained pg, explicit SQL, existing
+health contracts, one shared allocator and the library-owned migration lock.
+No domain table or contract/ADR change was required.
+
+Observed test-first and debugging evidence:
+
+- `APP_ENV=test npm test -- tests/unit/test-database-guards.test.ts tests/integration/test-isolation.test.ts --reporter=dot`:
+  four newly unsupported ownership/purpose/isolation cases failed with 21 passing
+  regressions; after fixture changes, 25/25 passed. The explicit CLI then failed
+  its real invocation assertion before implementation; combined fixture/CLI
+  checks passed 26/26 after implementation.
+- `APP_ENV=test npm test -- tests/integration/migrations.test.ts --reporter=dot`:
+  seven behavior assertions failed against the explicit runner stub before the
+  baseline/runner implementation; the same seven then passed. A test parser
+  typo was corrected before accepting this clean red result.
+- `APP_ENV=test npm test -- tests/unit/health.test.ts tests/integration/readiness.test.ts --reporter=dot`:
+  16/16 passed, including actual no-ledger/migrated/unknown-history, exhaustion,
+  cancellation and test-owned database recreation/recovery. Existing driver
+  behavior already satisfied these scenarios; no speculative probe change.
+- Independent review found two important gaps: stable9 order checking accepted an
+  extra applied suffix, and pg reparsed raw connection options over wrapper
+  timeouts. Two new migration assertions failed before corrections. A runtime
+  URL-override regression also failed independently. Prefix validation now runs
+  through the public SQL loader under the library lock; runtime and migration
+  connection parsing enforce their owned limits. A further parser-error
+  sanitization assertion failed before mapping it to a safe configuration code.
+  The resulting migration/runtime focused command passed 19/19.
+- Production-copy build first exposed missing copied test-helper assets after the
+  new CLI import; the fixture now copies the shared helper and SQL baseline.
+  This harness failure is not claimed as production behavior red evidence.
+  The focused startup suite subsequently passed 5/5 and checks the literal
+  nonempty packaged migration manifest.
+- Final post-install typecheck/build exposed dedicated Client versus PoolClient
+  typing and a nominal mismatch between the library's root bundle and public
+  legacy subpath declarations. The schema reader now accepts only the required
+  query interface; runner and SQL loader use matching public subpaths. Re-review
+  approved these focused fixes. The earlier full run reported 193 passing/eight
+  skipped because two production-build hooks failed; it is not a passing suite.
+
+Independent reviewer inspected all Phase 5 code and regressions, reproduced the
+history/option issues, then approved both their fixes and the subsequent typing
+fixes with no remaining blockers. Final validation and bounded convergence are
+recorded below. Production backup/restore and hosted/container verification
+remain later work; local recreation is not an approved production restore test.
+
+Observed final validation (Node 24.22.0 / npm 11.19.1):
+
+- `npm ci`: 245 packages added, 246 audited; zero vulnerabilities. Existing
+  esbuild install-script warning retained; no permission/dependency-policy change.
+- `npm audit --audit-level=low`: zero vulnerabilities.
+- `APP_ENV=test npm test -- --reporter=dot`: 201/201 passed across 22 files,
+  96.20 s; 132 unit, 2 contract, 30 real PostgreSQL integration, 28 architecture
+  and 9 process tests. No skipped tests in this final run.
+- `npm run lint`, `npm run typecheck`, `npm run check:architecture`: passed;
+  boundary output `[]`. `npm run format:check` passed after final evidence
+  documentation formatting.
+- `env -i PATH=<pinned Node bin>:/usr/bin:/bin HOME=/tmp/foundation-build-home NEXT_TELEMETRY_DISABLED=1 npm run build`:
+  passed without runtime/DB/provider values; both health routes remain dynamic.
+- Read-only dedicated test-admin inspection after the final suite: zero allocated
+  test databases and zero runtime/migration/allocator sessions remain. No
+  development, staging or production target was migrated or removed.
+
+Bounded `$speckit-converge` assessment checked 15 functional requirements,
+7 success criteria, 16 story acceptance scenarios, 5 named plan decisions,
+5 constitution principles and all 48 task descriptions against scoped sources
+and observed tests. No additional Phase 5 action remains. Whole-feature gaps:
+missing CI/container/scanner automation (High; T025–T027/T030), partial integrated
+smoke/shutdown journey (High; T028/T029), missing external environment evidence
+(High; T034), partial final review/handoff (Medium; T031–T033/T047/T048).
+Totals: two missing, two partial, zero contradicting/unrequested; three High,
+one Medium. Existing canonical tasks already cover each gap; under project
+adaptation no duplicate convergence task or status tracker was appended.
+The whole feature is not converged. No Spec Kit extension hooks are configured.
+
+K-004 and K-005 meet their own acceptance and move to Done in canonical Kanban
+and CSV; K-006/K-028 remain incomplete. Final container/journey/release evidence
+and K-026 backup/restore retain their own gates. T044 is completed only by the
+observed scoped commit; its SHA is reported in the implementation handoff.
+Pre-existing skill/planning edits remain local and excluded from that commit.

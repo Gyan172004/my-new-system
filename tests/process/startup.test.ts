@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { afterAll, beforeAll, expect, it } from 'vitest';
 import {
   availablePort,
@@ -17,6 +19,14 @@ afterAll(async () => {
   await project?.dispose();
 }, 40000);
 it('builds without runtime secrets and serves through the bootstrap-owned registry', async () => {
+  expect(
+    JSON.parse(
+      await readFile(
+        join(project.root, 'dist/migration-manifest.json'),
+        'utf8',
+      ),
+    ),
+  ).toEqual(['1781654400000_foundation']);
   const port = await availablePort();
   const process = project.run(['dist/server.mjs'], {
     NODE_ENV: 'production',

@@ -256,3 +256,25 @@ it('never executes an aborted queued acquisition and recovers after bounded nati
     await db.close();
   }
 });
+
+it('does not let connection URL parameters disable runtime query/statement bounds', async () => {
+  const target = new URL(lease.connectionString);
+  target.searchParams.set('statement_timeout', '0');
+  target.searchParams.set('query_timeout', '10000');
+  target.searchParams.set('options', '-c statement_timeout=0');
+  const db = createDatabase(
+    parseRuntimeConfig({
+      APP_ENV: 'test',
+      DATABASE_URL: target.toString(),
+      DB_CONNECT_TIMEOUT_MS: '100',
+      DB_STATEMENT_TIMEOUT_MS: '60',
+    }),
+  );
+  try {
+    await expect(
+      db.withClient((client) => client.query('SELECT pg_sleep(0.3)')),
+    ).rejects.toThrow('database_unavailable');
+  } finally {
+    await db.close();
+  }
+});

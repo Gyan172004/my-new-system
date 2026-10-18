@@ -2,8 +2,8 @@ ID,Title,Status,Milestone,Priority,Dependencies,Acceptance Criteria,Labels
 K-001,Confirm repository conventions and local developer workflow,Done,M0,P0,,Clean checkout instructions; config validated; format/lint/test commands discoverable,foundation
 K-002,Establish application skeleton and module boundaries,Done,M0,P0,K-001,App starts locally; modular boundaries explicit; no cross-module repository bypass,foundation
 K-003,Add structured logging and request correlation,Done,M0,P0,K-002,Correlation IDs in logs; secrets and sensitive payloads redacted,observability
-K-004,Add health and readiness endpoints,In Progress,M0,P0,K-002,Liveness/readiness distinct and tested,"foundation,observability"
-K-005,Configure database migrations and test database workflow,In Progress,M0,P0,K-002,Migrations apply to empty DB; integration tests isolated,database
+K-004,Add health and readiness endpoints,Done,M0,P0,K-002,Liveness/readiness distinct and tested,"foundation,observability"
+K-005,Configure database migrations and test database workflow,Done,M0,P0,K-002,Migrations apply to empty DB; integration tests isolated,database
 K-006,Add CI checks and automated test stages,Backlog,M0,P0,K-001;K-002,"CI runs formatting/lint, unit and relevant integration/contract tests, dependency/static checks, and simple architecture-boundary checks; a deliberate failing check fails CI","ci,testing"
 K-007,Define minimal Problem Pack schema and validation rules,Backlog,M1,P0,K-002,Candidate-visible and private content classes separated; version metadata validated,content
 K-008,Create one reviewed seed Problem Pack,Backlog,M1,P0,K-007,Pack passes structural validation and human correctness review; provenance recorded,content

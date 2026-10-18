@@ -263,6 +263,8 @@ export async function createProcessProject(): Promise<ProcessProject> {
     for (const name of [
       'src',
       'scripts',
+      'migrations',
+      'tests/helpers',
       'config',
       'package.json',
       'package-lock.json',

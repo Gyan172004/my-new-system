@@ -123,21 +123,23 @@ _None._
 
 ## In Progress
 
-### K-004 — Add health and readiness endpoints
-- Milestone: M0 · Priority: P0 · Depends on: K-002
-- Acceptance: liveness and readiness have distinct semantics and automated tests.
-- Progress evidence: canonical uncached live/ready adapters, pure full-history compatibility, contract validation and real absent-ledger/deadline behavior verified in Phase 4. Migrated-schema success/failure integration remains T023/T024; card is not Done.
-
-### K-005 — Configure database migrations and test database workflow
-- Milestone: M0 · Priority: P0 · Depends on: K-002
-- Acceptance: migrations apply to an empty database; integration tests use isolated test data; recovery expectations are documented.
-- Progress evidence: separate local development/test services and guarded per-run test databases verified, with finite allocation/cleanup and actual driver timeout/cancellation tests. Explicit migrations, expanded concurrent isolation and recovery acceptance remain Phase 5.
+_None._
 
 ## In Review
 
 _None._
 
 ## Done
+
+### K-004 — Add health and readiness endpoints
+- Milestone: M0 · Priority: P0 · Depends on: K-002
+- Acceptance: liveness and readiness have distinct semantics and automated tests.
+- Completion evidence: reviewed uncached contract-compliant live/ready adapters; real absent/migrated/incompatible history, optional-provider absence, exhaustion, query cancellation and recovery tests pass. Phase 5 full suite 201/201; no test databases or owned DB sessions remain. See [foundation runbook](../docs/runbooks/foundation.md).
+
+### K-005 — Configure database migrations and test database workflow
+- Milestone: M0 · Priority: P0 · Depends on: K-002
+- Acceptance: migrations apply to an empty database; integration tests use isolated test data; recovery expectations are documented.
+- Completion evidence: explicit stable node-pg-migrate baseline applies to empty storage and repeats as a no-op; transactional failure, immutable full history, bounded lock contention/cancellation/recovery and concurrent owned test isolation pass. Safe forward-fix/approved-restore expectations documented; production restore remains K-026. Phase 5 full suite 201/201. See [foundation runbook](../docs/runbooks/foundation.md).
 
 ### K-003 — Add structured logging and request correlation
 - Milestone: M0 · Priority: P0 · Depends on: K-002
