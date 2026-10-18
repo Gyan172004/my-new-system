@@ -691,3 +691,125 @@ and CSV; K-006/K-028 remain incomplete. Final container/journey/release evidence
 and K-026 backup/restore retain their own gates. T044 is completed only by the
 observed scoped commit; its SHA is reported in the implementation handoff.
 Pre-existing skill/planning edits remain local and excluded from that commit.
+
+## Phase 6 CI, container and process verification — 2026-10-18
+
+Scope: T025–T030, review T045 and commit T046, following `a5759d1`.
+Applied using-superpowers, test-driven-development, systematic-debugging,
+mastering-typescript, vitest, docker-build-strategies, docker-compose-patterns,
+mastering-github-cli, requesting-code-review, receiving-code-review and
+verification-before-completion. Docker cleanup is limited to owned ephemeral
+smoke containers/projects and preserves all existing database volumes.
+
+Test-first/debugging observations:
+
+- T025's three real CLI stage tests failed for missing verification behavior,
+  then passed after adding the required-stage runner. Valid lint passes;
+  deliberate lint failure propagates a nonzero stage result; unknown stages fail.
+- Container inspection failed before the image existed. Actual first smoke then
+  failed readiness: startup could not load next.config.ts without source/build
+  dependencies. Compile the config to executable next.config.mjs and package it;
+  retain ordinary Next output and the pinned Node 24.22.0 binary.
+- Initial Debian 12 slim runtime scan found 64 HIGH/CRITICAL OS findings plus
+  npm-global dependency findings. Rebuilt a minimal pinned distroless Debian 13
+  C++ runtime with the same Node binary and application production dependencies;
+  image rescan reported zero HIGH/CRITICAL findings, with no ignore-unfixed or
+  suppression added. Builder packages remain outside the runtime image.
+- Clean journey CLI initially failed before install because its installer tried
+  to import tsx after removing node_modules. Bootstrap with the pinned npm CLI
+  directly, install build dependencies explicitly, then build. The corrected
+  clean install/build/migrate/start/probe/outage/recovery/stop case passed
+  in 71.93 s. Outage uses an owned TCP proxy, preserving shared service state.
+- Real process drain and forced-stall tests passed 2/2. Test instrumentation stays
+  inside owned temporary source copies. The stalled request is destroyed and
+  shutdown exits nonzero within its configured limit; normal admitted work
+  completes and listener closes. No shipped fault route or flag was added.
+- A secret canary assertion failed before distinguishing actual findings from
+  scanner unavailability. The wrapper now checks the redacted report before
+  emitting secret_scan_findings; an error alone cannot satisfy the detection
+  test. Its focused regression passed. Cached tool archives are hash-checked on
+  every invocation and extracted only into owned short-lived directories.
+- Strengthened unit/lint/boundary negative controls require clean baselines and
+  each expected diagnostic. An intermediate lint-baseline failure exposed lint
+  errors in cleanup code; those were fixed without relaxing the rules. Final
+  command reports all three mutations rejected. Unavailable stages are failures.
+- Review found host envfile reuse incompatible with Compose bridge DNS. Added a
+  separate ignored container envfile, documented db:5432, and verified the real
+  app profile on a bridge with an owned test database. Review also caught cleanup
+  eligibility being set after compose up; it is now set before startup so partial
+  creation failures still tear down the owned project.
+- Seven CI tests passed after review fixes: stage behavior, image/runtime/layout,
+  Compose readiness/signal delivery, every exported image layer and secret canary.
+  A build-only canary is created inside the excluded build context then removed;
+  no forbidden paths or canary bytes were found in any exported image layer.
+
+Independent read-only re-review approved the code after both Important fixes;
+no unresolved Critical/Important findings remain. Vitest is limited to two workers
+for bounded concurrent builds. Final aggregate and full-suite outcomes follow.
+
+Pins resolved from official release/registry metadata on 2026-10-18:
+
+- checkout v7.0.1: 3d3c42e5aac5ba805825da76410c181273ba90b1.
+- setup-node v7.1.0: 949feb2413d6458794dcd2491c4babbbce0c15c1.
+- Node 24.22.0 bookworm-slim builder index:
+  sha256:a5f4366e834695d5f363b920c104953a535d3a9864d1bdf74566a0ebe01daee5.
+- Distroless cc-debian13 nonroot runtime index:
+  sha256:e792ab3d241a468a4fd7519ddbbebe66b49b5f365771716ea688ad40b6c6f1c2.
+- Gitleaks 8.30.1 Linux x64 archive:
+  sha256:551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb.
+- Trivy 0.76.0 Linux x64 archive:
+  sha256:e24b1c51293c1b15e4ba8d45bbc7891ba053f90278ec2698f3562c993e145fe7.
+
+Sources: [checkout release](https://github.com/actions/checkout/releases/tag/v7.0.1),
+[setup-node release](https://github.com/actions/setup-node/releases/tag/v7.1.0),
+[Gitleaks release](https://github.com/gitleaks/gitleaks/releases/tag/v8.30.1),
+[Trivy release](https://github.com/aquasecurity/trivy/releases/tag/v0.76.0),
+[distroless published images](https://github.com/GoogleContainerTools/distroless).
+Registry digest pinning is recorded; signature verification was not performed.
+
+Additional direct-gate regression: an actual private source import with passing
+architecture fixtures initially returned success through the architecture stage.
+The new assertion failed as expected. Added verify:architecture to run the real
+source scanner before fixture tests, and wired the required CI stage to it.
+Explicit nested credential patterns also remain excluded after the Docker source
+allowlist. The first aggregate had already loaded the preceding stage table;
+final verification uses the corrected gate.
+
+Observed local aggregate: `APP_ENV=test npm run verify:ci` exited 0. Locked
+install added 245/audited 246 packages with zero vulnerabilities; the existing
+esbuild install-script warning remains. Format/lint/type, 132 unit, 30 real DB,
+2 contract, 28 architecture-fixture, 12 process and 8 CI-control tests passed.
+The aggregate built the final distroless image, tested its bridge profile and
+all layers, scanned secrets and HIGH/CRITICAL image/filesystem vulnerabilities,
+then verified the clean journey and diagnostic-backed negative controls.
+The corrected direct actual-source scanner separately returned `[]`; the new
+required-stage regression also passed. A fresh whole-suite run is recorded
+below rather than treating category totals as a single-suite result.
+
+Final single-suite verification: `APP_ENV=test npm test -- --reporter=dot` passed
+212/212 tests across 27 files in 266.72 s, with no skipped tests (132 unit,
+30 real PostgreSQL integration, 2 contract, 28 architecture, 12 process and
+8 CI controls). `npm run format:check`, `npm run lint`, `npm run typecheck`
+and the corrected direct `npm run check:architecture` passed; source boundaries
+returned `[]`. Build, image/layer/bridge and scanner evidence above covers the
+final container inputs, including removal of .npmrc from build inputs and
+preservation of the original ignore rules before the additional allowlist.
+
+Post-suite inspection: zero owned test databases, zero runtime/migration/allocator
+sessions and zero smoke containers remain. Both build and secret-test canary
+files were removed. Existing development/test services and volumes remain intact.
+Skill installation verification passed separately; it is not runtime evidence.
+
+Bounded `$speckit-converge` checked the 15 functional requirements, 7 success
+criteria, 16 story acceptance scenarios, 5 named plan decisions, 5 constitution
+principles and all 48 task descriptions. No additional Phase 6 code work remains.
+Hosted execution evidence is still pending for the existing CI gate; final
+handoff/review/convergence tasks (Medium, partial; T031–T033/T047–T048) and external
+environment evidence (High, missing; T034) remain in Phase 7. No duplicate tasks
+were appended. Whole-feature convergence is not claimed. Spec Kit extension
+hooks are absent before and after this assessment/implementation.
+
+T025–T030 and T045 are locally verified. T046 is marked only after the scoped
+commit is observed. K-006 stays In Progress until actual hosted CI acceptance;
+K-028 remains incomplete. Pre-existing skill/planning changes are preserved and
+excluded from the implementation commit. Hosted results are recorded separately.

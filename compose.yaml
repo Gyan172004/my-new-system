@@ -1,5 +1,22 @@
 name: my-new-system-foundation
 services:
+  app:
+    profiles: [app]
+    build: .
+    image: my-new-system-foundation:local
+    restart: unless-stopped
+    env_file:
+      - path: .env.container.local
+        required: false
+    environment:
+      NODE_ENV: production
+      PORT: '3000'
+    ports: ['127.0.0.1:3000:3000']
+    networks: [development]
+    depends_on:
+      db:
+        condition: service_healthy
+    stop_grace_period: 35s
   db:
     image: postgres:17.11-bookworm@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826
     restart: unless-stopped

@@ -29,10 +29,6 @@ _None._
 
 ## Backlog
 
-### K-006 — Add CI checks and automated test stages
-- Milestone: M0 · Priority: P0 · Depends on: K-001, K-002
-- Acceptance: CI runs formatting/lint, unit and relevant integration/contract tests, dependency/static checks, and simple architecture-boundary checks; a deliberate failing check fails CI.
-
 ### K-007 — Define minimal Problem Pack schema and validation rules
 - Milestone: M1 · Priority: P0 · Depends on: K-002
 - Acceptance: schema covers candidate-visible statement/examples, version metadata, reference approaches, hint metadata, and private test references with visibility separation.
@@ -123,7 +119,11 @@ _None._
 
 ## In Progress
 
-_None._
+### K-006 — Add CI checks and automated test stages
+- Milestone: M0 · Priority: P0 · Depends on: K-001, K-002
+- Acceptance: CI runs formatting/lint, unit and relevant integration/contract tests, dependency/static checks, and simple architecture-boundary checks; a deliberate failing check fails CI.
+
+- Progress evidence: Reviewed Phase 6 pipeline, scanners, container/layer/bridge and process/negative controls; local aggregate passed and full suite 212/212 passed. Hosted CI acceptance pending. See [foundation runbook](../docs/runbooks/foundation.md).
 
 ## In Review
 

@@ -197,3 +197,68 @@ fixtures explicitly. Prepared-schema readiness invokes the actual migration runn
 migration-under-test fixtures stay empty so first-apply behavior is observable.
 See [migration operations and recovery](runbooks/foundation.md#explicit-migrations-and-recovery)
 for locking, deadlines, failure classification and forward-fix/approved-restore rules.
+
+## Container and CI verification
+
+Linux x86-64, Docker Engine/BuildKit, Compose v2, Python 3 (image-layer inspection)
+and the pinned Node/npm toolchain are required for the complete suite. Start the
+dedicated test service using the earlier instructions. Build the image before
+running `npm test`: the CI tests inspect the actual image, all exported layers
+and an owned Compose bridge-profile container. Vitest runs at most two workers
+to bound concurrent Next builds on hosted runners.
+
+```bash
+npm run container:build
+APP_ENV=test npm test
+APP_ENV=test npm run verify:foundation
+npm run verify:ci-failures
+npm run scan:secrets
+npm run scan:filesystem
+npm run scan:image
+APP_ENV=test npm run verify:ci
+```
+
+`verify:ci` executes locked installation, format/lint/type, unit, real DB,
+contract, architecture, build, process, dependency audit, secrets, container,
+CI-control, image/filesystem, clean journey and negative-control stages in order.
+`-- --list` lists stages; `-- --stage <name>` runs one required stage and returns
+nonzero on failure. No required stage is optional. Scanner download, integrity,
+platform and vulnerability-database failures also fail verification. Security
+tools are Linux x86-64 release archives pinned by version and SHA-256 in
+`scripts/security.ts`; cache files stay in ignored `.local/security-tools`.
+Gitleaks output is redacted; its short-lived report is removed after each scan.
+Trivy rejects HIGH/CRITICAL findings without ignoring unfixed vulnerabilities.
+
+GitHub's Foundation CI runs the same aggregate command on pull requests and
+main/feature pushes. It has read-only repository permissions, immutable action
+pins, no persisted checkout credential or paid-provider keys, generated local
+DB passwords and a 45-minute job deadline. `prepare-ci.ts` only initializes an
+empty CI workspace with explicit CI/test identity; it refuses overwriting secret
+files. Hosted CI status must be observed separately from a local pass.
+
+The optional Compose `app` profile runs the ordinary custom-server image as a
+non-root user. Supply a separate ignored **`.env.container.local`**, mode 600,
+through the authorized local secret mechanism. Set APP_ENV=development and use
+Docker DNS host **db**, internal port **5432**, database foundation_development
+and the existing local development owner/secret reference. The host `.env.local`
+uses published loopback ports and is not imported by the container. Missing
+container settings fail startup; the file is optional only so inactive-profile
+configuration validation can run. Do not print resolved Compose configuration.
+Explicitly migrate the authorized local target before expecting readiness 200.
+
+```bash
+docker compose config --quiet
+# After supplying the separate container settings safely:
+docker compose --profile app run --rm app node dist/migrate.mjs
+docker compose --profile app up -d app
+# Reversible stop; all database volumes are retained.
+docker compose --profile app stop app
+```
+
+The migration command requires a separate MIGRATION_DATABASE_URL in that ignored
+container file; it never falls back to DATABASE_URL. No migration runs on start.
+The image contains compiled server/migration/configuration files, ordinary Next
+output and production dependencies. It includes no package manager, shell,
+application TypeScript sources, local credentials or documentation. Operational
+health checks use Node directly; signals go to the Node PID1. Production cloud
+roles, environments, deployment and backup/restore evidence remain later gates.
