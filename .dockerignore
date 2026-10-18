@@ -19,3 +19,8 @@ Dockerfile*
 .dockerignore
 next-env.d.ts
 *.tsbuildinfo
+
+# Local database credentials and nested npm/environment files.
+.local/
+**/.npmrc
+**/.env*

@@ -302,3 +302,216 @@ Final evidence/status cross-check by the same independent reviewer found no
 blockers. `npm run format:check` passed. The final whitespace check
 `git -c core.whitespace=cr-at-eol diff --check` passed after removing new trailing
 spaces from local canonical status annotations; existing CSV CRLF was retained.
+
+## Local PostgreSQL services and test targets
+
+Phase 4 adds the approved early local services for real driver/deadline tests.
+The application image/Dockerfile remains T027; creating DB services does not
+advance that phase or provision AWS. Docker Engine 29.3.0 and Compose 5.1.0 were
+available. PostgreSQL 17.11-bookworm is pinned to the official multi-platform
+manifest digest in compose.yaml, checked with `docker buildx imagetools inspect
+postgres:17.11-bookworm`; pinning is not a vulnerability-scan claim.
+
+From the root, using the pinned Node toolchain, prepare ignored local secret
+files without printing their values. Existing files are preserved:
+
+```bash
+node --input-type=module <<'NODE'
+import {mkdir,writeFile,chmod} from 'node:fs/promises';
+import {randomBytes} from 'node:crypto';
+const root='.local/foundation';
+await mkdir(root,{recursive:true,mode:0o700});
+await chmod(root,0o700);
+for(const file of ['db-password','test-db-password']) {
+  try {
+    await writeFile(`${root}/${file}`,randomBytes(32).toString('hex'),
+      {flag:'wx',mode:0o600});
+  } catch(error) {
+    if(error.code!=='EEXIST') throw error;
+  }
+}
+console.log('Local service secret files ready; values were not printed.');
+NODE
+docker compose config --quiet
+docker compose up -d db test-db
+docker compose up -d --wait --wait-timeout 30 db test-db
+docker compose ps --format '{{.Service}} {{.State}} {{.Health}}'
+APP_ENV=test npm run test:integration
+APP_ENV=test npm test
+```
+
+The second up command verifies service health within 30 seconds after image
+availability; image download time is separate. Keep generated secret files out of
+Git, images, logs and agent output. Use `FOUNDATION_LOCAL_SECRETS_DIR` only to
+point Compose at an authorized alternate local directory, and
+`FOUNDATION_TEST_PASSWORD_FILE` to supply the corresponding test-only password
+file to the fixture. Never use production secret references or credentials here.
+Do not change an existing password file in place without a deliberate local
+credential rotation; PostgreSQL initialization does not reapply it to old data.
+
+| Purpose               | Host/port       | Role/database                                 | Storage/network                |
+| --------------------- | --------------- | --------------------------------------------- | ------------------------------ |
+| Local development     | 127.0.0.1:45432 | foundation_dev_owner / foundation_development | development_data / development |
+| Integration allocator | 127.0.0.1:45433 | foundation_test_admin / foundation_test_admin | test_data / test               |
+
+These bootstrap roles own their separate local services; they are not production
+runtime-role examples. Host ports, networks, volumes and password files are
+separate. Production runtime/migration least-privilege evidence remains T034.
+The fixture's exact approved test target is the second row. Its optional
+`TEST_DB_HOST`, `TEST_DB_PORT`, `TEST_DB_ADMIN_USER`, `TEST_DB_ADMIN_DATABASE`
+settings must equal that allowlist. `APP_ENV=test` must be supplied explicitly;
+missing or non-test values are rejected before reading credentials.
+An application DATABASE_URL is never used as the allocator target.
+
+Each run/worker allocates its own lowercase `foundation_test_` database, at most
+63 bytes. Identifiers pass guards and are quoted; cleanup uses only the recorded
+allocation. The shared helper owns 30-second allocation/cleanup deadlines and
+closes its clients. Local test databases are empty: no production migrations,
+ledger rows or domain tables are created by the fixture. Pool tests exercise
+actual server deadlines, cancellation and owned connection cleanup. The later
+migration phase extends this same helper and verifies migrated readiness.
+
+`npm run test:unit` and `npm run test:contract` need no live storage. The full
+suite requires test-db and its ignored local password file; an unavailable service
+fails integration tests rather than being silently skipped. Process tests build
+and mutate owned copies, including synthetic faults; none introduce production
+test endpoints/flags or require real DB/provider values. Keep the services for
+further local work; `docker compose stop db test-db` pauses them without deleting
+volumes. Never remove volumes as a side effect of verification.
+
+Primary implementation references: [pg Pool](https://node-postgres.com/apis/pool),
+[pg Client](https://node-postgres.com/apis/client),
+[Pino API](https://github.com/pinojs/pino/blob/main/docs/api.md) and
+[official PostgreSQL image versions](https://github.com/docker-library/postgres/blob/master/versions.json).
+
+## Phase 4 telemetry, health and early storage review — 2026-10-18
+
+Scope: T012–T018 and T041/T042; K-003, partial K-004/K-005. Applied
+using-superpowers, test-driven-development, systematic-debugging,
+mastering-typescript, vercel-react-best-practices, vitest,
+docker-compose-patterns, supabase-postgres-best-practices,
+requesting-code-review, receiving-code-review, verification-before-completion,
+mastering-git-cli and mastering-github-cli. First-time Docker guidance was checked
+for local dependency setup; the approved task order keeps the application
+Dockerfile in T027. No framework/provider/deployment choice changed.
+
+Test-first evidence:
+
+- `npm test -- tests/unit/request-context.test.ts tests/unit/logger.test.ts tests/unit/http.test.ts --reporter=dot`:
+  eight assertion failures and one already-passing silent-log case against explicit
+  missing-behavior signatures; then 9/9 passed. Initial test harness assertions
+  were tightened before that red run so missing output/context produced assertions,
+  not JSON parsing/property-access errors.
+- `npm test -- tests/unit/health.test.ts tests/contract/health.test.ts --reporter=dot`:
+  11 newly missing readiness/contract cases failed with one schema-negative case
+  passing; after implementation, those cases plus existing live coverage passed
+  13/13. Tests load the canonical OpenAPI HealthStatus schema with Ajv 2020-12 and
+  date-time formats. Pure cases include full ordered-history mismatch, mandatory
+  failures, deadline abort and drain; optional providers are not called.
+- `npm test -- tests/unit/test-services.test.ts --reporter=dot`: missing local
+  service configuration failed before compose.yaml; then passed. Quiet Compose
+  validation and both actual service health checks passed. No volumes removed.
+- `npm test -- tests/unit/test-database-guards.test.ts --reporter=dot`:
+  17 unsafe-target/name/ownership/deadline assertion failures with one approved
+  target passing; after guards, 18/18 passed.
+- `npm test -- tests/integration/database.test.ts --reporter=dot`: five real-driver
+  cases failed against the explicit missing adapter, then passed against the
+  dedicated test-db. Initial asynchronous stub cases were corrected to assert
+  missing work directly rather than leave unhandled rejections/timeouts.
+  Additional real idle-backend termination and cancelled-queue recovery cases
+  verify the implemented safety behavior; no artificial production regression
+  was introduced for those already implemented cases.
+- `npm test -- tests/process/privacy.test.ts --reporter=dot`: normal privacy and
+  cancellation passed; the raw dependency fault returned framework 500 instead
+  of canonical health 503. Catching the error inside the live adapter before Next
+  diagnostic serialization fixed that control failure. Rerun: 3/3 passed in
+  42.82 s, with no planted canary in combined stdout/stderr.
+
+Request scope is a process-registry-owned AsyncLocalStorage resource. IDs are
+fresh server UUIDs, incoming IDs are ignored and detached contexts become inactive
+on completion/error/cancellation. Completion logs capture their own immutable
+context; finish/close is deduplicated. Logged 499 denotes a cancelled response,
+not a new public HTTP error contract. Pino receives only allowlisted bounded
+metadata and fixed codes, with redaction as defense in depth. Production fixtures
+exercise parallel query/header/body canaries, unknown routes, raw errors and
+cancelled requests; synthetic flags/fault code exist only in owned copies.
+
+Readiness is uncached, uses current serving state, reads the build's expected
+manifest and observes real storage without migration/repair. No ledger means
+503/schema unavailable. Query/server timeouts and client destruction stop owned
+active SQL; the enclosing readiness deadline is finite. A cancelled queued pg
+acquisition can remain until the native connect timeout (default 500 ms), or
+receive a late client that is destroyed before its callback executes. This is
+bounded native cleanup, not immediate queue cancellation. A real regression
+verifies no aborted callback runs and later work recovers.
+
+Independent reviewer `review_phase4_implementation` found one Important guard
+issue: the allocator defaulted missing APP_ENV to test. An actual-allocator
+regression with a nonexistent secret-file reference failed (one failed,
+18 passed): it reached credential access instead of rejecting unsafe context.
+Removing that default makes explicit APP_ENV=test mandatory before file/DB access.
+Focused rerun with `APP_ENV=test`: 26/26 passed (19 guard, seven real-driver).
+The reviewer approved the correction and documentation on re-review; no remaining
+blocking findings. Their earlier independent core run passed 137/137. A subsequent
+reviewer rerun overlapped npm ci, was stopped with exit 130 and is explicitly not
+counted as passing. No reviewer checkout mutation occurred.
+
+Locked dependency verification: `npm ci --cache /tmp/foundation-npm-cache` passed,
+226 packages added, 227 audited, zero vulnerabilities. Pino 10.4.0 and pg 8.23.1
+are runtime dependencies; YAML 2.9.1, Ajv 8.20.0, ajv-formats 3.0.1 and pg types
+are exact test/build pins. The existing esbuild install-script warning remains;
+no blanket approval or runtime/framework upgrade was performed. Local secret
+files were checked ignored with mode 600 under a mode-700 directory; values
+were never printed. Native services remain available for the next phase.
+
+Fresh final Phase 4 validation, pinned Node 24.22.0/npm 11.19.1:
+
+- `APP_ENV=test npm test -- --reporter=dot`: **176/176 passed across 19 files**
+  in 101.15 s: 130 unit, two contract, seven real PostgreSQL integration,
+  28 architecture and nine production/development process tests.
+- Empty-environment build with only PATH/HOME/telemetry opt-out supplied:
+  `env -i PATH=/tmp/foundation-node-verified/node-v24.22.0-linux-x64/bin:/usr/bin:/bin HOME=/tmp/foundation-build-home NEXT_TELEMETRY_DISABLED=1 npm run build`
+  passed; both canonical health paths are dynamic and no DB/provider/runtime
+  values were needed.
+- `npm run lint`, `npm run typecheck`, `npm run check:architecture`: passed;
+  actual-source boundary result `[]`.
+- `npm audit --audit-level=high`: passed, zero vulnerabilities.
+- `docker compose config --quiet` and
+  `docker compose up -d --wait --wait-timeout 30 db test-db`: passed;
+  both named services healthy, volumes preserved.
+
+Bounded `$speckit-converge` assessment used the explicit feature pointer,
+prerequisite check and reconciled working mirrors. It assessed all 15 functional
+requirements/seven success criteria, the selected lifecycle/health/privacy/storage
+boundaries and five constitution principles against current code. No additional
+Phase 4 work was uncovered. Full feature remains incomplete:
+
+| Remaining requirement gap                                                                                   | Severity | Existing canonical tasks |
+| ----------------------------------------------------------------------------------------------------------- | -------- | ------------------------ |
+| Explicit migrations and expanded concurrent test isolation, including failure/recovery (FR-009/010; SC-005) | High     | T019–T022, T043/T044     |
+| Migrated-schema readiness integration and exact real-history failure cases (FR-007/008; SC-003)             | High     | T023/T024                |
+| CI/container/security stages and deliberate workflow failures (FR-011; SC-006)                              | High     | T025–T030, T045/T046     |
+| Full final journey, review and handoff (FR-001/012/015; SC-001/007)                                         | Medium   | T031–T033, T047/T048     |
+| Actual staging/production isolation, roles, injection and rotation evidence (FR-004/015; SC-007)            | High     | T034                     |
+
+These gaps already have dependency-ordered tasks; no duplicates or empty
+convergence section were appended. No contradictory/unrequested implementation
+or new architecture exception was found. Canonical API/event/session/LLM/execution/
+voice interfaces remain unchanged. No extension hook file is present for
+implementation or convergence.
+
+K-003's own telemetry acceptance passes; Kanban and CSV now record Done. K-004
+and K-005 record In Progress because migrated storage acceptance is pending;
+K-006/K-028 remain incomplete. T042 awaits exact staged-scope inspection and its
+observed commit. Only reviewed Phase 4 files belong in this increment; pre-existing
+planning and skill-installation changes remain local. Continue the same draft
+feature PR #49; no merge, cloud readiness, migration success or full foundation
+completion is claimed.
+
+Final reviewer evidence/status cross-check passed. After installation finished,
+the reviewer independently reran the focused guards/real-driver suites with the
+explicit test environment: 26/26 passed, exit 0, 3.15 s. No blockers remained.
+`npm run format:check` and
+`git -c core.whitespace=cr-at-eol diff --check` passed. A final read-only query of
+the dedicated allocator service found zero allocated test databases remaining;
+no foreign database or persistent service volume was removed.

@@ -1,9 +1,9 @@
 # Local development
 
 Use this guide from the repository root. Application Foundation is being built
-in reviewed increments. The custom server and liveness route are now available;
-database and container commands arrive in later phases. No provider account is
-needed for the current tooling/runtime increment.
+in reviewed increments. The custom server, health adapters, privacy-safe request
+telemetry and dedicated local PostgreSQL test service are available. Explicit
+migrations and application containers arrive later. No provider account is needed.
 
 ## Toolchain
 
@@ -22,7 +22,9 @@ npm ci
 npm run
 ```
 
-Exact application dependencies: Next 16.4.2, React/React DOM 19.3.1, Zod 4.6.7.
+Exact application dependencies: Next 16.4.2, React/React DOM 19.3.1, Zod 4.6.7,
+Pino 10.4.0 and pg 8.23.1. Canonical contract tests use YAML 2.9.1, Ajv 8.20.0
+and ajv-formats 3.0.1.
 TypeScript 6.0.3 stays inside typescript-eslint 8.71.2’s supported range (<6.1);
 the registry’s latest TypeScript 7 is outside that range. ESLint 10.13.0,
 Prettier 3.9.10, Vitest 5.0.5, tsx 4.23.15 and type packages are pinned in the
@@ -42,7 +44,9 @@ runbook; a version pin alone is not a security or compatibility test.
 
 Runtime settings and implemented commands are documented below. `npm run` lists only implemented commands. Installation,
 formatting, linting, type checking and unit tests never need database/provider
-credentials. Build/dev/start commands are available below; database/migration commands remain pending.
+credentials. Build/dev/start commands are available below. Prepare local storage with the
+[Phase 4 service instructions](runbooks/foundation.md#local-postgresql-services-and-test-targets)
+before integration tests or the full suite; explicit migrations remain pending.
 
 ### Runtime settings
 
@@ -66,7 +70,10 @@ npm run test:unit
 npm run check:architecture
 npm run test:architecture
 npm run test:process
-npm test
+npm run test:contract
+# After preparing the dedicated local test-db service:
+APP_ENV=test npm run test:integration
+APP_ENV=test npm test
 npm audit --audit-level=high
 ```
 
@@ -87,7 +94,7 @@ Process tests build and run production and development servers in disposable
 copies, without database/provider access. The development test performs two
 real HMR reloads and verifies one runtime resource acquisition and listener.
 Only owned copies are instrumented or edited; the real checkout is untouched.
-Allow disk space for two dependency copies and up to 120 seconds for development
+Allow disk space for three dependency copies and up to 120 seconds for development
 startup; each reload and normal shutdown has a 30-second deadline. `npm test`
 includes these process and architecture suites; `test:unit` is the focused unit run.
 
@@ -153,9 +160,12 @@ No Next standalone output is used. Never run a build over an active dev cache;
 stop the owned dev process first or use an isolated work copy.
 
 Configuration validation precedes Next preparation and binding. An unavailable
-DB does not stop liveness. Readiness, database/schema checks, structured
-request logging, architecture fixtures and full production/HMR regression suites
-are pending later tasks. Do not use liveness as a readiness/deployment gate.
+DB does not stop liveness. `/api/v1/health/ready` checks serving lifecycle and
+bounded storage/schema compatibility and returns 503 when the ledger is absent
+or differs from the packaged manifest. Local test storage is deliberately empty
+until the migration phase; 503 is expected. Do not use liveness as a deployment gate.
+Request completion records contain fresh server IDs and allowlisted bounded fields;
+incoming IDs, URLs/query strings, headers, bodies and raw errors are excluded.
 
 `dist/migration-manifest.json` is built from sorted local SQL filenames. It is
 currently empty because the baseline migration belongs to the storage phase;

@@ -1,0 +1,55 @@
+name: my-new-system-foundation
+services:
+  db:
+    image: postgres:17.11-bookworm@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: foundation_development
+      POSTGRES_USER: foundation_dev_owner
+      POSTGRES_PASSWORD_FILE: /run/secrets/dev_db_password
+    secrets: [dev_db_password]
+    ports: ['127.0.0.1:45432:5432']
+    volumes: ['development_data:/var/lib/postgresql/data']
+    networks: [development]
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U foundation_dev_owner -d foundation_development',
+        ]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+      start_period: 5s
+  test-db:
+    image: postgres:17.11-bookworm@sha256:3645570cccdfa447589da9f57dd740faa29b30938e861289a5574b6ca6b03826
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: foundation_test_admin
+      POSTGRES_USER: foundation_test_admin
+      POSTGRES_PASSWORD_FILE: /run/secrets/test_db_password
+    secrets: [test_db_password]
+    ports: ['127.0.0.1:45433:5432']
+    volumes: ['test_data:/var/lib/postgresql/data']
+    networks: [test]
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U foundation_test_admin -d foundation_test_admin',
+        ]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+      start_period: 5s
+volumes:
+  development_data:
+  test_data:
+networks:
+  development:
+  test:
+secrets:
+  dev_db_password:
+    file: ${FOUNDATION_LOCAL_SECRETS_DIR:-./.local/foundation}/db-password
+  test_db_password:
+    file: ${FOUNDATION_LOCAL_SECRETS_DIR:-./.local/foundation}/test-db-password

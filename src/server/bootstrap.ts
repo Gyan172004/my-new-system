@@ -10,7 +10,11 @@ import {
   parseRuntimeConfig,
   type RuntimeConfig,
 } from './config';
+import { createHttpHandler } from './http';
+import { runtimeRequestScope } from './request-context';
+import { runtimeLogger } from './logger';
 import {
+  createRuntime,
   installRuntime,
   type LifecycleState,
   type RuntimeRegistry,
@@ -24,7 +28,7 @@ export interface ServerAdapter {
   forceClose(): void;
 }
 export interface ApplicationDependencies {
-  createAdapter(config: RuntimeConfig): ServerAdapter;
+  createAdapter(config: RuntimeConfig, runtime: RuntimeRegistry): ServerAdapter;
   installRuntime(config: RuntimeConfig): RuntimeRegistry;
 }
 class LifecycleError extends Error {}
@@ -96,7 +100,7 @@ export class Application {
     this.#setState('INITIALIZING');
     const started = performance.now();
     try {
-      this.#adapter = this.dependencies.createAdapter(config);
+      this.#adapter = this.dependencies.createAdapter(config, this.#runtime!);
       const initialize = async () => {
         await this.#adapter!.prepare(this.#abort.signal);
         this.#abort.signal.throwIfAborted();
@@ -212,6 +216,7 @@ export function nodeAdapter(
   config: RuntimeConfig,
   loadNext: () => Promise<NextFactory> = async () =>
     (await import('next')).default,
+  registry: RuntimeRegistry = createRuntime(config),
 ): ServerAdapter {
   let app: NextAdapter | undefined;
   let handle:
@@ -219,24 +224,19 @@ export function nodeAdapter(
     | undefined;
   let draining = false;
   const sockets = new Set<Socket>();
-  const server = createServer((request, response) => {
-    if (draining || !handle) {
-      response.writeHead(503, {
-        'Cache-Control': 'no-store',
-        Connection: 'close',
-      });
-      response.end();
-      return;
-    }
-    void handle(request, response).catch(() => {
-      if (!response.headersSent)
-        response.writeHead(500, {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store',
-        });
-      response.end();
-    });
-  });
+  const server = createServer(
+    createHttpHandler(
+      async (request, response) => {
+        if (!handle) throw new LifecycleError('not_initialized');
+        await handle(request, response);
+      },
+      {
+        scope: runtimeRequestScope(registry),
+        logger: runtimeLogger(registry),
+        isDraining: () => draining,
+      },
+    ),
+  );
   server.on('connection', (socket) => {
     sockets.add(socket);
     socket.once('close', () => sockets.delete(socket));
@@ -300,7 +300,8 @@ export function nodeAdapter(
 
 async function main() {
   const application = new Application(process.env, {
-    createAdapter: nodeAdapter,
+    createAdapter: (config, registry) =>
+      nodeAdapter(config, undefined, registry),
     installRuntime,
   });
   let stopping = false;
@@ -319,7 +320,7 @@ async function main() {
   process.once('SIGINT', stop);
   try {
     await application.start();
-    process.stdout.write('application_started\n');
+    runtimeLogger(application.runtime!).write('application_started');
   } catch (error) {
     if (!stopping) {
       process.stderr.write(

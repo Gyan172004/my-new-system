@@ -189,6 +189,36 @@ export function observe(kind: string) {
         ),
     );
   }
+  async instrumentPrivacy(): Promise<void> {
+    if (!owned.has(this.root)) throw new Error('test_project_not_owned');
+    const health = join(this.root, 'src/server/health.ts');
+    let source = await readFile(health, 'utf8');
+    if (!source.includes('export function liveness() {'))
+      throw new Error('test_instrumentation_anchor_missing');
+    source = source.replace(
+      'export function liveness() {',
+      `export function liveness() {
+      if (process.env.FOUNDATION_FIXTURE_FAULT === 'throw') {
+        const error = new Error('CANARY_DEPENDENCY_EXCEPTION');
+        Object.assign(error, {authorization: 'CANARY_ERROR_TOKEN', body: 'CANARY_ERROR_BODY'});
+        throw error;
+      }`,
+    );
+    await writeFile(health, source);
+    const route = join(this.root, 'src/app/api/v1/health/live/route.ts');
+    source = await readFile(route, 'utf8');
+    source = source
+      .replace(
+        'export function GET(): Response {',
+        'export async function GET(): Promise<Response> {',
+      )
+      .replace(
+        '  getRuntime();',
+        `  getRuntime();
+      if (process.env.FOUNDATION_FIXTURE_FAULT === 'slow') await new Promise(resolve => setTimeout(resolve, 200));`,
+      );
+    await writeFile(route, source);
+  }
   async observation() {
     return JSON.parse(
       await readFile(join(this.root, 'observation.json'), 'utf8'),

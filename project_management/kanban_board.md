@@ -29,18 +29,6 @@ _None._
 
 ## Backlog
 
-### K-003 — Add structured logging and request correlation
-- Milestone: M0 · Priority: P0 · Depends on: K-002
-- Acceptance: request/job correlation IDs appear in logs; secrets and sensitive payloads are redacted.
-
-### K-004 — Add health and readiness endpoints
-- Milestone: M0 · Priority: P0 · Depends on: K-002
-- Acceptance: liveness and readiness have distinct semantics and automated tests.
-
-### K-005 — Configure database migrations and test database workflow
-- Milestone: M0 · Priority: P0 · Depends on: K-002
-- Acceptance: migrations apply to an empty database; integration tests use isolated test data; recovery expectations are documented.
-
 ### K-006 — Add CI checks and automated test stages
 - Milestone: M0 · Priority: P0 · Depends on: K-001, K-002
 - Acceptance: CI runs formatting/lint, unit and relevant integration/contract tests, dependency/static checks, and simple architecture-boundary checks; a deliberate failing check fails CI.
@@ -135,13 +123,26 @@ _None._
 
 ## In Progress
 
-_None._
+### K-004 — Add health and readiness endpoints
+- Milestone: M0 · Priority: P0 · Depends on: K-002
+- Acceptance: liveness and readiness have distinct semantics and automated tests.
+- Progress evidence: canonical uncached live/ready adapters, pure full-history compatibility, contract validation and real absent-ledger/deadline behavior verified in Phase 4. Migrated-schema success/failure integration remains T023/T024; card is not Done.
+
+### K-005 — Configure database migrations and test database workflow
+- Milestone: M0 · Priority: P0 · Depends on: K-002
+- Acceptance: migrations apply to an empty database; integration tests use isolated test data; recovery expectations are documented.
+- Progress evidence: separate local development/test services and guarded per-run test databases verified, with finite allocation/cleanup and actual driver timeout/cancellation tests. Explicit migrations, expanded concurrent isolation and recovery acceptance remain Phase 5.
 
 ## In Review
 
 _None._
 
 ## Done
+
+### K-003 — Add structured logging and request correlation
+- Milestone: M0 · Priority: P0 · Depends on: K-002
+- Acceptance: request/job correlation IDs appear in logs; secrets and sensitive payloads are redacted.
+- Completion evidence: reviewed runtime-owned request context and allowlisted Pino telemetry; concurrent canaries, raw dependency errors and cancelled-request process tests pass. Final suite 176/176, including real driver safety checks. Future job producers must explicitly map request IDs to canonical correlationId; no queue producer is introduced. See [foundation runbook](../docs/runbooks/foundation.md).
 
 ### K-002 — Establish application skeleton and module boundaries
 - Milestone: M0 · Priority: P0

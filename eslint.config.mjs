@@ -12,6 +12,7 @@ export default tseslint.config(
       'skills/**',
       '.agents/**',
       '.specify/**',
+      '.local/**',
       '**/*.min.js',
     ],
   },

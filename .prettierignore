@@ -21,3 +21,5 @@ docs/04_design/
 artifacts/
 first-principles-teacher/
 next-env.d.ts
+
+.local/
