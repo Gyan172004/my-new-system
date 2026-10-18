@@ -27,6 +27,18 @@ The implementation plan assumes:
 
 These constraints align with the current PRD, HLD, domain architecture, and infrastructure blueprint. A change to one of these foundations should be recorded in the Architecture Decision Records before downstream designs are changed.
 
+### Local dependency satisfaction and deferred cloud evidence
+
+ADR-022 allows local slices to continue before AWS resources are funded. K-028
+has a verified local configuration/privacy/isolation portion and an outstanding
+external acceptance portion (T034). Record reliance on the local portion in each
+consuming feature's engineering design; K-028 stays In Progress and all other
+prerequisites remain binding. This applies also to W15/K-029's K-028 dependency.
+Foundation local review/commit T047/T048 depends on T033, not deferred T034.
+Each provider feature retains its real-service milestone smoke/acceptance gate.
+Cloud deployment and production release require T034 plus K-026 operational
+evidence; see [the release schedule](v1_scope_and_release_plan.md#41-local-development-and-external-verification-schedule).
+
 ## 3. Dependency graph
 
 ```mermaid

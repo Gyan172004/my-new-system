@@ -1,10 +1,10 @@
 ID,Title,Status,Milestone,Priority,Dependencies,Acceptance Criteria,Labels
-K-001,Confirm repository conventions and local developer workflow,Ready,M0,P0,,Clean checkout instructions; config validated; format/lint/test commands discoverable,foundation
-K-002,Establish application skeleton and module boundaries,Ready,M0,P0,K-001,App starts locally; modular boundaries explicit; no cross-module repository bypass,foundation
-K-003,Add structured logging and request correlation,Backlog,M0,P0,K-002,Correlation IDs in logs; secrets and sensitive payloads redacted,observability
-K-004,Add health and readiness endpoints,Backlog,M0,P0,K-002,Liveness/readiness distinct and tested,"foundation,observability"
-K-005,Configure database migrations and test database workflow,Backlog,M0,P0,K-002,Migrations apply to empty DB; integration tests isolated,database
-K-006,Add CI checks and automated test stages,Backlog,M0,P0,K-001;K-002,"CI runs formatting/lint, unit and relevant integration/contract tests, dependency/static checks, and simple architecture-boundary checks; a deliberate failing check fails CI","ci,testing"
+K-001,Confirm repository conventions and local developer workflow,Done,M0,P0,,Clean checkout instructions; config validated; format/lint/test commands discoverable,foundation
+K-002,Establish application skeleton and module boundaries,Done,M0,P0,K-001,App starts locally; modular boundaries explicit; no cross-module repository bypass,foundation
+K-003,Add structured logging and request correlation,Done,M0,P0,K-002,Correlation IDs in logs; secrets and sensitive payloads redacted,observability
+K-004,Add health and readiness endpoints,Done,M0,P0,K-002,Liveness/readiness distinct and tested,"foundation,observability"
+K-005,Configure database migrations and test database workflow,Done,M0,P0,K-002,Migrations apply to empty DB; integration tests isolated,database
+K-006,Add CI checks and automated test stages,In Progress,M0,P0,K-001;K-002,"CI runs formatting/lint, unit and relevant integration/contract tests, dependency/static checks, and simple architecture-boundary checks; a deliberate failing check fails CI","ci,testing"
 K-007,Define minimal Problem Pack schema and validation rules,Backlog,M1,P0,K-002,Candidate-visible and private content classes separated; version metadata validated,content
 K-008,Create one reviewed seed Problem Pack,Backlog,M1,P0,K-007,Pack passes structural validation and human correctness review; provenance recorded,content
 K-009,Implement published Problem Pack retrieval and version pinning,Backlog,M1,P0,K-005;K-007;K-008,Session pins immutable version; candidate API excludes private fields,"content,api"
@@ -26,5 +26,5 @@ K-024,Implement content review and immutable publishing workflow,Backlog,M4,P1,K
 K-025,Add curated follow-up and variant selection,Backlog,M4,P2,K-019;K-023;K-024,Reviewed follow-ups/variants selected and recorded,"content,feedback"
 K-026,"Validate observability, capacity, backup restore, and rollback",Backlog,M5,P0,K-003;K-004;K-005;K-006;K-014;K-017;K-022;K-023;K-028;K-029,"Dashboards, load tests, restore and rollback demonstrated; all in-scope V1 modes have release evidence","ops,release"
 K-027,Record V1 voice scope decision and update product/architecture contracts,Done,M0,P0,,"Owner selected turn-based voice input/transcription, visible transcript, interviewer speech output, explicit consent and text fallback; PRD/ADRs/feature order/API/voice contract updated. Implementation is tracked separately in K-029.","scope,voice,product"
-K-028,Establish environment configuration and secret-handling baseline,Backlog,M0,P0,K-002,Separate dev/staging/prod configuration; validate required settings; document secret injection/storage; no real secrets in tracked files or logs,"foundation,security,configuration"
+K-028,Establish environment configuration and secret-handling baseline,In Progress,M0,P0,K-002,Separate dev/staging/prod configuration; validate required settings; document secret injection/storage; no real secrets in tracked files or logs; ADR-022: verified local baseline may support dependent local features; T034 real environment evidence deferred to deployment readiness; external acceptance remains incomplete,"foundation,security,configuration"
 K-029,Implement V1 turn-based voice input/transcription and speech output,Backlog,M2,P0,K-014;K-017;K-018;K-028,"Implement versioned consent/revocation; bounded audio validation; OpenAI gpt-transcribe via Model Gateway; transcript enters same state machine as typed input; display interviewer text and stream gpt-4o-mini-tts speech on demand; no durable raw audio/speech storage; failures preserve state; text fallback, rate limits, log redaction and retention tests pass.","voice,api,privacy,llm"

@@ -1,6 +1,6 @@
 # AI DSA Interview Practice Platform — Documentation Baseline
 
-This repository currently contains the planning/design baseline and contracts. It is not yet an application implementation. The documents define the product, architecture, feature sequence, core technical contracts, and initial task backlog.
+This repository contains the planning/design baseline, canonical contracts and Application Foundation tooling, tested configuration, a custom Next.js server lifecycle, enforced module boundaries, startup/HMR and privacy regression coverage, safe request telemetry, uncached health adapters, a dedicated local PostgreSQL test service, explicit migrations, verified storage isolation/schema readiness, CI/security commands and a tested non-root container. Product features and full release acceptance remain unbuilt. Follow [the local development guide](docs/development.md) and the canonical Kanban for current task status.
 
 ## Start here
 
@@ -40,4 +40,4 @@ Clerk authentication; turn-based voice with visible transcript and speech output
 
 ## Current next step
 
-The initial Kanban marks K-001 and K-002 as Ready. Start implementation there, using the dependency graph and task dependencies to guide parallel work. The V1 choices are recorded in `docs/01_macro_architecture/05_architecture_decision_records.md`; K-027 (voice-scope decision) is marked Done after this decision/document update, while K-029 tracks the voice implementation. K-028 tracks environment separation and secret handling after the application skeleton is established.
+K-001–K-005 acceptance is verified. Phases 1–6 are implemented and locally verified, including CI/security stages, the non-root application image and integrated outage/shutdown journeys. K-006 awaits hosted CI acceptance; K-028 still requires external environment evidence. Phase 7 T031–T033 and local review/commit T047/T048 are verified (47/48 feature tasks). Under ADR-022, T034 stays deferred to deployment readiness. Later features can rely on the verified local K-028 baseline with explicit dependency evidence; real-provider milestone checks and final cloud release gates remain required. See the [local/real-service test matrix](docs/development.md#local-and-real-service-test-matrix). The [Kanban](project_management/kanban_board.md) and its CSV export own status; V1 choices remain in the ADR register.

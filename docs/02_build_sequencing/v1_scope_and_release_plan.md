@@ -62,7 +62,7 @@ Includes:
 - Health and readiness endpoints.
 - CI with formatting/linting, unit tests, and basic dependency checks.
 - Development/staging/production configuration separation.
-- Apply the selected AWS baseline in development/staging: establish separate environment configuration, secret injection, and least-privilege task-role conventions (K-028); keep provider credentials out of source control.
+- Establish the local configuration/secret baseline and document the selected AWS environment, secret-injection and least-privilege conventions (K-028). Actual staging/production evidence is deferred to deployment readiness under ADR-022; K-028 remains incomplete until verified.
 - K-027 (voice scope decision) is complete. The voice API/contract is designed; the voice experience itself is delivered under K-029 in M2.
 
 **Acceptance criteria:**
@@ -182,11 +182,37 @@ Includes:
 - Critical vulnerabilities and release-blocking defects are resolved or explicitly accepted by the responsible owner.
 - All V1 release gates in the System Master PRD are satisfied.
 
+## 4.1 Local development and external verification schedule
+
+Under ADR-022, build integrated local slices before funding persistent AWS
+resources. Use the real application containers and local PostgreSQL; evaluate
+queue emulation and provider fixtures in their owning features. No new testing
+kit is installed by this plan. The development guide maintains the test matrix.
+
+Foundation local handoff may be reviewed/committed after T033 without T034.
+Later features may satisfy only K-028's local prerequisite with recorded passing
+configuration/privacy/isolation evidence; this does not make K-028 or M0 Done.
+Hosted CI acceptance remains required for K-006. Other hard dependencies remain.
+
+At each provider integration milestone, execute a bounded authorized real-service
+smoke test and record results on its owning card. Ordinary CI uses fixtures;
+provider-dependent acceptance stays open if real access is unavailable. Validate
+Clerk sign-in/token verification, OpenAI text/audio quality and failure behavior,
+and E2B execution/isolation before claiming those integrations complete.
+
+Near deployment, prepare authorized temporary AWS staging and verify T034/K-028
+plus K-026's operational gates: IAM/networking, RDS TLS, ECS injection and secret
+rotation/replacement, actual SQS retry/visibility/duplicate/DLQ behavior,
+deployment/rollback, monitoring, backup restore and representative load. Provisioning,
+budgets and teardown require their own deployment scope; this document provisions
+nothing. Local/emulated results never substitute for these release checks.
+
 ## 5. Release gates
 
 A milestone is not considered complete because code has merged. The milestone's acceptance criteria must pass in CI or through a recorded, repeatable verification procedure.
 
 The V1 release is blocked if any of the following remain unresolved:
+- Required real-provider acceptance or T034/K-028 and K-026 staging/operational evidence is missing, even when local/emulated checks pass.
 - Candidate code can escape its intended sandbox boundary or access secrets/hidden tests.
 - The model can bypass backend state-transition policy.
 - Session state can be corrupted or silently lost under normal retry/refresh behavior.

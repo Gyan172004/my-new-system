@@ -1,0 +1,36 @@
+name: Foundation CI
+on:
+  pull_request:
+  push:
+    branches: [main, 'feature/**']
+permissions:
+  contents: read
+concurrency:
+  group: foundation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      APP_ENV: test
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.22.0
+          cache: npm
+      - name: Pin npm
+        run: npm install --global npm@11.19.1
+      - name: Locked install
+        run: npm ci
+      - name: Prepare isolated local services
+        run: node --import tsx scripts/prepare-ci.ts
+      - name: Required checks, scans, container and negative controls
+        run: npm run verify:ci
+      - name: Stop project services while preserving volumes
+        if: always()
+        run: docker compose stop db test-db

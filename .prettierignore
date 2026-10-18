@@ -1,0 +1,25 @@
+node_modules/
+.next/
+dist/
+build/
+coverage/
+package-lock.json
+# Existing authoritative documents and imported skill sources have their own formatting.
+.agents/
+.specify/
+skills/
+contracts/
+project_management/
+AGENTS.md
+README.md
+docs/01_macro_architecture/
+docs/02_build_sequencing/
+docs/03_features/
+docs/project_notes/
+docs/development_workflow_setup.md
+docs/04_design/
+artifacts/
+first-principles-teacher/
+next-env.d.ts
+
+.local/

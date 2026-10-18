@@ -1,7 +1,7 @@
 # Initial Kanban Board
 
 **Purpose:** Track implementation work derived from the dependency graph and V1 release plan.  
-**Status:** Initial backlog; no application implementation is claimed complete. K-027 is Done because the owner decision and required documentation/contract updates are complete.  
+**Status:** Application Foundation implementation started; K-001 workflow acceptance is verified. No application milestone is complete. K-027 is Done because the owner decision and required documentation/contract updates are complete.
 **Architecture source of truth:** Linked Markdown requirements, contracts, and design documents.  
 **Task status source of truth:** This board or its imported live equivalent.
 
@@ -23,35 +23,22 @@
 6. If using GitHub Projects, Trello, or Linear, treat that live board as the status source; this Markdown is the initial snapshot.
 7. Do not put secrets, candidate data, hidden tests, or credentials in task descriptions.
 
+### Local development prerequisite policy
+
+Under ADR-022, K-028 remains In Progress until T034's real environment evidence
+passes. Its verified local configuration/privacy/isolation portion can satisfy
+the local-development prerequisite for a consuming feature (including K-029),
+provided that feature's engineering design records the evidence and outstanding
+external gate. This does not automatically move cards or waive other dependencies.
+Real-provider acceptance stays on the owning existing cards; cloud/operational
+release checks remain T034/K-028 and K-026. T047/T048 may follow T033 independently
+of T034. See the [release schedule](../docs/02_build_sequencing/v1_scope_and_release_plan.md#41-local-development-and-external-verification-schedule).
+
 ## Ready
 
-### K-001 — Confirm repository conventions and local developer workflow
-- Milestone: M0 · Priority: P0
-- Depends on: None
-- Acceptance: clean-checkout instructions are documented; configuration is validated; format/lint/test commands are discoverable.
-
-### K-002 — Establish application skeleton and module boundaries
-- Milestone: M0 · Priority: P0
-- Depends on: K-001
-- Acceptance: application starts locally; module boundaries follow the modular-monolith design; no feature logic bypasses another module's public interface.
+_None._
 
 ## Backlog
-
-### K-003 — Add structured logging and request correlation
-- Milestone: M0 · Priority: P0 · Depends on: K-002
-- Acceptance: request/job correlation IDs appear in logs; secrets and sensitive payloads are redacted.
-
-### K-004 — Add health and readiness endpoints
-- Milestone: M0 · Priority: P0 · Depends on: K-002
-- Acceptance: liveness and readiness have distinct semantics and automated tests.
-
-### K-005 — Configure database migrations and test database workflow
-- Milestone: M0 · Priority: P0 · Depends on: K-002
-- Acceptance: migrations apply to an empty database; integration tests use isolated test data; recovery expectations are documented.
-
-### K-006 — Add CI checks and automated test stages
-- Milestone: M0 · Priority: P0 · Depends on: K-001, K-002
-- Acceptance: CI runs formatting/lint, unit and relevant integration/contract tests, dependency/static checks, and simple architecture-boundary checks; a deliberate failing check fails CI.
 
 ### K-007 — Define minimal Problem Pack schema and validation rules
 - Milestone: M1 · Priority: P0 · Depends on: K-002
@@ -133,17 +120,22 @@
 - Milestone: M5 · Priority: P0 · Depends on: K-003, K-004, K-005, K-006, K-014, K-017, K-022, K-023, K-028, K-029
 - Acceptance: dashboards/alerts exist; load tests exercise expected concurrency; backup restore and rollback are demonstrated; all explicitly in-scope V1 modes have release evidence.
 
-### K-028 — Establish environment configuration and secret-handling baseline
-- Milestone: M0 · Priority: P0 · Depends on: K-002
-- Acceptance: development/staging/production configuration is separated; required settings validate at startup; secret injection/storage is documented; example files contain placeholders only; secrets are absent from source control and logs.
-
 ### K-029 — Implement V1 turn-based voice input/transcription and speech output
 - Milestone: M2 · Priority: P0 · Depends on: K-014, K-017, K-018, K-028
 - Acceptance: explicit versioned consent/revocation; bounded audio validation; OpenAI `gpt-transcribe` runs through the Model Gateway; transcript enters the same state machine as text; interviewer text is displayed and `gpt-4o-mini-tts` speech is streamed on demand; raw audio/speech is not durably stored by the application; provider failures do not advance state; text fallback, rate limits, log redaction and retention tests pass.
 
 ## In Progress
 
-_None._
+### K-028 — Establish environment configuration and secret-handling baseline
+- Milestone: M0 · Priority: P0 · Depends on: K-002
+- Acceptance: development/staging/production configuration is separated; required settings validate at startup; secret injection/storage is documented; example files contain placeholders only; secrets are absent from source control and logs.
+- Progress evidence: startup/configuration, environment examples, secret-free image/log checks and role/injection/rotation handoff are implemented locally. Owner confirmed on 2026-10-18 that staging/production resources are not ready. Owner approved deferring resource funding to deployment readiness (ADR-022). Actual resource separation, task-definition injection, least-privilege roles, verified remote TLS and rotation evidence remain T034; card is not Done. Verified local prerequisites may support later features with explicit engineering-design evidence; local T047/T048 no longer wait for T034. See [foundation runbook](../docs/runbooks/foundation.md#environment-isolation-and-secret-injection-handoff).
+
+### K-006 — Add CI checks and automated test stages
+- Milestone: M0 · Priority: P0 · Depends on: K-001, K-002
+- Acceptance: CI runs formatting/lint, unit and relevant integration/contract tests, dependency/static checks, and simple architecture-boundary checks; a deliberate failing check fails CI.
+
+- Progress evidence: Reviewed Phase 6 pipeline, scanners, container/layer/bridge and process/negative controls; local aggregate passed and full suite 212/212 passed. Hosted CI acceptance pending. See [foundation runbook](../docs/runbooks/foundation.md).
 
 ## In Review
 
@@ -151,13 +143,40 @@ _None._
 
 ## Done
 
+### K-004 — Add health and readiness endpoints
+- Milestone: M0 · Priority: P0 · Depends on: K-002
+- Acceptance: liveness and readiness have distinct semantics and automated tests.
+- Completion evidence: reviewed uncached contract-compliant live/ready adapters; real absent/migrated/incompatible history, optional-provider absence, exhaustion, query cancellation and recovery tests pass. Phase 5 full suite 201/201; no test databases or owned DB sessions remain. See [foundation runbook](../docs/runbooks/foundation.md).
+
+### K-005 — Configure database migrations and test database workflow
+- Milestone: M0 · Priority: P0 · Depends on: K-002
+- Acceptance: migrations apply to an empty database; integration tests use isolated test data; recovery expectations are documented.
+- Completion evidence: explicit stable node-pg-migrate baseline applies to empty storage and repeats as a no-op; transactional failure, immutable full history, bounded lock contention/cancellation/recovery and concurrent owned test isolation pass. Safe forward-fix/approved-restore expectations documented; production restore remains K-026. Phase 5 full suite 201/201. See [foundation runbook](../docs/runbooks/foundation.md).
+
+### K-003 — Add structured logging and request correlation
+- Milestone: M0 · Priority: P0 · Depends on: K-002
+- Acceptance: request/job correlation IDs appear in logs; secrets and sensitive payloads are redacted.
+- Completion evidence: reviewed runtime-owned request context and allowlisted Pino telemetry; concurrent canaries, raw dependency errors and cancelled-request process tests pass. Final suite 176/176, including real driver safety checks. Future job producers must explicitly map request IDs to canonical correlationId; no queue producer is introduced. See [foundation runbook](../docs/runbooks/foundation.md).
+
+### K-002 — Establish application skeleton and module boundaries
+- Milestone: M0 · Priority: P0
+- Depends on: K-001
+- Acceptance: application starts locally; module boundaries follow the modular-monolith design; no feature logic bypasses another module's public interface.
+- Completion evidence: reviewed Phase 3 module/public-interface and client/provider boundary checks; production startup and two actual HMR reloads preserve the shared runtime handle and single listener. Final suite: 125/125 tests passed; secret-free build, lint, typecheck and architecture checks passed. See [foundation runbook](../docs/runbooks/foundation.md). Readiness/storage/CI and external environment gates retain their own cards.
+
+### K-001 — Confirm repository conventions and local developer workflow
+- Milestone: M0 · Priority: P0
+- Depends on: None
+- Acceptance: clean-checkout instructions are documented; configuration is validated; format/lint/test commands are discoverable.
+- Completion evidence: locked clean-directory installation, configuration validation, format/lint/type checks and 67 unit tests passed; independent review found no blocking issues. See [foundation runbook](../docs/runbooks/foundation.md).
+
 ### K-027 — Resolve V1 voice interaction and transcription scope
 - Milestone: M0 · Priority: P0 · Depends on: None
 - Completion evidence: owner selected turn-based candidate audio input, OpenAI transcription, visible transcript, interviewer text plus speech output, consent, and text fallback; PRD, ADRs, feature order, API contract and voice technical contract now reflect the choice. Implementation remains K-029.
 
 ## Blocked / decisions needed
 
-- AWS Region/VPC/networking and resource sizing; these do not block local module work but are required for deployment.
+- AWS Region/VPC/networking and resource sizing; owner confirmed staging/production resources are not ready (2026-10-18). This defers T034/K-028 external acceptance to deployment readiness; under ADR-022 it does not block local T047/T048 or independently verifiable feature development. Real-provider milestone acceptance and production release gates remain binding.
 - E2B production security/data-processing/region review and pinned language toolchains before candidate execution is exposed.
 - Per-operation model/audio budgets/timeouts and Astra escalation threshold before production model calls.
 - Voice audio MIME/size/duration limits, versioned consent copy, privacy review, and E2B/OpenAI data controls before production launch.

@@ -1,0 +1,5 @@
+[extend]
+useDefault = true
+[allowlist]
+description = "Generated outputs, ignored runtime secrets and imported pinned skill sources"
+paths = ['''(^|/)(node_modules|\.git|\.next|dist|coverage|\.local|skills|\.agents|\.specify)/''']

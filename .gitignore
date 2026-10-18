@@ -22,3 +22,19 @@ __pycache__/
 *.log
 .DS_Store
 /skills/vendor/
+
+# Application build output and editor temporaries.
+dist/
+build/
+*.tsbuildinfo
+*.tmp
+*.swp
+Thumbs.db
+.vscode/
+.idea/
+
+# Next regenerates this declaration for the active build directory.
+/next-env.d.ts
+
+# Local generated database secret files; never build or commit these values.
+/.local/

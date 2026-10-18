@@ -40,6 +40,7 @@ When a decision changes, update this record and all affected contracts/designs i
 | ADR-019 | Apply explicit data retention and no-durable-raw-audio policy | Accepted V1 default; privacy review required |
 | ADR-020 | Use author + independent technical review for Problem Pack publication | Accepted V1 content process |
 | ADR-021 | Use TypeScript + Next.js for the trusted application | Accepted owner choice, 2026-10-17 |
+| ADR-022 | Develop locally with explicit provider and cloud verification gates | Accepted owner choice, 2026-10-18 |
 
 ## 3. Decisions
 
@@ -444,6 +445,63 @@ application code or runtime consumers exist in this documentation baseline.
 **Revisit when:** Measured lifecycle, bundling, container cost or product UI
 requirements make the custom entrypoint unsuitable. Any revised lifecycle
 implementation must still pass the foundation acceptance tests.
+
+### ADR-022 — Develop locally with explicit provider and cloud verification gates
+
+**Status:** Accepted owner choice, 2026-10-18.
+
+**Context:** The owner will fund AWS resources near deployment. Local integration
+must support continued feature development without misrepresenting emulated
+behavior as verified managed-service behavior.
+
+**Decision:** Build thin integrated slices using the real application containers,
+real local PostgreSQL and contract-tested adapters. Future queue work may use an
+SQS-compatible emulator; provider fixtures exercise deterministic success,
+malformed output, timeout and failure paths. Production selections in ADR-009
+through ADR-012 and ADR-016 remain binding. Ordinary local/CI runs require no
+paid-provider credentials. Local completion and external acceptance are distinct.
+
+**Consequences:**
+
+- Foundation local review/commit T047/T048 follows T033, independently of deferred
+  T034. K-028 stays incomplete until real environment evidence passes; K-006 still
+  requires hosted CI. No milestone or release is declared complete by this split.
+- Later features may build against the verified local configuration/secret
+  baseline while K-028 remains In Progress, recording this limited dependency
+  satisfaction in their engineering design. Other prerequisites remain binding.
+- Adapters preserve canonical API/event and provider boundaries. The same
+  application-facing contract scenarios run against local and real adapters;
+  real-provider runs additionally verify authentication, SDK/API compatibility
+  and service-specific behavior. Endpoint changes alone do not prove parity.
+- Each provider feature plans a bounded real-service smoke/feasibility gate at
+  its integration milestone. If access/budget is unavailable, record it on the
+  owning existing card; only independent fixture-backed work may proceed.
+  Clerk token verification, OpenAI quality/audio behavior and E2B isolation must
+  pass before affected provider-backed acceptance, not be assumed from fixtures.
+- Before production, authorized temporary AWS staging must verify real IAM,
+  networking, RDS TLS, ECS secret injection/replacement/rotation, queue semantics,
+  deployment/rollback, monitoring, backup restore and representative load.
+  T034 owns environment evidence; K-026 owns remaining operational release gates.
+- Emulators/fixtures never authorize running candidate code in the trusted app
+  or prove E2B security. Test adapters/endpoints/credentials must fail closed in
+  staging/production; there is no automatic fallback from a failed real provider.
+- No dependency, emulator, paid subscription, infrastructure or IaC tool is
+  installed/selected by this decision. Tool versions, license, API coverage and
+  limitations are reviewed in the owning feature before adoption.
+
+**Alternatives:** Funding persistent AWS environments immediately increases early
+cost. Deferring every real-provider check until launch leaves quality, security
+and compatibility risks undiscovered. Local integration plus milestone smoke
+checks and final staging verification is selected.
+
+**Impact:** Reconciled foundation's four documents, development/runbook guidance,
+operations blueprint, sequencing/release dependencies and Kanban/CSV handoff.
+Canonical API/event schemas, domain/session/LLM/execution/voice contracts and
+production stack do not change; no producer/consumer wire migration is needed.
+This is documentation policy, not executed emulator/provider evidence.
+
+**Revisit when:** A provider-specific limitation blocks a vertical slice or
+measured staging behavior differs from local assumptions.
 
 ## 4. Remaining implementation decisions and validation gates
 

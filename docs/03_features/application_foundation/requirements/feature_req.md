@@ -1,7 +1,7 @@
 # Application Foundation — Requirements
 
 **Date:** 2026-10-17  
-**Status:** Reconciled planning baseline; implementation and runtime checks unexecuted. Final analysis is reported in the session.  
+**Status:** Accepted design with Phases 1–6 and Phase 7 local closeout verified; deferred T034 and external acceptance gates remain open. See the canonical Kanban and foundation runbook for evidence.
 **Authority:** Canonical feature behavior under root [AGENTS.md](../../../../AGENTS.md).  
 **Related Kanban:** K-001–K-006, K-028; implementation status remains in [Kanban](../../../../project_management/kanban_board.md).
 
@@ -15,7 +15,7 @@ Read with the [PRD](../../../01_macro_architecture/01_system_master_prd.md),
 [feature order](../../../02_build_sequencing/feature_implementation_order.md),
 [dependency graph](../../../02_build_sequencing/build_dependency_graph.md) and
 [release plan](../../../02_build_sequencing/v1_scope_and_release_plan.md).
-K-001 has no dependencies. K-002 requires K-001 even though both are under Ready.
+K-001 has no dependencies. K-002 requires K-001; current status belongs to Kanban.
 K-003/004/005/028 require K-002; K-006 requires K-001 and K-002.
 Planning authorization does not authorize implementation or change task status.
 
@@ -145,27 +145,82 @@ technical/engineering design. Newly generated items remain unchecked until the
 reviewer signs off; `[x]` never means implementation passed. All items have explicit
 traceability. The built-in specification-quality check separately passed 16/16.
 
-- [ ] CHK001 Are setup prerequisites, locked install and start/stop/verification outcomes specified? [Completeness; FR-001; SC-001]
-- [ ] CHK002 Are framework adapters separated from domain ownership and private persistence access? [Completeness; FR-002; FR-014]
-- [ ] CHK003 Are required, optional and unimplemented integration settings distinguished explicitly? [Clarity; FR-003; US1]
-- [ ] CHK004 Are environment names and the rejection of test identities outside local/test use unambiguous? [Clarity; FR-003; FR-004; US1]
-- [ ] CHK005 Are missing, invalid and secret-bearing configuration failures defined without value disclosure? [Coverage; FR-003; FR-006; SC-002]
-- [ ] CHK006 Are development, staging and production isolation requirements distinct from deployment evidence? [Coverage; FR-004; Scope]
-- [ ] CHK007 Are request identifier provenance, bounds and overlapping request context rules specified? [Clarity; FR-005; US2]
-- [ ] CHK008 Are sensitive data exclusions stated for logs, traces, errors and probe responses? [Completeness; FR-006; SC-004]
-- [ ] CHK009 Are health paths, authentication exceptions and response schemas tied to the canonical API? [Consistency; FR-007; FR-014]
-- [ ] CHK010 Are liveness, readiness, mandatory dependencies and finite failure budgets distinguishable? [Measurability; FR-007; FR-008; FR-013; SC-003]
-- [ ] CHK011 Are absent, older, newer and unknown schema histories covered by readiness requirements? [Coverage; FR-008; Edge cases]
-- [ ] CHK012 Are optional provider outages excluded from readiness without silently enabling a provider fallback? [Consistency; FR-003; FR-008]
-- [ ] CHK013 Are migration ownership, explicit invocation, no-op repetition and overlap handling specified? [Coverage; FR-009; US3]
-- [ ] CHK014 Are failed migration behavior, rollback limits and forward-fix or restore responsibilities defined? [Coverage; FR-009; SC-005]
-- [ ] CHK015 Are test-resource allocation, allowed targets and refusal of unsafe cleanup documented? [Clarity; FR-010; US3]
-- [ ] CHK016 Are concurrent migration and concurrent test-run acceptance outcomes defined? [Measurability; FR-009; FR-010; SC-005]
-- [ ] CHK017 Are required CI stages and unavailable-stage reporting requirements enumerated? [Completeness; FR-011; US4]
-- [ ] CHK018 Are deliberate test, lint and architecture failures required as CI negative controls? [Measurability; FR-011; SC-006]
-- [ ] CHK019 Are test-first behavior changes and real-storage/process verification responsibilities explicit? [Coverage; FR-012; SC-001; SC-005]
-- [ ] CHK020 Are startup, draining, interrupted initialization and resource cleanup requirements bounded? [Coverage; FR-013; US1; US2]
-- [ ] CHK021 Are the session state, LLM policy, execution and voice contracts preserved rather than replaced? [Consistency; FR-014; Scope]
-- [ ] CHK022 Does every functional requirement and buildable success criterion have a task/evidence mapping? [Traceability; FR-001–015; SC-001–007]
-- [ ] CHK023 Are K-001 before K-002 and the remaining canonical task dependencies stated explicitly? [Consistency; Baseline and dependency readiness; FR-015]
-- [ ] CHK024 Are reviewer signoff, observed verification, code review, convergence and Kanban/CSV ownership distinguished from planning completion? [Governance; FR-015; SC-007]
+- [x] CHK001 Are setup prerequisites, locked install and start/stop/verification outcomes specified? [Completeness; FR-001; SC-001]
+- [x] CHK002 Are framework adapters separated from domain ownership and private persistence access? [Completeness; FR-002; FR-014]
+- [x] CHK003 Are required, optional and unimplemented integration settings distinguished explicitly? [Clarity; FR-003; US1]
+- [x] CHK004 Are environment names and the rejection of test identities outside local/test use unambiguous? [Clarity; FR-003; FR-004; US1]
+- [x] CHK005 Are missing, invalid and secret-bearing configuration failures defined without value disclosure? [Coverage; FR-003; FR-006; SC-002]
+- [x] CHK006 Are development, staging and production isolation requirements distinct from deployment evidence? [Coverage; FR-004; Scope]
+- [x] CHK007 Are request identifier provenance, bounds and overlapping request context rules specified? [Clarity; FR-005; US2]
+- [x] CHK008 Are sensitive data exclusions stated for logs, traces, errors and probe responses? [Completeness; FR-006; SC-004]
+- [x] CHK009 Are health paths, authentication exceptions and response schemas tied to the canonical API? [Consistency; FR-007; FR-014]
+- [x] CHK010 Are liveness, readiness, mandatory dependencies and finite failure budgets distinguishable? [Measurability; FR-007; FR-008; FR-013; SC-003]
+- [x] CHK011 Are absent, older, newer and unknown schema histories covered by readiness requirements? [Coverage; FR-008; Edge cases]
+- [x] CHK012 Are optional provider outages excluded from readiness without silently enabling a provider fallback? [Consistency; FR-003; FR-008]
+- [x] CHK013 Are migration ownership, explicit invocation, no-op repetition and overlap handling specified? [Coverage; FR-009; US3]
+- [x] CHK014 Are failed migration behavior, rollback limits and forward-fix or restore responsibilities defined? [Coverage; FR-009; SC-005]
+- [x] CHK015 Are test-resource allocation, allowed targets and refusal of unsafe cleanup documented? [Clarity; FR-010; US3]
+- [x] CHK016 Are concurrent migration and concurrent test-run acceptance outcomes defined? [Measurability; FR-009; FR-010; SC-005]
+- [x] CHK017 Are required CI stages and unavailable-stage reporting requirements enumerated? [Completeness; FR-011; US4]
+- [x] CHK018 Are deliberate test, lint and architecture failures required as CI negative controls? [Measurability; FR-011; SC-006]
+- [x] CHK019 Are test-first behavior changes and real-storage/process verification responsibilities explicit? [Coverage; FR-012; SC-001; SC-005]
+- [x] CHK020 Are startup, draining, interrupted initialization and resource cleanup requirements bounded? [Coverage; FR-013; US1; US2]
+- [x] CHK021 Are the session state, LLM policy, execution and voice contracts preserved rather than replaced? [Consistency; FR-014; Scope]
+- [x] CHK022 Does every functional requirement and buildable success criterion have a task/evidence mapping? [Traceability; FR-001–015; SC-001–007]
+- [x] CHK023 Are K-001 before K-002 and the remaining canonical task dependencies stated explicitly? [Consistency; Baseline and dependency readiness; FR-015]
+- [x] CHK024 Are reviewer signoff, observed verification, code review, convergence and Kanban/CSV ownership distinguished from planning completion? [Governance; FR-015; SC-007]
+
+### Requirements-quality review signoff — 2026-10-18
+
+Reviewed by Codex at the owner's explicit request to review and check the items.
+All CHK001–CHK024 criteria are satisfied by the current requirements, technical
+design, engineering design, pseudocode and canonical health contract. U1/U2
+execution-detail refinements were applied and independently reviewed beforehand.
+This signs off document quality and pre-implementation readiness only; it does
+not establish implemented behavior, passing runtime tests or Kanban completion.
+
+| Criteria | Reviewed evidence |
+|---|---|
+| CHK001 | Engineering design's planned commands and clean-environment journey; locked npm installation, configuration, start/stop and checks |
+| CHK002, CHK021 | Technical design's public module boundaries and interface impact review; existing session/LLM/execution/voice policies retained |
+| CHK003–CHK006 | Configuration/lifecycle rules: explicit environments/adapters, no unused-provider secrets, sanitized failures; local guards and external T034 evidence distinguished |
+| CHK007–CHK008 | Server-generated UUID, isolated AsyncLocalStorage, allowlisted logs and stdout/stderr canary tests |
+| CHK009–CHK012 | Canonical health paths/schema/auth exceptions, no-store, mandatory DB/schema checks, finite deadlines and excluded optional providers |
+| CHK013–CHK016 | Explicit bounded/locked migrations, forward-fix/approved restore, guarded owned test allocation and concurrent isolation; U1 specifies early test-service/fixture readiness |
+| CHK017–CHK020 | Required fail-closed CI/scanners, negative controls, test-first real-storage/process evidence and lifecycle bounds; U2 defines observable HMR reuse |
+| CHK022–CHK024 | All 15 FRs/seven SCs mapped to 48 tasks; explicit K/T dependencies, preflight, review/commit, convergence and Kanban/CSV ownership |
+
+
+### T032 signoff reconfirmation — 2026-10-18
+
+An independent read-only reviewer checked the current implementation against all
+four canonical feature documents, relevant architecture/ADRs and contracts.
+CHK001–CHK024 remain satisfied as requirements/design-quality checks; the earlier
+pre-T001 signoff remains the prerequisite and is not replaced by this late review.
+No material product/architecture or interface changes required renewed decisions.
+No Critical/Important blocker was found. The reviewer did not execute tests or
+establish hosted CI, staging/production resource/role/injection/rotation, remote
+TLS or production restore acceptance. Those retain their existing evidence gates.
+
+## Accepted local development and external acceptance policy — 2026-10-18
+
+Owner-approved ADR-022 permits local development and foundation review/commit
+before AWS resources are funded. FR-004/015 and SC-007 still require K-028 to
+remain incomplete until T034 verifies actual environments. FR-011/SC-006 still
+require hosted CI evidence for K-006. Local and external evidence must be labeled
+separately; no required unavailable check is a pass.
+
+Acceptance: T047/T048 may follow verified T031–T033 independently of T034.
+Subsequent feature planning can rely on K-028's verified local configuration,
+privacy and isolation portion, explicitly recording that dependency in its
+engineering design. This does not waive other prerequisites or complete M0.
+Future provider features use contract-tested fixtures/emulators for ordinary CI,
+plus bounded real-service checks at their integration milestones before claiming
+provider acceptance. Deferred cloud evidence remains a pre-release requirement.
+Fixtures cannot prove model quality, real authentication or sandbox isolation;
+no candidate code runs in trusted application/test-adapter paths. No automatic
+production fallback to fixtures or local endpoints is allowed.
+
+This amendment changes verification timing and local review dependencies, not
+API/event schemas or product behavior. The material requirements delta must be
+reviewed with the four documents; earlier signoffs remain historical evidence.

@@ -21,6 +21,19 @@ This document defines deployment boundaries, environment strategy, security cont
 7. Observe critical user journeys, not only machine health.
 8. Avoid distributed infrastructure until measurements justify it.
 
+### Local development and deployment timing
+
+Follow ADR-022 and the [release schedule](../02_build_sequencing/v1_scope_and_release_plan.md#41-local-development-and-external-verification-schedule):
+local containers, real local PostgreSQL and contract-tested fixtures/emulators
+support development before AWS resources are funded. Production remains
+ECS/Fargate, RDS PostgreSQL, SQS Standard and Secrets Manager. Real provider
+smoke checks occur at their integration milestones; unavailable checks remain
+open. Actual environment, IAM/network, TLS, injection/rotation, deployment,
+monitoring, restore and load evidence is required before release. Local review
+and commits may proceed while T034/K-028 remains pending; provisioning is a
+separate authorized deployment activity. No local emulator proves cloud parity
+or untrusted-code isolation.
+
 ## 3. Capacity assumptions
 
 Planning assumptions to validate with load tests:
