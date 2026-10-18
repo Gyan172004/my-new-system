@@ -23,6 +23,17 @@
 6. If using GitHub Projects, Trello, or Linear, treat that live board as the status source; this Markdown is the initial snapshot.
 7. Do not put secrets, candidate data, hidden tests, or credentials in task descriptions.
 
+### Local development prerequisite policy
+
+Under ADR-022, K-028 remains In Progress until T034's real environment evidence
+passes. Its verified local configuration/privacy/isolation portion can satisfy
+the local-development prerequisite for a consuming feature (including K-029),
+provided that feature's engineering design records the evidence and outstanding
+external gate. This does not automatically move cards or waive other dependencies.
+Real-provider acceptance stays on the owning existing cards; cloud/operational
+release checks remain T034/K-028 and K-026. T047/T048 may follow T033 independently
+of T034. See the [release schedule](../docs/02_build_sequencing/v1_scope_and_release_plan.md#41-local-development-and-external-verification-schedule).
+
 ## Ready
 
 _None._
@@ -109,15 +120,16 @@ _None._
 - Milestone: M5 · Priority: P0 · Depends on: K-003, K-004, K-005, K-006, K-014, K-017, K-022, K-023, K-028, K-029
 - Acceptance: dashboards/alerts exist; load tests exercise expected concurrency; backup restore and rollback are demonstrated; all explicitly in-scope V1 modes have release evidence.
 
-### K-028 — Establish environment configuration and secret-handling baseline
-- Milestone: M0 · Priority: P0 · Depends on: K-002
-- Acceptance: development/staging/production configuration is separated; required settings validate at startup; secret injection/storage is documented; example files contain placeholders only; secrets are absent from source control and logs.
-
 ### K-029 — Implement V1 turn-based voice input/transcription and speech output
 - Milestone: M2 · Priority: P0 · Depends on: K-014, K-017, K-018, K-028
 - Acceptance: explicit versioned consent/revocation; bounded audio validation; OpenAI `gpt-transcribe` runs through the Model Gateway; transcript enters the same state machine as text; interviewer text is displayed and `gpt-4o-mini-tts` speech is streamed on demand; raw audio/speech is not durably stored by the application; provider failures do not advance state; text fallback, rate limits, log redaction and retention tests pass.
 
 ## In Progress
+
+### K-028 — Establish environment configuration and secret-handling baseline
+- Milestone: M0 · Priority: P0 · Depends on: K-002
+- Acceptance: development/staging/production configuration is separated; required settings validate at startup; secret injection/storage is documented; example files contain placeholders only; secrets are absent from source control and logs.
+- Progress evidence: startup/configuration, environment examples, secret-free image/log checks and role/injection/rotation handoff are implemented locally. Owner confirmed on 2026-10-18 that staging/production resources are not ready. Owner approved deferring resource funding to deployment readiness (ADR-022). Actual resource separation, task-definition injection, least-privilege roles, verified remote TLS and rotation evidence remain T034; card is not Done. Verified local prerequisites may support later features with explicit engineering-design evidence; local T047/T048 no longer wait for T034. See [foundation runbook](../docs/runbooks/foundation.md#environment-isolation-and-secret-injection-handoff).
 
 ### K-006 — Add CI checks and automated test stages
 - Milestone: M0 · Priority: P0 · Depends on: K-001, K-002
@@ -164,7 +176,7 @@ _None._
 
 ## Blocked / decisions needed
 
-- AWS Region/VPC/networking and resource sizing; these do not block local module work but are required for deployment.
+- AWS Region/VPC/networking and resource sizing; owner confirmed staging/production resources are not ready (2026-10-18). This defers T034/K-028 external acceptance to deployment readiness; under ADR-022 it does not block local T047/T048 or independently verifiable feature development. Real-provider milestone acceptance and production release gates remain binding.
 - E2B production security/data-processing/region review and pinned language toolchains before candidate execution is exposed.
 - Per-operation model/audio budgets/timeouts and Astra escalation threshold before production model calls.
 - Voice audio MIME/size/duration limits, versioned consent copy, privacy review, and E2B/OpenAI data controls before production launch.

@@ -3,7 +3,9 @@
 Use this guide from the repository root. Application Foundation is being built
 in reviewed increments. The custom server, health adapters, privacy-safe request
 telemetry, dedicated local PostgreSQL test service and explicit migrations are
-available. Application containers and CI/release stages arrive later. No provider account is needed.
+available, together with the non-root application image and local CI/security
+commands. Hosted CI acceptance and external deployment gates remain pending.
+No paid-provider account is needed for local verification.
 
 ## Toolchain
 
@@ -46,7 +48,7 @@ Runtime settings and implemented commands are documented below. `npm run` lists 
 formatting, linting, type checking and unit tests never need database/provider
 credentials. Build/dev/start commands are available below. Prepare local storage with the
 [Phase 4 service instructions](runbooks/foundation.md#local-postgresql-services-and-test-targets)
-before integration tests or the full suite. Explicit migration commands are below.
+before integration/process tests or the full suite. Explicit migration commands are below.
 
 ### Runtime settings
 
@@ -56,8 +58,9 @@ It is documentation, not a JSON loader or a credential value. The parser reads
 explicit environment variables. Keep resolved local values only in ignored
 `.env.local`; never commit, print or paste a credential-bearing URL into evidence.
 `config:check` uses Node’s optional `.env.local` loading; already exported values
-win. Other tooling commands do not load that file. JSON examples contain no real
-credentials and no usable remote target.
+win. `dev`, `start` and `db:migrate` also load optional `.env.local`; build, tests,
+scanners and aggregate verification use their explicit documented environments.
+JSON examples contain no real credentials or usable remote target.
 
 For a credential-free configuration check (no database is contacted):
 
@@ -69,10 +72,12 @@ npm run typecheck
 npm run test:unit
 npm run check:architecture
 npm run test:architecture
-npm run test:process
 npm run test:contract
 # After preparing the dedicated local test-db service:
+APP_ENV=test npm run test:process
 APP_ENV=test npm run test:integration
+# The complete suite also inspects the built image:
+npm run container:build
 APP_ENV=test npm test
 npm audit --audit-level=high
 ```
@@ -91,11 +96,14 @@ in [the module map](../src/modules/README.md). These static checks protect trust
 source boundaries; candidate execution still requires its separate sandbox.
 
 Process tests build and run production and development servers in disposable
-copies, without database/provider access. The development test performs two
+copies. The clean foundation journey requires explicit `APP_ENV=test`, the
+dedicated local test database and its ignored password file; it migrates only an
+owned allocation. Startup, HMR, privacy and shutdown fixtures require no provider
+credentials. No staging/production target is used by these suites. The development test performs two
 real HMR reloads and verifies one runtime resource acquisition and listener.
 Only owned copies are instrumented or edited; the real checkout is untouched.
-Allow disk space for three dependency copies and up to 120 seconds for development
-startup; each reload and normal shutdown has a 30-second deadline. `npm test`
+Allow disk space for the checkout, concurrent disposable dependency copies and
+an exported image archive. Development startup may take up to 120 seconds; each reload and normal shutdown has a 30-second deadline. `npm test`
 includes these process and architecture suites; `test:unit` is the focused unit run.
 
 | Variable                  | Default                             | Constraint                               |
@@ -218,6 +226,11 @@ npm run scan:image
 APP_ENV=test npm run verify:ci
 ```
 
+The workflow is defined locally. Its Phase 6 push is currently blocked by the
+GitHub OAuth token missing `workflow` scope; no hosted run is claimed. Complete
+the repo-local GitHub CLI authorization before retrying that push. Do not
+remove the workflow or bypass required checks to make delivery succeed.
+
 `verify:ci` executes locked installation, format/lint/type, unit, real DB,
 contract, architecture, build, process, dependency audit, secrets, container,
 CI-control, image/filesystem, clean journey and negative-control stages in order.
@@ -262,3 +275,95 @@ output and production dependencies. It includes no package manager, shell,
 application TypeScript sources, local credentials or documentation. Operational
 health checks use Node directly; signals go to the Node PID1. Production cloud
 roles, environments, deployment and backup/restore evidence remain later gates.
+
+## First clean local run
+
+1. Activate the exact Node/npm toolchain and run `npm ci`.
+2. Follow [local service preparation](runbooks/foundation.md#local-postgresql-services-and-test-targets)
+   to create or preserve the ignored password files and start both isolated DB services.
+3. Run `docker compose up -d --wait --wait-timeout 30 db test-db`.
+4. Run `APP_ENV=test npm run verify:ci` for the complete provider-free verification
+   journey. It creates its own temporary database, explicitly migrates, tests
+   outage/recovery and shuts down its own processes; the development DB is unchanged.
+5. For an interactive development server with readiness 200, prepare host settings
+   below, then run `npm run config:check`, `npm run db:migrate`, `npm run build`
+   and `npm start`. Query both health routes; use Ctrl+C for bounded shutdown.
+
+Create `.env.local` only when it does not already exist. This local-bootstrap
+recipe reads the existing development password without displaying it; it never
+uses the dedicated test-admin identity. An existing file is preserved with an
+EEXIST failure; review its settings through the authorized local mechanism.
+
+```bash
+node --input-type=module <<'NODE'
+import {readFile,writeFile} from 'node:fs/promises';
+const password=await readFile('.local/foundation/db-password','utf8');
+const url=new URL('postgresql://127.0.0.1:45432/foundation_development');
+url.username='foundation_dev_owner';
+url.password=password;
+await writeFile('.env.local',
+  `APP_ENV=development\nDATABASE_URL=${url}\nMIGRATION_DATABASE_URL=${url}\n`,
+  {flag:'wx',mode:0o600});
+console.log('Local settings created; values were not printed.');
+NODE
+npm run config:check
+npm run db:migrate
+npm run build
+npm start
+```
+
+The equal runtime/migration identity in this recipe is only the existing local
+bootstrap convention. Staging/production must use separate least-privilege roles,
+verified TLS and deployment-owned secret injection. See the existing
+[environment handoff](runbooks/foundation.md#environment-isolation-and-secret-injection-handoff)
+and [migration recovery](runbooks/foundation.md#explicit-migrations-and-recovery).
+The separate `.env.container.local` uses db:5432 as described above. Stop the
+owned host server before starting a container on the same published port.
+
+On 2026-10-18 the owner confirmed that staging/production resources are not ready.
+No AWS profile, account, region or existing resource references were supplied.
+T034/K-028 stays open; this local recipe is not external environment or production
+backup/restore evidence. No infrastructure is provisioned by these commands.
+
+## Local and real-service test matrix
+
+ADR-022 permits local development before AWS resources are funded. This matrix
+separates available foundation coverage from future feature work; it does not
+install tools or establish external acceptance.
+
+| Component                 | Local/CI approach                                                                                   | Availability                                     | Real-service evidence still required                                               |
+| ------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| API/application container | Existing Node/Next image, process and Compose bridge tests                                          | Implemented foundation                           | ECS networking, deployment, scaling and rollback                                   |
+| PostgreSQL                | Existing real PostgreSQL services and owned isolated databases; explicit migrations                 | Implemented foundation                           | RDS version/extension compatibility, verified TLS, permissions and restore         |
+| SQS                       | Evaluate an SQS-compatible emulator such as ElasticMQ through the selected AWS SDK                  | Proposed for owning queue feature; not installed | Real retries, visibility, duplicates, DLQ and idempotent consumer/outbox behavior  |
+| Configuration/secrets     | Existing private local settings, synthetic canaries and sanitized validation tests                  | Implemented foundation                           | ECS/Secrets Manager IAM, injection and task replacement/rotation under T034        |
+| Clerk                     | Planned guarded development/test identity and token fixtures; current M0 Clerk mode rejects startup | Future identity feature                          | Real sign-in, token verification, expiry and authorization                         |
+| OpenAI text/audio         | Planned deterministic Gateway fixtures for success, malformed output, timeout and rate limits       | Future Gateway/voice features                    | Real SDK/API compatibility, text/audio quality, latency, budgets and data controls |
+| E2B                       | Planned coordinator contract fixtures; no candidate execution inside trusted workloads              | Future execution feature                         | Actual sandbox isolation, pinned runtimes, resource/network limits and cleanup     |
+
+ElasticMQ is a candidate with an [SQS-compatible interface](https://github.com/softwaremill/elasticmq).
+[Testcontainers](https://node.testcontainers.org/modules/postgresql/) is an
+optional future container-lifecycle helper; the existing Compose/database harness
+already serves foundation tests. LocalStack is another candidate, subject to
+[current licensing](https://docs.localstack.cloud/aws/licensing/), service
+coverage and limitations review. None is installed or selected by this amendment.
+
+When the owning feature introduces a tool, pin/review its version and image,
+license, supported operations and differences from the real service. Reuse the
+same application-facing contract scenarios against local and real adapters.
+Inject duplicate/out-of-order delivery, timeout, malformed responses and retry
+failures explicitly; emulator defaults do not prove production queue semantics.
+No blanket promise of a configuration-only transition is made.
+
+For a real-service transition: obtain authorized references and bounded test
+budget; select the real adapter/endpoint and dedicated test identity; keep local
+fixture settings out of staging/production; run matching contracts and additional
+provider-specific checks; record redacted outcomes on the owning card. Fix any
+parity gaps before provider acceptance. Do not copy local secrets into cloud
+configuration or automatically fall back to a fixture on provider failure.
+
+Ordinary CI remains deterministic and paid-provider-free. At each provider
+milestone, run a separately authorized real smoke check; if unavailable, keep
+that provider acceptance open and continue only independent work. Near deployment,
+actual AWS staging must pass T034/K-028 and the K-026 operational/release checks.
+See the [release schedule](02_build_sequencing/v1_scope_and_release_plan.md#41-local-development-and-external-verification-schedule).

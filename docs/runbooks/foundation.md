@@ -1,5 +1,25 @@
 # Foundation operations and verification evidence
 
+## Current operational handoff
+
+Use [the development guide](../development.md#first-clean-local-run) for the exact
+current clean install/configure/migrate/build/start/probe/stop sequence and full
+verification commands. Dated phase sections below preserve historical evidence;
+earlier incomplete-state statements are not current acceptance claims.
+Migration operations/recovery and environment/role handoff remain in their
+existing sections below. Kanban/CSV own status.
+
+Local implementation through Phase 6 is reviewed in commit `faff2b2`;
+its GitHub delivery/hosted CI is pending `workflow` OAuth scope. The owner
+confirmed on 2026-10-18 that staging/production resources are not ready.
+T034 requires existing environment decisions/resources before read-only evidence
+collection. Do not provision AWS resources, fetch secret values or claim K-028
+completion from local settings. No cloud profile/region/resource references have
+been supplied. Pending evidence is identified under the existing environment
+handoff and the K-028 card. Under the later owner-approved ADR-022 amendment,
+local T047/T048 may follow T033 without waiting for T034; older phase evidence
+below records the previous dependency policy. K-028 and release gates stay open.
+
 ## Phase 1 tooling/configuration review — 2026-10-18
 
 Scope: T001–T004, T035/T036; K-001 and the local configuration portion of K-028.
@@ -161,7 +181,7 @@ K-028. No account, region, networking or IaC tool is selected here.
 
 | Environment | Required separation                                                                                                  |
 | ----------- | -------------------------------------------------------------------------------------------------------------------- |
-| development | Dedicated local PostgreSQL target; ignored local runtime values; dedicated test storage arrives in T015              |
+| development | Dedicated local PostgreSQL target and separate dedicated test storage; ignored local runtime values                  |
 | staging     | Separate database, runtime/migration roles, secret references and eventual provider/sandbox projects from production |
 | production  | Production-only resources and least-privilege identity; no test identity adapter or staging/development credentials  |
 
@@ -187,9 +207,8 @@ This distinction is a handoff convention, not an IAM policy or deployed role.
 
 Use verified TLS outside local/test. `DATABASE_URL` requires
 `sslmode=verify-full`; conflicting SSL URL flags and an explicit global
-`NODE_TLS_REJECT_UNAUTHORIZED=0` are rejected in staging/production. The database
-adapter must still enforce certificate verification with the approved trust
-material when implemented. An approved CA trust bundle may be required by the
+`NODE_TLS_REJECT_UNAUTHORIZED=0` are rejected in staging/production. The implemented database adapter preserves certificate verification; deployment
+still must supply/verify its approved trust material against the actual target. An approved CA trust bundle may be required by the
 selected deployment; do not fix trust errors by disabling verification.
 Configuration checks alone do not prove a successful verified database connection.
 
@@ -306,8 +325,8 @@ spaces from local canonical status annotations; existing CSV CRLF was retained.
 ## Local PostgreSQL services and test targets
 
 Phase 4 adds the approved early local services for real driver/deadline tests.
-The application image/Dockerfile remains T027; creating DB services does not
-advance that phase or provision AWS. Docker Engine 29.3.0 and Compose 5.1.0 were
+The application image/Dockerfile was added in Phase 6; these DB-service commands
+remain separate from app startup and do not provision AWS. Docker Engine 29.3.0 and Compose 5.1.0 were
 available. PostgreSQL 17.11-bookworm is pinned to the official multi-platform
 manifest digest in compose.yaml, checked with `docker buildx imagetools inspect
 postgres:17.11-bookworm`; pinning is not a vulnerability-scan claim.
@@ -337,6 +356,8 @@ docker compose up -d db test-db
 docker compose up -d --wait --wait-timeout 30 db test-db
 docker compose ps --format '{{.Service}} {{.State}} {{.Health}}'
 APP_ENV=test npm run test:integration
+# Required before the full suite, which now includes image/layer/bridge tests:
+npm run container:build
 APP_ENV=test npm test
 ```
 
@@ -366,16 +387,18 @@ An application DATABASE_URL is never used as the allocator target.
 Each run/worker allocates its own lowercase `foundation_test_` database, at most
 63 bytes. Identifiers pass guards and are quoted; cleanup uses only the recorded
 allocation. The shared helper owns 30-second allocation/cleanup deadlines and
-closes its clients. Local test databases are empty: no production migrations,
-ledger rows or domain tables are created by the fixture. Pool tests exercise
-actual server deadlines, cancellation and owned connection cleanup. The later
-migration phase extends this same helper and verifies migrated readiness.
+closes its clients. Pool/deadline, isolation, migration-under-test and no-ledger purposes allocate
+empty test databases; only prepared-schema readiness invokes its explicitly
+injected actual migration initializer. No ledger is hand-created or repaired.
+Pool tests exercise actual deadlines/cancellation and connection cleanup; Phase 5
+added real migrated-readiness cases through this same shared helper.
 
 `npm run test:unit` and `npm run test:contract` need no live storage. The full
 suite requires test-db and its ignored local password file; an unavailable service
 fails integration tests rather than being silently skipped. Process tests build
 and mutate owned copies, including synthetic faults; none introduce production
-test endpoints/flags or require real DB/provider values. Keep the services for
+test endpoints/flags or require paid-provider credentials. The foundation process
+journey requires the dedicated test service and migrates only its owned database. Keep the services for
 further local work; `docker compose stop db test-db` pauses them without deleting
 volumes. Never remove volumes as a side effect of verification.
 
@@ -813,3 +836,192 @@ T025–T030 and T045 are locally verified. T046 is marked only after the scoped
 commit is observed. K-006 stays In Progress until actual hosted CI acceptance;
 K-028 remains incomplete. Pre-existing skill/planning changes are preserved and
 excluded from the implementation commit. Hosted results are recorded separately.
+
+## Phase 7 local closeout and external handoff — 2026-10-18
+
+T031: corrected current guide/operations prerequisites and removed stale claims
+that application containers are future work or all process tests are DB-free.
+The exact host configuration recipe targets the separate development service,
+writes ignored settings mode 600, never displays values and refuses overwrite.
+It was executed in an owned synthetic fixture: correct host/port/database/role,
+explicit runtime/migration names, private mode and existing-file preservation
+passed. No real development credentials or database were changed by that check.
+Existing migration fail/forward-fix/approved-restore and secret-role references
+remain in their canonical sections above. Dated evidence remains historical.
+
+The owner explicitly confirmed staging/production resources are not ready.
+No AWS profile/region/resource references were supplied, so no AWS query,
+provisioning, secret-value fetch, deployment or rotation was performed. Existing
+T034 needs resource separation, execution/task-role permissions, redacted ECS
+injection mappings, verified remote TLS and replacement/rotation evidence.
+K-028 is In Progress with that dependency, not Done. T047/T048 depend on T034
+and remain open; the late phase review/commit gate is not bypassed.
+GitHub workflow delivery also still lacks the OAuth workflow scope; hosted
+CI acceptance and K-006 remain open. T032/T033 evidence follows below.
+
+T032 independent read-only review approved the implemented foundation against
+requirements, technical/engineering design, pseudocode, ADR-021 and relevant
+contracts: no Critical/Important findings. The prior CHK001–CHK024 preflight
+signoff was reconfirmed as document quality; no checklist markers were changed.
+Reviewed config/lifecycle/HTTP/privacy/probes/storage/migration/isolation,
+module/provider/client boundaries, CI/security, image packaging and current
+operator procedures. No material architecture/interface decision changed.
+Hosted CI, existing AWS environment/roles/injection/rotation/remote TLS and
+production backup/restore were expressly not established by this review.
+The reviewer made no edits and ran no tests/builds/installs; T033 requires its
+own fresh executed evidence. Historical plan wording was qualified by date,
+and the stale disposable quickstart now refers to current canonical evidence.
+
+T033 fresh verification: `APP_ENV=test npm run verify:ci` completed with exit 0
+on 2026-10-18 using Node 24.22.0/npm 11.19.1. All 18 required stages ran:
+locked install, formatting, lint, typecheck, unit, real PostgreSQL integration,
+contract, actual-source plus fixture architecture, build, process, dependency
+audit, secrets, container build, CI controls, image/filesystem scans, clean
+foundation journey and diagnostic-backed negative controls. Category runs passed
+212/212 tests across 27 files with no skips: 132 unit, 30 integration, 2 contract,
+28 architecture, 12 process and 8 CI controls. This is the aggregate's category
+total, not a new single-suite run. Audit reported zero vulnerabilities; image
+and filesystem scans reported zero HIGH/CRITICAL findings. The actual-source
+boundary check returned `[]`.
+
+`verify:foundation` reported clean install, one explicit migration, live/ready
+200, outage readiness 503, recovered readiness 200 and clean stop.
+`verify:ci-failures` reported unit, lint and boundary failures rejected after
+passing baselines. Separate `APP_ENV=development
+DATABASE_URL=postgresql://localhost/foundation npm run config:check` returned
+`configuration_valid`; `APP_ENV=test npm run db:test` returned status ok.
+`docker compose config --quiet` and `python3 skills/scripts/manage_skills.py`
+exited 0; the latter verifies installation only. Post-run inspection found zero
+owned test databases, zero runtime/migration/allocator sessions and zero smoke
+containers; control files were removed. Existing services/volumes were preserved.
+
+Bounded `$speckit-converge` assessed 15 functional requirements, 7 success
+criteria, 16 acceptance scenarios, 5 named plan decisions, 5 constitution
+principles and all 48 task descriptions against the current implementation.
+No new local code gap was found. Two existing gaps remain: High/missing external
+environment evidence (FR-004/015, T034/K-028), and High/partial hosted CI execution
+evidence (FR-011, US4/AC1, SC-006, K-006). Dependent final group review/commit
+T047/T048 remain unexecuted. No duplicate convergence tasks were appended; the
+assessment itself left disposable tasks unchanged. Whole-feature convergence
+is not claimed. No Spec Kit extension hooks exist before or after the checks.
+
+T031–T033 are locally verified: 45/48 tasks are checked. T034/T047/T048 remain
+open because staging/production resources are not ready. K-006 and K-028 remain
+In Progress, with Kanban and CSV aligned. Phase 7 edits remain local and
+uncommitted because T048 depends on T034/T047; no final commit or hosted
+delivery is claimed. Phase 6 remains local commit `faff2b2`; its workflow push
+still requires GitHub OAuth workflow scope. No product/cloud readiness or
+production restore evidence is implied by local acceptance.
+
+## ADR-022 local development and deferred cloud handoff — 2026-10-18
+
+The owner approved developing locally before funding AWS resources. This section
+supersedes earlier same-day statements that T047/T048 must wait for T034.
+Local T047 review follows T033; T048 follows that review. This documentation
+amendment does not itself execute or check either task, create a commit, complete
+M0/K-028, establish hosted CI, or claim emulator/provider runtime evidence.
+
+T034 remains deferred to deployment readiness with K-028 In Progress. Its later
+redacted evidence must receive relevant AWS skill-based review, fresh verification
+and a separate scoped structured commit before external acceptance. T034 collects
+existing authorized resources only; provisioning belongs to deployment work.
+K-006 still awaits hosted CI and workflow delivery authorization.
+
+Use [the development matrix](../development.md#local-and-real-service-test-matrix)
+for implemented versus proposed local coverage and transition steps, and the
+[release schedule](../02_build_sequencing/v1_scope_and_release_plan.md#41-local-development-and-external-verification-schedule)
+for real-provider milestone checks and staging/release gates. Future feature
+engineering plans record limited local K-028 dependency satisfaction, adapter
+contract coverage and real-access/budget prerequisites on existing owning cards.
+No test kit, dependency or AWS/provider resource was installed or created here.
+No API/event schema, session/LLM/execution/voice contract or production provider
+selection changed. Existing health contract tests remain applicable; this
+amendment changes documentation and verification timing only.
+
+Documentation-amendment review and verification: independent read-only reviewer
+`review_local_development_policy` approved the exact 14-document delta against
+its pre-amendment snapshot, with no Critical, Important or Minor findings.
+Review covered ADR/sequencing/requirements/design/pseudocode consistency,
+W15/K-029 dependency interpretation, test matrix availability, trust boundaries
+and retained provider/cloud acceptance gates. This approval covers the amendment
+only; it does not complete the full T047 review or T048 commit.
+
+`npm run format:check` passed. Read-only documentation checks verified all link
+targets in the 14 changed documents, 48 unique tasks with the same 45 checked,
+an acyclic dependency graph with T033 → T047 → T048 and deferred T034, and all
+29 unchanged Kanban/CSV statuses aligned.
+`git -c core.whitespace=cr-at-eol diff --check` passed. Spec Kit prerequisite
+checks resolved the correct application_foundation working directory; disposable
+spec/plan/tasks were refreshed from canonical sources. Bounded read-only
+`$speckit-analyze` covered all 15 FR, 7 SC, 48 task mappings and 5 constitution
+principles: no new inconsistency, unmapped task or constitutional exception found.
+No extension hooks are registered. Runtime tests/scans were not rerun for this
+documentation-only amendment; earlier executed results remain dated evidence.
+Emulator/provider compatibility, cloud readiness and hosted CI remain unverified
+where identified above. No application code, contracts, dependencies or task
+completion markers changed, and no commit/push was performed for this amendment.
+
+## Phase 7 full local review and commit — 2026-10-18
+
+T047: independent reviewer `review_phase7_local_closeout` reviewed the complete
+14-document Phase 7 diff against `faff2b2`, including earlier accepted canonical
+planning/task amendments and ADR-022. One scope issue was corrected: engineering
+guidance now qualifies the untracked skill catalog/lock/installer as workspace-only
+setup excluded from this commit. Re-review found no remaining Critical, Important
+or Minor findings. This is the full local review; T034 external evidence is excluded
+under ADR-022, retaining later review/verification/commit and release gates.
+
+Skills actually used: speckit-implement, using-superpowers, requesting-code-review,
+receiving-code-review, mastering-typescript, vitest, mastering-git-cli and
+verification-before-completion; bounded speckit-converge reconciles remaining work.
+AWS skills were not used to claim unavailable cloud evidence. No production
+behavior changed, so no new failing-test cycle or implementation test was added.
+
+Fresh scoped checks on Node 24.22.0/npm 11.19.1:
+
+- `npm run format:check`, `npm run lint`, `npm run typecheck`: exit 0.
+- `APP_ENV=test node_modules/.bin/vitest run tests/unit tests/contract --reporter=dot`:
+  134/134 tests across 13 files passed, no skips, 5.76 s.
+- `npm run check:architecture`: exit 0, actual-source violations `[]`.
+- `npm run scan:secrets`: exit 0.
+- `docker compose config --quiet`: exit 0.
+- `python3 skills/scripts/manage_skills.py`: exit 0 for this workspace's separate
+  uncommitted skill setup only; not an application clean-checkout prerequisite.
+- Exact development-guide Node heredoc executed in an owned synthetic temporary
+  directory: correct development host/port/role/database, explicit migration
+  setting, mode 600, no secret-value output and EEXIST preservation passed; fixture
+  removed. No real settings or database changed by this recipe check.
+- Documentation checks: 14-document link targets resolve; all 48 task IDs unique
+  with acyclic dependencies; all 15 FR/seven SC mapped; all 29 Kanban/CSV statuses
+  aligned; preexisting instructions/setup preserved. Whitespace check passed.
+
+The earlier full `APP_ENV=test npm run verify:ci`/212-test aggregate is dated T033
+evidence for unchanged production code; it was not freshly repeated for this
+documentation-only closeout. Hosted CI, real AWS resources/roles/injection/rotation/
+remote TLS, live providers, production restore/load remain unavailable external
+acceptance, not passing local checks.
+
+Bounded convergence assessed 15 FR, seven SC, 16 acceptance scenarios, five named
+plan decisions, five constitution principles and all 48 tasks against unchanged
+source plus the reconciled documentation. No new local gap was found. Existing
+T034/K-028 external evidence and K-006 hosted evidence remain; no duplicate tasks
+were appended and whole-feature convergence is not claimed. No extension hooks
+exist before or after implementation/convergence.
+
+T048 scope: the 14 reviewed documentation paths, including all four canonical
+feature documents, operator guides, ADR/release/dependency changes and Kanban/CSV.
+Exclude AGENTS.md, docs/development_workflow_setup.md, the earlier README skill
+catalog block, downloaded skills/discovery links and ignored working copies.
+The four canonical documents intentionally reconcile previously accepted planning
+amendments with actual implementation evidence. No application source, interface
+schema, dependencies, secrets, cloud resources or unrelated setup are included.
+Task completion is recorded only after the scoped commit is observed.
+
+T048: the scoped local commit was executed successfully and its SHA/subject
+observed before checking this task. The same newly created, unpushed Phase 7
+commit is finalized with these reviewed mechanical status updates; its final
+SHA is reported in Git history and the handoff, not embedded in itself.
+47/48 tasks are verified; T034 alone remains unchecked. Kanban/CSV still retain
+K-006 and K-028 In Progress, and no whole-feature/M0 release acceptance is claimed.
+All four canonical status headers and README now describe completed local closeout
+with explicit deferred/external gates. Unrelated workspace setup stays excluded.

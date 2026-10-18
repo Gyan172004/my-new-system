@@ -1,7 +1,7 @@
 # Application Foundation — Logic and State
 
 **Date:** 2026-10-17  
-**Status:** Reconciled planning baseline; implementation and runtime checks remain unexecuted.  
+**Status:** Accepted design with Phases 1–6 and Phase 7 local closeout verified; deferred T034 and external acceptance gates remain open. See the canonical Kanban and foundation runbook for evidence.
 **Authority:** Canonical algorithms for this feature.  
 **Inputs:** [Requirements](../requirements/feature_req.md), [technical design](../specifications/technical/tech_design.md), [engineering design](../specifications/engineering/eng_design.md), existing [API contract](../../../../contracts/api/v1_openapi.yaml).
 
@@ -129,6 +129,10 @@ start(raw_settings):
         exit_nonzero
     if environment is production and identity_adapter is test:
         fail_without_serving("unsafe_identity_adapter")
+    if environment is staging or production:
+        require verified database TLS settings
+        reject explicit global TLS verification disablement
+        # Report only safe setting names; actual connection proof is separate.
     lifecycle = INITIALIZING
     initialize_allowlisted_logger()
     install process-global runtime registry and AsyncLocalStorage
@@ -237,6 +241,33 @@ handle_request(request):
 
 External correlation metadata is untrusted; M0 ignores supplied request IDs and generates a fresh UUID. Completion captures its own context for finish/close callbacks; request context uses AsyncLocalStorage.run/exit semantics (not a shared mutable global). Later job producers map the internal request identifier into the existing event `correlationId` field through explicit adapters. No queue/job is produced by this feature. Request identifiers never become metric labels. New public tracing/header contracts require normal contract impact review. Framework/driver diagnostic paths must not bypass the safe logger; process tests capture stdout and stderr.
 
+## Development HMR verification (US1; FR-012/013)
+
+```text
+verify_development_reload():
+    allocate owned disposable work copy and unused local port
+    install test-owned lazy resource acquisition counters in that copy only
+    try:
+        start custom development server within 120 seconds
+        original_resource = actual_shared_registry.get_or_create(injected_fake_factory)
+        assert injected_fake_factory.acquisition_count == 1
+        capture original process identity and listener
+        repeat twice:
+            mutate Next-watched health module in the owned copy, never the custom entrypoint
+            # Existing liveness response returns a different valid UTC timestamp fixture.
+            await that acknowledgement within 30 seconds
+            assert process identity and single listener are unchanged
+            assert actual_shared_registry.get_or_create(injected_fake_factory) is original_resource
+            assert injected_fake_factory.acquisition_count == 1
+    finally:
+        restore/remove only owned fixture files
+        stop children and release port within 30 seconds
+        refuse cleanup outside the allocated copy
+```
+
+Production startup uses separate built-server cases. HMR verification requires
+no live database, shipped test endpoint or additional production log fields.
+
 ## Explicit migration (US3; FR-009)
 
 Migration ledger applied changes ka record hai. Exclusive lock do runners ko
@@ -246,17 +277,19 @@ history mein stamp nahi karna; transaction rollback aur safe recovery use karte 
 ```text
 migrate(target_environment, requested_head):
     validate settings and authorized target without printing secrets
+    parse connection options once; discard raw overrides; enforce owned deadlines
     open dedicated migration connection
     let verified migration library acquire its database-scoped advisory lock
     # Keep locking enabled; do not add a second independent wrapper lock.
     if lock not acquired: exit_nonzero("migration_busy")
     try:
-        verify one ordered migration chain and known current history
+        public SQL loader verifies complete known history prefix under library lock
         apply pending versioned migrations in documented transactions
         record revision only after its migration succeeds
-        verify actual revision == requested_head
+        after library unlock, verify exact complete history == packaged chain
+        # A concurrent newer artifact can make this fail after our batch committed.
     on error:
-        rollback current transaction where supported
+        rollback open transaction where supported; never assume postcheck undoes commit
         report sanitized failure; never stamp a failed revision as applied
         require documented forward fix or approved restore if DDL is not transactional
         exit_nonzero
@@ -266,21 +299,30 @@ migrate(target_environment, requested_head):
 
 Use the library's fail-fast lock acquisition, explicit `singleTransaction: true`, `checkOrder: true` and sanitized logger. Default limits: dedicated-client connection 2 s, statement 30 s, whole command 60 s. Whole-command timeout must close/destroy the actual dedicated client/process, releasing its session lock. Never retry a destructive migration automatically. Baseline establishes `public.pgmigrations` plus a no-domain SQL baseline; a second upgrade is a successful no-op. Migration failure must not start replicas, restore data automatically, stamp success or remove another environment's schema.
 
-## Isolated test allocation and cleanup (US3; FR-010)
+## Isolated test allocation and cleanup (initial US2 fixture; expanded US3; FR-010)
 
 Test ko apna database milega. Cleanup ke waqt sirf naam ka prefix check karna
 enough nahi; target server, environment aur exact allocation ownership bhi
 verify hogi, taaki test kisi real environment ko delete na kar sake.
 
 ```text
-allocate_test_database(test_config, run_id, worker_id):
+allocate_test_database(test_config, run_id, worker_id, scenario_purpose, initializer):
     require explicit test environment and dedicated test-admin configuration
     require safe test server/role guard and exact approved database-name prefix
     require lowercase letters/digits/underscore and name length <= 63 bytes
     refuse any configured development/staging/production target
     allocate unique run/worker database owned by test role
     record exact allocated identity in this fixture
-    migrate it to head before exercising behavior
+    require scenario_purpose belongs to the fixture's explicit supported purposes
+    if scenario_purpose == prepared_schema_readiness:
+        require actual migration initializer is available (T022 or later)
+        initializer.migrate_owned_database_to_packaged_head()
+    else:
+        require scenario_purpose in [pool_deadline, isolation,
+                                     migration_under_test, no_ledger_readiness]
+        leave allocated database empty
+        # Migration tests invoke the runner themselves; first apply is not pre-consumed.
+        # T016 and absent-ledger probes remain unavailable; no schema success is inferred.
 
 cleanup_test_database(allocated_identity):
     require test environment, same guarded server and owned allocated identity
@@ -289,6 +331,11 @@ cleanup_test_database(allocated_identity):
     drop only that database within teardown deadline
     report failed cleanup explicitly without falling back to broad deletion
 ```
+
+T015 establishes separate development/test services before this fixture is used.
+T016 first tests the target/ownership guards and implements the shared fixture;
+T019/T020 expand and consolidate the same helper. Test-only timeout queries use
+only that owned empty database, without invoking future production migrations.
 
 Use real PostgreSQL for migration/transaction tests. Unit tests may use fakes. Do not claim storage behavior from an in-memory substitute. Test migration-failure fixtures and temporary tables belong only in isolated tests, never permanent domain schemas. Test setup/teardown each has a 30 s deadline; failure is reported, never converted to broad cleanup.
 
@@ -329,3 +376,67 @@ These are planned assertions for implementation verification, not observed runs.
 | Normal shutdown | Stop admission, drain, close resources, exit | Accepted work aur resource ownership ko bounded cleanup chahiye. |
 | Shutdown deadline expires | Force-close remaining resources; nonzero exit | Infinite waiting ko successful shutdown nahi bol sakte. |
 | A required verification stage cannot run | Report unavailable; acceptance incomplete | Missing evidence ko passing evidence nahi maana jaata. |
+
+
+## Required verification execution (US4)
+
+```text
+verify_ci():
+    for required_stage in declared_order:
+        execute bounded real command
+        if failed, unavailable, or timed out: stop with nonzero stage result
+    never convert missing scanner/service output into a successful check
+
+verify_negative_controls():
+    create owned temporary project with independent dependencies
+    for unit, lint, boundary:
+        require clean baseline command succeeds
+        introduce only that isolated deliberate regression
+        require nonzero command plus its expected diagnostic
+        restore owned fixture in finally
+    remove only owned project/children
+
+verify_container():
+    build without deployment secrets and with excluded context canary
+    inspect nonroot PID1, packaged config/server/migration/manifest
+    inspect every exported layer for canary bytes and forbidden credential paths
+    run real app profile over bridge against owned migrated test database
+    verify uncached health and SIGTERM exit/listener closure
+    mark project cleanup eligible before up, including partial startup failure
+    stop/remove only owned app project; retain external DB network/volumes
+```
+
+## Verification scheduling and target selection — ADR-022
+
+The following is design pseudocode for later adapters and handoff, not an
+implemented new configuration switch or executed provider evidence.
+
+```text
+choose_adapter(environment, requested_target):
+    if environment is staging or production:
+        reject fixture adapters, test identity, local endpoints and dummy credentials
+        require the selected real provider adapter; never fall back to fixtures
+    otherwise:
+        allow only explicitly configured local/test or real adapters
+    preserve contract validation, deadlines, ownership and privacy guards
+
+verify_provider_feature():
+    run local contract scenarios and deterministic failure fixtures
+    run matching real-adapter contracts and provider-specific milestone smoke checks
+    if real access/budget unavailable:
+        record pending acceptance on the owning canonical card
+        continue only independent local work; do not claim provider completion
+    never execute candidate code inside trusted workloads
+
+foundation_local_handoff():
+    require T031, T032 and T033 observed evidence
+    review local changes under T047, including explicit deferred limitations
+    commit reviewed local changes under T048
+    keep T034, K-028 and any missing hosted CI acceptance open
+
+before_release():
+    require authorized real staging resources and provider acceptance
+    collect and review T034 environment evidence; verify and commit that increment
+    require K-026 deployment/recovery/restore/monitoring/load evidence
+    update Kanban and CSV only when each card's acceptance actually passes
+```
