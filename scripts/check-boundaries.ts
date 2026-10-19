@@ -17,7 +17,7 @@ const report = (rule: string, file: string) => {
 };
 const dangerousBuiltin = /^(?:node:)?(?:child_process|vm|worker_threads)$/;
 const serverPackage =
-  /^(?:node:|pg(?:\/|$)|openai(?:\/|$)|e2b(?:\/|$)|@aws-sdk\/|@clerk\/backend(?:\/|$))/;
+  /^(?:node:|pg(?:\/|$)|openai(?:\/|$)|e2b(?:\/|$)|@aws-sdk\/|@clerk\/(?:backend(?:\/|$)|nextjs\/server(?:\/|$)))/;
 const providerPackage = /^(?:openai|e2b|@aws-sdk\/[^/]+|@clerk\/[^/]+)(?:\/|$)/;
 
 async function scanFiles(directory: string): Promise<string[]> {
@@ -71,9 +71,18 @@ try {
             : specifier.startsWith('e2b')
               ? 'execution-coordination'
               : undefined;
-        const permitted = owner
-          ? name.startsWith(`src/modules/${owner}/adapters/`)
-          : /^src\/modules\/[^/]+\/adapters\//.test(name);
+        const browserAdapter =
+          specifier === '@clerk/nextjs' &&
+          name.startsWith('src/modules/identity-ui/adapters/');
+        const browserProxy =
+          specifier === '@clerk/nextjs/server' &&
+          name.startsWith('src/modules/identity-browser/adapters/');
+        const permitted =
+          browserAdapter ||
+          browserProxy ||
+          (owner
+            ? name.startsWith(`src/modules/${owner}/adapters/`)
+            : /^src\/modules\/[^/]+\/adapters\//.test(name));
         if (!permitted) report('provider-adapter-only', name);
       }
       if (isBuiltin(specifier) || serverPackage.test(specifier))
@@ -171,7 +180,10 @@ try {
       const name = normalize(file);
       if (
         /^src\/server\//.test(name) ||
-        /^src\/modules\/[^/]+\/(?!public\.ts$)/.test(name) ||
+        (/^src\/modules\/[^/]+\/(?!public\.ts$)/.test(name) &&
+          !/^src\/modules\/identity-ui\/(?:adapters|application)\//.test(
+            name,
+          )) ||
         deniedClientFiles.has(file)
       )
         report('client-server-boundary', normalize(client));

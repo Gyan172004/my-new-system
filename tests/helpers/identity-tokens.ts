@@ -9,6 +9,7 @@ export const fixtureClerk: ClerkRuntimeConfig = Object.freeze({
   publishableKey:
     'pk_test_' + Buffer.from('clerk.example$').toString('base64url'),
   jwtKey: keys.publicKey.export({ type: 'spki', format: 'pem' }).toString(),
+  secretKey: 'sk_test_' + 'synthetic'.repeat(4),
   audience: undefined,
 });
 export function signedSession(

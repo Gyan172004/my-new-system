@@ -19,7 +19,7 @@ access even when invoked outside an HTTP route. UI visibility and middleware
 are conveniences; neither replaces those checks.
 
 Use the existing TypeScript/Next.js modular monolith, Node.js Route Handlers,
-`pg`, explicit SQL migrations and shared runtime pool. Server Clerk code belongs in `src/modules/identity-profile/adapters/`.
+`pg`, explicit SQL migrations and shared runtime pool. Domain Clerk verification belongs in `src/modules/identity-profile/adapters/`; browser middleware uses `src/modules/identity-browser/adapters/`.
 Browser Clerk components live in a separate `identity-ui` module with its own
 browser-safe `public.ts`; callers import only each module's public interface.
 This preserves the existing public.ts boundary without exposing server identity
@@ -57,7 +57,7 @@ and [token API](https://clerk.com/docs/reference/backend/verify-token).
 
 Runtime settings: `CLERK_ISSUER` (exact HTTPS origin),
 `CLERK_AUTHORIZED_PARTIES` (comma-separated exact permitted origins), optional
-`CLERK_AUDIENCE`, `CLERK_PUBLISHABLE_KEY` and `CLERK_JWT_KEY` (PEM public key).
+`CLERK_AUDIENCE`, `CLERK_PUBLISHABLE_KEY`, `CLERK_JWT_KEY` (PEM public key), and server-only `CLERK_SECRET_KEY` (required by the pinned browser middleware). Domain bearer verification still uses only the public key. Never serialize the private key into browser props.
 These settings are required/validated only in Clerk mode and never needed by a
 production build. Keep private settings outside browser serialization; pass only
 the publishable key and selected presentation props into the browser provider.
@@ -232,3 +232,7 @@ stay on their existing cards. K-010/K-011 status follows their own acceptance.
 Sources checked: official Clerk Next quickstart, verifyToken documentation and
 published npm engine/peer metadata. The SDK's default clock skew and missing-aud
 behavior require explicit adapter checks. No stack/provider choices are reopened.
+
+Browser SDK middleware lives in `identity-browser/public.ts`; client components live in `identity-ui/public.ts`. This keeps the allowed public entry convention without a server import reachable from a client barrel. Browser pages are dynamic; only the publishable key reaches the provider. Every sign-in and sign-up completion uses a validated local force redirect, overriding untrusted SDK query destinations. No private feature pages are added here.
+
+Account UI is keyed by verified Clerk user/session. `AccountStateBoundary` remounts local state on a change and exposes `useAccountSignal()` for aborting user-scoped requests. It renews its controller after React StrictMode effect replay. Consumers must use the signal and never persist bearer tokens or use shared private caches. Fixture-only browser pages prove clearing/cancellation; actual session-page integration remains K-014/K-016.

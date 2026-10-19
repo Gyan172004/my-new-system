@@ -14,6 +14,7 @@ const base = {
     'pk_test_' +
     Buffer.from('clerk.example$').toString('base64').replace(/=/g, ''),
   CLERK_JWT_KEY: pem,
+  CLERK_SECRET_KEY: 'sk_test_' + 'synthetic'.repeat(4),
 };
 
 it('enables Clerk only with a complete runtime-only verification configuration', () => {
@@ -37,6 +38,7 @@ it.each([
   'CLERK_AUTHORIZED_PARTIES',
   'CLERK_PUBLISHABLE_KEY',
   'CLERK_JWT_KEY',
+  'CLERK_SECRET_KEY',
 ])('rejects incomplete Clerk mode using only the setting name: %s', (key) => {
   for (const value of [undefined, '']) {
     expect(() => parseRuntimeConfig({ ...base, [key]: value })).toThrow(key);
@@ -150,4 +152,10 @@ it('requires HTTPS parties remotely and a live publishable key in production', (
       CLERK_AUTHORIZED_PARTIES: 'https://practice.example',
     }),
   ).toThrow('CLERK_PUBLISHABLE_KEY');
+});
+
+it('requires a matching private runtime key for Clerk browser middleware without leaking it', () => {
+  expect(() =>
+    parseRuntimeConfig({ ...base, CLERK_SECRET_KEY: undefined }),
+  ).toThrow('CLERK_SECRET_KEY');
 });

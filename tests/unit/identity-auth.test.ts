@@ -18,6 +18,7 @@ it('verifies signed sessions using either supported configured public-key encodi
       CLERK_ISSUER: fixtureClerk.issuer,
       CLERK_AUTHORIZED_PARTIES: fixtureClerk.authorizedParties.join(','),
       CLERK_PUBLISHABLE_KEY: fixtureClerk.publishableKey,
+      CLERK_SECRET_KEY: fixtureClerk.secretKey,
       CLERK_JWT_KEY: publicKey.export({ type, format: 'pem' }).toString(),
     });
     expect(

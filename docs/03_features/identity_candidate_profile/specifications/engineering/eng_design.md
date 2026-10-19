@@ -233,16 +233,16 @@ Task IDs continue after foundation T048. Every group ends explicit review then c
 - [x] T062 [US2] Add users migration and mapping repository under `migrations/` and `src/modules/identity-profile/persistence/`; wire mapping after verified admission through application services with safe failures. Reuse bounded shared pool. Depends T061/T058.
 - [x] T063 [US2] Deliver the documented minimum session-module persistence/guard prerequisite under `src/modules/interview-session/` and explicit migration; verify ownership with actual persisted snapshot/event records, immutability and atomic guarded writes. No catalogue/session HTTP endpoints or fake tables. Keep K-010/K-011 full acceptance honest. Depends T062; follow owning prerequisite docs.
 - [x] T064 [US2] Review this group using `supabase-postgres-best-practices`, `mastering-typescript`, `vitest`, `requesting-code-review` and `verification-before-completion`; inspect SQL/indexes/FKs/pool ownership/transaction/denial behavior and test cleanup; fix/re-review. Depends T063.
-- [ ] T065 [US2] Commit this reviewed group with message `<US=US2, ID=T065, K=K-012|K-010|K-011, GROUP=04> feat(identity): persist stable users and verify owned session storage`. Depends T064.
+- [x] T065 [US2] Commit this reviewed group with message `<US=US2, ID=T065, K=K-012|K-010|K-011, GROUP=04> feat(identity): persist stable users and verify owned session storage`. Depends T064.
 
 ## Group 05 — Embedded sign-in and browser behavior
 
 **Map:** K-012. **Story:** US1. See canonical engineering §2/7 and technical specification.
 
-- [ ] T066 [US1] Write/run failing page/browser cases in `tests/e2e/identity.spec.ts` and Playwright harness for embedded sign-in entry, disabled availability, safe local returns, keyboard/error states and health/public boundary; inspect retained preview; FR-01/08/10.
-- [ ] T067 [US1] Implement browser-safe `src/modules/identity-ui/public.ts`/adapters, `src/app/sign-in/[[...sign-in]]/page.tsx`, minimal identity entry/layout and `src/proxy.ts` plumbing; honor runtime keys, selected Google/email OTP only, safe redirects, no secret client imports. Keep domain bearer auth separate. Depends T066/T062.
-- [ ] T068 [US1] Run actual custom-server browser acceptance and runtime introspection; test account clearing/late-response protection in user-scoped UI, actual disabled modes, no console secret leakage and production build without keys; real Clerk cases remain Group07. Depends T067.
-- [ ] T069 [US1] Review this group using `clerk-nextjs-patterns`, `clerk-testing`, `vercel-react-best-practices`, `frontend-design`, `next-dev-loop` when prerequisites available, `vitest` and `verification-before-completion`; independent review of wireframe/accessibility/client-server/SDK lifecycle; fix/re-review. Depends T068.
+- [x] T066 [US1] Write/run failing page/browser cases in `tests/e2e/identity.spec.ts` and Playwright harness for embedded sign-in entry, disabled availability, safe local returns, keyboard/error states and health/public boundary; inspect retained preview; FR-01/08/10.
+- [x] T067 [US1] Implement browser-safe `src/modules/identity-ui/public.ts`/adapters, `src/app/sign-in/[[...sign-in]]/page.tsx`, minimal identity entry/layout and `src/proxy.ts` plumbing; honor runtime keys, selected Google/email OTP only, safe redirects, no secret client imports. Keep domain bearer auth separate. Depends T066/T062.
+- [x] T068 [US1] Run actual custom-server browser acceptance and runtime introspection; test account clearing/late-response protection in user-scoped UI, actual disabled modes, no console secret leakage and production build without keys; real Clerk cases remain Group07. Depends T067.
+- [x] T069 [US1] Review this group using `clerk-nextjs-patterns`, `clerk-testing`, `vercel-react-best-practices`, `frontend-design`, `next-dev-loop` when prerequisites available, `vitest` and `verification-before-completion`; independent review of wireframe/accessibility/client-server/SDK lifecycle; fix/re-review. Depends T068.
 - [ ] T070 [US1] Commit this reviewed group with message `<US=US1, ID=T070, K=K-012, GROUP=05> feat(identity): add embedded Google and email-code sign-in`. Depends T069.
 
 ## Group 06 — Integration, privacy and coverage

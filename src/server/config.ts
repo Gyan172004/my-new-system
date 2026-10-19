@@ -89,6 +89,7 @@ export interface ClerkRuntimeConfig {
   readonly issuer: string;
   readonly authorizedParties: readonly string[];
   readonly publishableKey: string;
+  readonly secretKey: string;
   readonly jwtKey: string;
   readonly audience: string | undefined;
 }
@@ -140,6 +141,12 @@ function clerkConfiguration(
   } catch {
     invalid.add('CLERK_PUBLISHABLE_KEY');
   }
+  const secretKey = read('CLERK_SECRET_KEY', 1024);
+  if (
+    !/^sk_(test|live)_[A-Za-z0-9]{16,256}$/.test(secretKey) ||
+    secretKey.slice(3, 7) !== publishableKey.slice(3, 7)
+  )
+    invalid.add('CLERK_SECRET_KEY');
   let jwtKey = read('CLERK_JWT_KEY', 16384).replaceAll('\\n', '\n');
   try {
     if (
@@ -172,6 +179,7 @@ function clerkConfiguration(
     issuer,
     authorizedParties: Object.freeze([...new Set(authorizedParties)]),
     publishableKey,
+    secretKey,
     jwtKey,
     audience,
   });
