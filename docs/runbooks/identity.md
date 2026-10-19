@@ -34,3 +34,25 @@ origin repository, issues #51–#82. The export read existing open/closed issues
 first, continued global IDs after foundation T048, and wrote bodies from files.
 No credential/candidate data was included. The 32 exact links are in canonical
 engineering §9. Group review passed after resolving the reviewer findings.
+
+## Group 02 — Configuration and dependencies
+
+TDD observed on pinned Node24: `npm exec -- vitest run tests/unit/identity-config.test.ts`
+failed 17/18 cases against the foundation's unavailable Clerk mode. Implemented
+runtime-only required settings, exact issuer/origins, publishable-key/issuer match,
+public RSA key/type/size validation, audience checks and production restrictions.
+An empty-string non-leak assertion in the new test was corrected because every
+string contains an empty substring. Focused config regressions then passed 85/85;
+`npm run typecheck` passed. Exact Clerk7.9.17/backend3.25.0 and Playwright1.64.1,
+coverage-v8 5.0.5, Clerk testing2.2.47 installed with lockfile; npm audit reported
+zero vulnerabilities. npm reported the existing esbuild postinstall allowScripts
+notice; no new script was approved by this install. No credentials were used.
+
+Independent Group02 review found that Node parsed only the first PEM block and
+retained appended material. A new generated-key regression failed before the fix;
+validation now requires exactly one complete public PEM block. Focused config
+suite passed 86/86 after the fix; reviewer independently reran and approved it.
+The clean-environment `npm run build` passed without runtime/provider settings;
+full unit suite before the added regression passed 149/149. `npm run lint` and
+source architecture checker passed. Group02's final focused checks and group
+commit provide the current evidence; later groups rerun impacted regressions.

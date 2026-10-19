@@ -205,15 +205,15 @@ Task IDs continue after foundation T048. Every group ends explicit review then c
 - [x] T049 Freeze canonical identity plan/research, runtime/key/admission limits and dependency scope in `docs/03_features/identity_candidate_profile/` and owning session documents; FR-01–11/AC-01–10; run Spec Kit checklist/tasks/analyze and resolve material findings.
 - [x] T050 Export deduplicated T049–T080 task issues to the origin repository only; mirror canonical IDs/dependencies and Kanban authority in issue bodies; record references in engineering design. Depends T049 and passing analysis.
 - [x] T051 Review this group using `clerk`, `clerk-nextjs-patterns`, `mastering-typescript`, `supabase-postgres-best-practices`, `vitest`, `requesting-code-review` and `verification-before-completion`; inspect all planned contracts, prerequisites, task groups and checklists; resolve/re-review findings. Depends T050.
-- [ ] T052 Commit this reviewed group only: canonical identity/session planning, contract reconciliation/test, sequencing and Kanban/CSV. Message: `<US=shared, ID=T052, K=K-012, GROUP=01> docs(identity): approve execution plan and mirrored task issues`. Depends T051.
+- [x] T052 Commit this reviewed group only: canonical identity/session planning, contract reconciliation/test, sequencing and Kanban/CSV. Message: `<US=shared, ID=T052, K=K-012, GROUP=01> docs(identity): approve execution plan and mirrored task issues`. Depends T051.
 
 ## Group 02 — Configuration and pinned dependencies
 
 **Map:** K-012. **Story:** US1. See canonical engineering §2/7 and technical specification.
 
-- [ ] T053 [US1] Write/run failing config cases in `tests/unit/identity-config.test.ts` for Clerk required values/PEM/origins, disabled foundation compatibility, invalid settings and remote test rejection; FR-02/06/08/10.
-- [ ] T054 [US1] Implement validated runtime-only settings in `src/server/config.ts`, pin compatible Clerk/Playwright/coverage dependencies in package manifests, keep `.env.example` placeholders only; run focused config/type/build checks; update safe examples. Depends T053.
-- [ ] T055 [US1] Review this group using `mastering-typescript`, `clerk`, `clerk-nextjs-patterns`, `vitest` and `verification-before-completion`; independent review covers runtime/build secrecy, engine/peer compatibility and regression tests; fix/re-review findings. Depends T054.
+- [x] T053 [US1] Write/run failing config cases in `tests/unit/identity-config.test.ts` for Clerk required values/PEM/origins, disabled foundation compatibility, invalid settings and remote test rejection; FR-02/06/08/10.
+- [x] T054 [US1] Implement validated runtime-only settings in `src/server/config.ts`, pin compatible Clerk/Playwright/coverage dependencies in package manifests, keep `.env.example` placeholders only; run focused config/type/build checks; update safe examples. Depends T053.
+- [x] T055 [US1] Review this group using `mastering-typescript`, `clerk`, `clerk-nextjs-patterns`, `vitest` and `verification-before-completion`; independent review covers runtime/build secrecy, engine/peer compatibility and regression tests; fix/re-review findings. Depends T054.
 - [ ] T056 [US1] Commit this reviewed group with message `<US=US1, ID=T056, K=K-012, GROUP=02> feat(identity): validate Clerk runtime configuration and pin tooling`. Depends T055.
 
 ## Group 03 — Verification and bounded admission

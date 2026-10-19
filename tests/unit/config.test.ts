@@ -98,7 +98,7 @@ describe('runtime configuration', () => {
       parseRuntimeConfig({ ...valid, APP_ENV, IDENTITY_ADAPTER: 'test' }),
     ).toThrow('IDENTITY_ADAPTER'),
   );
-  it.each(['clerk', 'unknown', ''])(
+  it.each(['unknown', ''])(
     'rejects unavailable adapter without fallback: %s',
     (IDENTITY_ADAPTER) =>
       expect(() => parseRuntimeConfig({ ...valid, IDENTITY_ADAPTER })).toThrow(

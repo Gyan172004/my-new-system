@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { createPublicKey } from 'node:crypto';
 
 type Environment = Readonly<Record<string, string | undefined>>;
 const timer = (fallback: number) =>
@@ -49,10 +50,7 @@ const schema = z
       });
     const remote =
       settings.APP_ENV === 'staging' || settings.APP_ENV === 'production';
-    if (
-      settings.IDENTITY_ADAPTER === 'clerk' ||
-      (remote && settings.IDENTITY_ADAPTER === 'test')
-    )
+    if (remote && settings.IDENTITY_ADAPTER === 'test')
       reject('IDENTITY_ADAPTER');
     if (remote && settings.NODE_TLS_REJECT_UNAUTHORIZED === '0')
       reject('NODE_TLS_REJECT_UNAUTHORIZED');
@@ -87,6 +85,92 @@ export class ConfigurationError extends Error {
   }
 }
 
+export interface ClerkRuntimeConfig {
+  readonly issuer: string;
+  readonly authorizedParties: readonly string[];
+  readonly publishableKey: string;
+  readonly jwtKey: string;
+  readonly audience: string | undefined;
+}
+
+function clerkConfiguration(
+  raw: Environment,
+  appEnv: string,
+): ClerkRuntimeConfig {
+  const invalid = new Set<string>();
+  const read = (key: string, max: number) => {
+    const value = raw[key] ?? '';
+    if (!value || Buffer.byteLength(value) > max) invalid.add(key);
+    return value;
+  };
+  const origin = (value: string, allowLocal: boolean) => {
+    try {
+      const url = new URL(value);
+      return (
+        value === url.origin &&
+        (url.protocol === 'https:' ||
+          (allowLocal &&
+            url.protocol === 'http:' &&
+            ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname)))
+      );
+    } catch {
+      return false;
+    }
+  };
+  const issuer = read('CLERK_ISSUER', 512);
+  if (!origin(issuer, false)) invalid.add('CLERK_ISSUER');
+  const partiesValue = read('CLERK_AUTHORIZED_PARTIES', 8192);
+  const authorizedParties = partiesValue.split(',').map((item) => item.trim());
+  const local = appEnv === 'development' || appEnv === 'test';
+  if (
+    authorizedParties.length > 16 ||
+    authorizedParties.some((item) => !origin(item, local))
+  )
+    invalid.add('CLERK_AUTHORIZED_PARTIES');
+  const publishableKey = read('CLERK_PUBLISHABLE_KEY', 1024);
+  try {
+    const match = /^pk_(test|live)_([A-Za-z0-9_-]+)$/.exec(publishableKey);
+    if (
+      !match ||
+      (appEnv === 'production' && match[1] !== 'live') ||
+      Buffer.from(match[2]!, 'base64url').toString('utf8') !==
+        `${new URL(issuer).hostname}$`
+    )
+      invalid.add('CLERK_PUBLISHABLE_KEY');
+  } catch {
+    invalid.add('CLERK_PUBLISHABLE_KEY');
+  }
+  const jwtKey = read('CLERK_JWT_KEY', 16384).replaceAll('\\n', '\n');
+  try {
+    if (
+      !/^-----BEGIN (PUBLIC KEY|RSA PUBLIC KEY)-----\r?\n[A-Za-z0-9+/\r\n=]+\r?\n-----END \1-----$/.test(
+        jwtKey.trim(),
+      )
+    )
+      throw new Error('invalid_public_key');
+    const key = createPublicKey(jwtKey);
+    const bits = key.asymmetricKeyDetails?.modulusLength ?? 0;
+    if (key.asymmetricKeyType !== 'rsa' || bits < 2048 || bits > 4096)
+      invalid.add('CLERK_JWT_KEY');
+  } catch {
+    invalid.add('CLERK_JWT_KEY');
+  }
+  const audience = raw.CLERK_AUDIENCE;
+  if (
+    audience !== undefined &&
+    (!audience || audience.trim() !== audience || audience.length > 256)
+  )
+    invalid.add('CLERK_AUDIENCE');
+  if (invalid.size) throw new ConfigurationError([...invalid]);
+  return Object.freeze({
+    issuer,
+    authorizedParties: Object.freeze([...new Set(authorizedParties)]),
+    publishableKey,
+    jwtKey,
+    audience,
+  });
+}
+
 export function parseRuntimeConfig(raw: Environment) {
   const result = schema.safeParse({
     ...raw,
@@ -106,6 +190,10 @@ export function parseRuntimeConfig(raw: Environment) {
     logLevel: value.LOG_LEVEL,
     poolMax: value.DB_POOL_MAX,
     identityAdapter: value.IDENTITY_ADAPTER,
+    clerk:
+      value.IDENTITY_ADAPTER === 'clerk'
+        ? clerkConfiguration(raw, value.APP_ENV)
+        : undefined,
     connectTimeoutMs: value.DB_CONNECT_TIMEOUT_MS,
     statementTimeoutMs: value.DB_STATEMENT_TIMEOUT_MS,
     readinessTimeoutMs: value.READINESS_TIMEOUT_MS,
