@@ -6,6 +6,7 @@ import { Client } from 'pg';
 import { expect, it } from 'vitest';
 import { allocateTestDatabase } from '../helpers/test-database';
 import { runMigrations } from '../../scripts/migrate';
+import { acceptedMigrations } from '../helpers/migration-chain';
 const baseline = '1781654400000_foundation';
 async function query(url: string, text: string) {
   const client = new Client({
@@ -64,7 +65,7 @@ async function waitForActive(url: string, wanted: number) {
   return false;
 }
 it(
-  'applies the no-domain baseline to empty storage and repeats without changing history',
+  'applies the accepted domain chain to empty storage and repeats without changing history',
   async () =>
     database(async (url) => {
       expect(
@@ -75,14 +76,16 @@ it(
           )
         ).rows[0].ledger,
       ).toBeNull();
-      expect(await runMigrations(options(url))).toEqual({ applied: 1 });
+      expect(await runMigrations(options(url))).toEqual({
+        applied: acceptedMigrations.length,
+      });
       const before = (
         await query(
           url,
           'SELECT id,name,run_on FROM public.pgmigrations ORDER BY id',
         )
       ).rows;
-      expect(before.map((row) => row.name)).toEqual([baseline]);
+      expect(before.map((row) => row.name)).toEqual(acceptedMigrations);
       expect(await runMigrations(options(url))).toEqual({ applied: 0 });
       expect(
         (
@@ -99,7 +102,12 @@ it(
             "SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename",
           )
         ).rows.map((row) => row.tablename),
-      ).toEqual(['pgmigrations']);
+      ).toEqual([
+        'interview_sessions',
+        'pgmigrations',
+        'session_events',
+        'users',
+      ]);
     }),
   15000,
 );
@@ -282,7 +290,7 @@ it(
   'executes the explicit migration CLI against an owned target with safe completion output',
   async () =>
     database(async (url) => {
-      for (const applied of [1, 0]) {
+      for (const applied of [acceptedMigrations.length, 0]) {
         const result = spawnSync(
           process.execPath,
           ['--import', 'tsx', resolve('scripts/migrate.ts')],

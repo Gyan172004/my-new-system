@@ -9,6 +9,7 @@ import {
   readLiveness,
   type ProcessProject,
 } from '../helpers/process';
+import { acceptedMigrations } from '../helpers/migration-chain';
 let project: ProcessProject;
 beforeAll(async () => {
   project = await createProcessProject();
@@ -26,7 +27,7 @@ it('builds without runtime secrets and serves through the bootstrap-owned regist
         'utf8',
       ),
     ),
-  ).toEqual(['1781654400000_foundation']);
+  ).toEqual(acceptedMigrations);
   const port = await availablePort();
   const process = project.run(['dist/server.mjs'], {
     NODE_ENV: 'production',
@@ -63,7 +64,7 @@ for (const [name, overrides, key] of [
     { DATABASE_URL: 'CANARY_PRIVATE_TARGET' },
     'DATABASE_URL',
   ],
-  ['unimplemented identity', { IDENTITY_ADAPTER: 'clerk' }, 'IDENTITY_ADAPTER'],
+  ['incomplete identity', { IDENTITY_ADAPTER: 'clerk' }, 'CLERK_ISSUER'],
   [
     'unsafe identity',
     {
