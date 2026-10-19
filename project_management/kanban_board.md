@@ -61,8 +61,10 @@ _None._
 - Acceptance: snapshot/event commit atomically; version checks prevent lost updates; event payloads are versioned.
 
 ### K-012 — Add session ownership and authorization checks
-- Milestone: M1 · Priority: P0 · Depends on: K-002
+- Milestone: M1 · Priority: P0 · Depends on: K-002, K-005, K-011
 - Acceptance: cross-user read/write tests fail safely; Clerk token verification and provider-subject-to-internal-user mapping work; development/test identity adapter is prohibited in production.
+
+- Dependency clarification: authentication adapters may start after K-002; K-005/K-011 are needed for real persisted cross-user service acceptance. K-014 consumes K-012 and owns HTTP error/ownership/replay integration; K-016 owns the end-to-end session journey. Neither is a prerequisite for K-012 completion. Authentication admission and denial-side-effect rules follow the identity feature designs.
 
 ### K-013 — Add idempotency and optimistic concurrency to session commands
 - Milestone: M1 · Priority: P0 · Depends on: K-005, K-011

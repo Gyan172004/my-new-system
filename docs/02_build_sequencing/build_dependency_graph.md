@@ -99,6 +99,12 @@ The diagram is conceptual. Observability, security, testing, and CI/CD are cross
 | W14 | Release hardening | All release-critical workstreams | Load, security, recovery, backup restore, monitoring, runbooks | Release gates in the PRD are demonstrated and signed off |
 | W15 | Turn-based voice interaction | W1, W3, W4, W6, K-028 environment/secret baseline | Versioned consent, bounded audio input, transcription via Model Gateway, transcript display, on-demand TTS, text fallback | Voice turns use the same guarded session path as text; privacy, retention, failure, and provider controls pass tests |
 
+K-012's authentication seam may start after K-002. Its persisted ownership
+acceptance additionally needs K-005/K-011's storage/application-service work,
+which is independent of session creation/API integration. K-014 depends on
+completed K-012; K-014/K-016 own HTTP/end-to-end regressions and do not become
+reverse prerequisites for K-012. See its engineering design and canonical Kanban.
+
 ## 5. Recommended implementation sequence
 
 ### Stage A — Foundation
