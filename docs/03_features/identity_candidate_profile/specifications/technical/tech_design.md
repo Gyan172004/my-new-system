@@ -64,7 +64,7 @@ the publishable key and selected presentation props into the browser provider.
 
 Pin `@clerk/nextjs` 7.9.17 and `@clerk/backend` 3.25.0. Use networkless SDK
 verification with the configured public key, so there is no request-time JWKS
-fetch, unbounded network work or ineffective cancellation wrapper. A rotated key
+fetch, unbounded network work or ineffective cancellation wrapper. The pinned SDK requires RSA-2048 with exponent 65537; validate these parameters and normalize a single public PEM (SPKI or PKCS1) to SPKI at startup. A rotated key
 requires reviewed configuration replacement/restart; invalid signatures fail
 closed during mismatch. Automated JWKS refresh is deferred rather than implied.
 

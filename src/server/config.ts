@@ -140,7 +140,7 @@ function clerkConfiguration(
   } catch {
     invalid.add('CLERK_PUBLISHABLE_KEY');
   }
-  const jwtKey = read('CLERK_JWT_KEY', 16384).replaceAll('\\n', '\n');
+  let jwtKey = read('CLERK_JWT_KEY', 16384).replaceAll('\\n', '\n');
   try {
     if (
       !/^-----BEGIN (PUBLIC KEY|RSA PUBLIC KEY)-----\r?\n[A-Za-z0-9+/\r\n=]+\r?\n-----END \1-----$/.test(
@@ -150,8 +150,14 @@ function clerkConfiguration(
       throw new Error('invalid_public_key');
     const key = createPublicKey(jwtKey);
     const bits = key.asymmetricKeyDetails?.modulusLength ?? 0;
-    if (key.asymmetricKeyType !== 'rsa' || bits < 2048 || bits > 4096)
-      invalid.add('CLERK_JWT_KEY');
+    // The pinned Clerk PEM loader supports this exact RSA shape.
+    if (
+      key.asymmetricKeyType !== 'rsa' ||
+      bits !== 2048 ||
+      key.asymmetricKeyDetails?.publicExponent !== 65537n
+    )
+      throw new Error('unsupported_public_key');
+    jwtKey = key.export({ type: 'spki', format: 'pem' }).toString();
   } catch {
     invalid.add('CLERK_JWT_KEY');
   }

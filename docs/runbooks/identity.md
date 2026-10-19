@@ -56,3 +56,9 @@ The clean-environment `npm run build` passed without runtime/provider settings;
 full unit suite before the added regression passed 149/149. `npm run lint` and
 source architecture checker passed. Group02's final focused checks and group
 commit provide the current evidence; later groups rerun impacted regressions.
+
+## Group 03 verification
+
+Token/admission suites first failed because their modules did not exist; this was a missing-module red, not an assertion failure. Implemented networkless official-SDK verification, fixed local test identities, bounded admission, safe caller mapping and allowlisted return paths. Actual ephemeral RSA signatures exercise validation; they do not prove live Clerk acceptance.
+
+Independent T059 review reproduced the SDK PEM loader's RSA shape limitation. Two new config assertions failed before the fix; startup now requires RSA-2048/exponent 65537 and normalizes one public PEM block to SPKI. Both allowed input encodings pass actual SDK verification. `npm run test:unit` passed 198/198; independent config/auth/admission review passed 134/134 and approved T059. Typecheck/lint and source architecture checks are recorded with the scoped commit.

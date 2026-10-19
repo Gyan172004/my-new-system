@@ -214,15 +214,15 @@ Task IDs continue after foundation T048. Every group ends explicit review then c
 - [x] T053 [US1] Write/run failing config cases in `tests/unit/identity-config.test.ts` for Clerk required values/PEM/origins, disabled foundation compatibility, invalid settings and remote test rejection; FR-02/06/08/10.
 - [x] T054 [US1] Implement validated runtime-only settings in `src/server/config.ts`, pin compatible Clerk/Playwright/coverage dependencies in package manifests, keep `.env.example` placeholders only; run focused config/type/build checks; update safe examples. Depends T053.
 - [x] T055 [US1] Review this group using `mastering-typescript`, `clerk`, `clerk-nextjs-patterns`, `vitest` and `verification-before-completion`; independent review covers runtime/build secrecy, engine/peer compatibility and regression tests; fix/re-review findings. Depends T054.
-- [ ] T056 [US1] Commit this reviewed group with message `<US=US1, ID=T056, K=K-012, GROUP=02> feat(identity): validate Clerk runtime configuration and pin tooling`. Depends T055.
+- [x] T056 [US1] Commit this reviewed group with message `<US=US1, ID=T056, K=K-012, GROUP=02> feat(identity): validate Clerk runtime configuration and pin tooling`. Depends T055.
 
 ## Group 03 — Verification and bounded admission
 
 **Map:** K-012. **Story:** US1. See canonical engineering §2/7 and technical specification.
 
-- [ ] T057 [US1] Write/run failing token/admission tests in `tests/unit/identity-auth.test.ts`, `tests/unit/identity-admission.test.ts`, `tests/helpers/identity-tokens.ts`; use actual ephemeral RSA signatures and SDK, not mocked crypto; FR-02/06/09/11.
-- [ ] T058 [US1] Implement `src/modules/identity-profile/{public.ts,application,adapters}` verification port, SDK public-key adapter, explicit local test adapter, safe result/error DTOs, redirect validation and bounded admission. Cover forged/expired/missing/wrong claims, caps/refill/concurrency and no network/fallback. Depends T054/T057.
-- [ ] T059 [US1] Review this group using `clerk`, `clerk-nextjs-patterns`, `mastering-typescript`, `vitest`, `requesting-code-review` and `verification-before-completion`; inspect claim/security/privacy/resource bounds; fix/re-review. Depends T058.
+- [x] T057 [US1] Write/run failing token/admission tests in `tests/unit/identity-auth.test.ts`, `tests/unit/identity-admission.test.ts`, `tests/helpers/identity-tokens.ts`; use actual ephemeral RSA signatures and SDK, not mocked crypto; FR-02/06/09/11.
+- [x] T058 [US1] Implement `src/modules/identity-profile/{public.ts,application,adapters}` verification port, SDK public-key adapter, explicit local test adapter, safe result/error DTOs, redirect validation and bounded admission. Cover forged/expired/missing/wrong claims, caps/refill/concurrency and no network/fallback. Depends T054/T057.
+- [x] T059 [US1] Review this group using `clerk`, `clerk-nextjs-patterns`, `mastering-typescript`, `vitest`, `requesting-code-review` and `verification-before-completion`; inspect claim/security/privacy/resource bounds; fix/re-review. Depends T058.
 - [ ] T060 [US1] Commit this reviewed group with message `<US=US1, ID=T060, K=K-012, GROUP=03> feat(identity): verify session tokens with bounded admission`. Depends T059.
 
 ## Group 04 — Real PostgreSQL identity and ownership prerequisite

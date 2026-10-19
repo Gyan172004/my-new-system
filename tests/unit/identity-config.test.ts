@@ -77,6 +77,32 @@ it('refuses private keys and unsupported signing keys even when importable', () 
   }
 });
 
+it('rejects RSA parameters unsupported by the pinned SDK', () => {
+  for (const options of [
+    { modulusLength: 4096 },
+    { modulusLength: 2048, publicExponent: 3 },
+  ]) {
+    const key = generateKeyPairSync('rsa', options).publicKey;
+    expect(() =>
+      parseRuntimeConfig({
+        ...base,
+        CLERK_JWT_KEY: key.export({ type: 'spki', format: 'pem' }).toString(),
+      }),
+    ).toThrow('CLERK_JWT_KEY');
+  }
+});
+
+it('normalizes PKCS1 public keys to the SDK-supported SPKI encoding', () => {
+  expect(
+    parseRuntimeConfig({
+      ...base,
+      CLERK_JWT_KEY: publicKey
+        .export({ type: 'pkcs1', format: 'pem' })
+        .toString(),
+    }).clerk?.jwtKey,
+  ).toBe(pem);
+});
+
 it('keeps foundation-only mode valid and rejects local test identity remotely', () => {
   expect(
     parseRuntimeConfig({
