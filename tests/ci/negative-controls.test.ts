@@ -25,10 +25,12 @@ it('exposes every required CI stage without silently omitting service or scanner
     'typecheck',
     'unit',
     'integration',
+    'identity-coverage',
     'contract',
     'architecture',
     'build',
     'process',
+    'browser',
     'audit',
     'secrets',
     'container',
@@ -41,7 +43,8 @@ it('exposes every required CI stage without silently omitting service or scanner
 });
 it('runs the real lint stage, propagates its nonzero result and returns safe stage evidence', async () => {
   const good = project.run(['--run', 'verify:ci', '--', '--stage', 'lint']);
-  expect(await project.deadline(good.done, 30000)).toBe(0);
+  const code = await project.deadline(good.done, 30000);
+  expect(code, good.output().slice(-3000)).toBe(0);
   await writeFile(join(project.root, 'src/broken.ts'), 'const unused = 1;\n');
   try {
     const bad = project.run(['--run', 'verify:ci', '--', '--stage', 'lint']);

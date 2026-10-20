@@ -35,9 +35,13 @@
     "container:build": "node --import tsx scripts/build-container.ts",
     "verify:foundation": "node --import tsx scripts/verify-foundation.ts",
     "verify:ci-failures": "node --import tsx scripts/verify-ci-negative-controls.ts",
-    "verify:architecture": "npm run check:architecture && npm run test:architecture"
+    "verify:architecture": "npm run check:architecture && npm run test:architecture",
+    "coverage:identity": "APP_ENV=test vitest run --config vitest.identity.config.ts",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@clerk/backend": "3.25.0",
+    "@clerk/nextjs": "7.9.17",
     "next": "16.4.2",
     "node-pg-migrate": "9.0.0",
     "pg": "8.23.1",
@@ -48,11 +52,14 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
+    "@clerk/testing": "2.2.47",
     "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.1",
     "@types/node": "24.19.2",
     "@types/pg": "8.23.1",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "@vitest/coverage-v8": "5.0.5",
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1",
     "dependency-cruiser": "18.6.0",

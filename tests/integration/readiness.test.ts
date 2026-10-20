@@ -1,5 +1,5 @@
 import { Client } from 'pg';
-import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, writeFile, copyFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, it } from 'vitest';
@@ -11,7 +11,8 @@ import { runMigrations } from '../../scripts/migrate';
 import { createDatabase } from '../../src/server/database';
 import { parseRuntimeConfig } from '../../src/server/config';
 import { readiness } from '../../src/server/health';
-const baseline = '1781654400000_foundation';
+import { acceptedMigrations } from '../helpers/migration-chain';
+const baseline = acceptedMigrations[0];
 const migrate = async (url: string, signal: AbortSignal) => {
   await runMigrations({
     environment: 'test',
@@ -30,7 +31,7 @@ function database(url: string, extra: Record<string, string> = {}) {
 }
 function probe(
   db: ReturnType<typeof createDatabase>,
-  expected: readonly string[] = [baseline],
+  expected: readonly string[] = acceptedMigrations,
 ) {
   return readiness({
     state: () => 'SERVING',
@@ -109,12 +110,13 @@ it(
       const root = await mkdtemp(join(tmpdir(), 'foundation-readiness-'));
       const db = database(lease.connectionString);
       try {
+        for (const name of acceptedMigrations)
+          await copyFile(
+            join('migrations', name + '.sql'),
+            join(root, name + '.sql'),
+          );
         await writeFile(
-          join(root, baseline + '.sql'),
-          '-- Up Migration\nSELECT 1;\n-- Down Migration\nSELECT 1;',
-        );
-        await writeFile(
-          join(root, '1781654400001_unknown.sql'),
+          join(root, '1792454400002_unknown.sql'),
           '-- Up Migration\nSELECT 1;\n-- Down Migration\nSELECT 1;',
         );
         await runMigrations({
@@ -124,7 +126,8 @@ it(
         });
         expect((await probe(db)).body.checks.schema).toBe('unavailable');
         expect(
-          (await probe(db, [baseline, '1781654400001_unknown'])).httpStatus,
+          (await probe(db, [...acceptedMigrations, '1792454400002_unknown']))
+            .httpStatus,
         ).toBe(200);
       } finally {
         await db.close();

@@ -9,6 +9,11 @@ info:
     path (versioned consent, bounded audio-turn transcription, and on-demand interviewer TTS).
     Code submission/execution endpoints remain deferred until the submission and queued-result
     contract is finalized. All state changes are validated by the backend state machine.
+    Every protected operation also declares identity-boundary failures: 401 for invalid
+    credentials, 403 for a disabled local account, 429 with Retry-After for authentication
+    throttling, and retryable 503 for unavailable verification, admission or storage.
+    Authentication denial never starts interview/model/audio/execution work; trusted-key
+    retrieval and verified identity mapping may precede a resource-level denial.
 servers:
   - url: /api/v1
     description: Versioned API base path
@@ -80,8 +85,12 @@ paths:
                 $ref: '#/components/schemas/ProblemListResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '429':
           $ref: '#/components/responses/RateLimited'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
   /problems/{problemId}:
     get:
       tags: [Problems]
@@ -98,8 +107,14 @@ paths:
                 $ref: '#/components/schemas/ProblemDetail'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
   /interview-sessions:
     post:
       tags: [Interview Sessions]
@@ -139,6 +154,8 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
         '409':
@@ -147,6 +164,8 @@ paths:
           $ref: '#/components/responses/ValidationError'
         '429':
           $ref: '#/components/responses/RateLimited'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
   /interview-sessions/{sessionId}:
     get:
       tags: [Interview Sessions]
@@ -173,6 +192,10 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
     post:
       tags: [Interview Sessions]
       operationId: submitInterviewAction
@@ -298,6 +321,8 @@ paths:
           $ref: '#/components/responses/ValidationError'
         '429':
           $ref: '#/components/responses/RateLimited'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
   /interview-sessions/{sessionId}/voice-turns:
     post:
       tags: [Voice]
@@ -376,7 +401,7 @@ paths:
         '429':
           $ref: '#/components/responses/RateLimited'
         '503':
-          description: Transcription or required model provider temporarily unavailable; session state is unchanged
+          description: Identity, storage, transcription or required model provider temporarily unavailable; session state is unchanged
           content:
             application/json:
               schema:
@@ -423,7 +448,7 @@ paths:
         '429':
           $ref: '#/components/responses/RateLimited'
         '503':
-          description: Speech provider temporarily unavailable; interviewer text remains available
+          description: Identity, storage or speech provider temporarily unavailable; interviewer text remains available
           content:
             application/json:
               schema:
@@ -496,6 +521,17 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ApiError'
+    ServiceUnavailable:
+      description: Identity verification, admission or storage is temporarily unavailable; retryable with no interview side effects. Mutating requests must retain their original idempotency key.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            code: dependency_unavailable
+            message: Service temporarily unavailable. Try again later.
+            requestId: request-example
+            retryable: true
     RateLimited:
       description: Caller or workload has exceeded a configured rate limit
       headers:

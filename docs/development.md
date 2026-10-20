@@ -87,8 +87,11 @@ npm audit --audit-level=high
 Never disable verification to fix a connection error. `APP_ENV` is mandatory:
 `development`, `staging`, `production` or `test`; it is separate from `NODE_ENV`.
 Missing unused Clerk/OpenAI/E2B credentials are allowed. `IDENTITY_ADAPTER`
-defaults to `disabled`; `test` is restricted to development/test and the
-unimplemented `clerk` mode fails closed.
+defaults to `disabled`; `test` is restricted to development/test. `clerk` requires
+complete validated runtime settings from `.env.identity.example`, including the
+server-only middleware key and supported public verification key. See the
+[identity runbook](runbooks/identity.md) for provider setup and observed acceptance.
+Production builds need none of these keys.
 
 Architecture verification checks the actual `src/` import graph and deliberate
 forbidden/allowed fixtures. Module ownership and `public.ts` rules are documented
@@ -331,15 +334,15 @@ ADR-022 permits local development before AWS resources are funded. This matrix
 separates available foundation coverage from future feature work; it does not
 install tools or establish external acceptance.
 
-| Component                 | Local/CI approach                                                                                   | Availability                                     | Real-service evidence still required                                               |
-| ------------------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------- |
-| API/application container | Existing Node/Next image, process and Compose bridge tests                                          | Implemented foundation                           | ECS networking, deployment, scaling and rollback                                   |
-| PostgreSQL                | Existing real PostgreSQL services and owned isolated databases; explicit migrations                 | Implemented foundation                           | RDS version/extension compatibility, verified TLS, permissions and restore         |
-| SQS                       | Evaluate an SQS-compatible emulator such as ElasticMQ through the selected AWS SDK                  | Proposed for owning queue feature; not installed | Real retries, visibility, duplicates, DLQ and idempotent consumer/outbox behavior  |
-| Configuration/secrets     | Existing private local settings, synthetic canaries and sanitized validation tests                  | Implemented foundation                           | ECS/Secrets Manager IAM, injection and task replacement/rotation under T034        |
-| Clerk                     | Planned guarded development/test identity and token fixtures; current M0 Clerk mode rejects startup | Future identity feature                          | Real sign-in, token verification, expiry and authorization                         |
-| OpenAI text/audio         | Planned deterministic Gateway fixtures for success, malformed output, timeout and rate limits       | Future Gateway/voice features                    | Real SDK/API compatibility, text/audio quality, latency, budgets and data controls |
-| E2B                       | Planned coordinator contract fixtures; no candidate execution inside trusted workloads              | Future execution feature                         | Actual sandbox isolation, pinned runtimes, resource/network limits and cleanup     |
+| Component                 | Local/CI approach                                                                                           | Availability                                                                                                                              | Real-service evidence still required                                                                        |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| API/application container | Existing Node/Next image, process and Compose bridge tests                                                  | Implemented foundation                                                                                                                    | ECS networking, deployment, scaling and rollback                                                            |
+| PostgreSQL                | Existing real PostgreSQL services and owned isolated databases; explicit migrations                         | Implemented foundation                                                                                                                    | RDS version/extension compatibility, verified TLS, permissions and restore                                  |
+| SQS                       | Evaluate an SQS-compatible emulator such as ElasticMQ through the selected AWS SDK                          | Proposed for owning queue feature; not installed                                                                                          | Real retries, visibility, duplicates, DLQ and idempotent consumer/outbox behavior                           |
+| Configuration/secrets     | Existing private local settings, synthetic canaries and sanitized validation tests                          | Implemented foundation                                                                                                                    | ECS/Secrets Manager IAM, injection and task replacement/rotation under T034                                 |
+| Clerk                     | SDK signature/token fixtures, guarded local identities, real PostgreSQL mapping/ownership and browser shell | Feature 2 development acceptance verified: owner Google/real-email sign-in, selected methods, token refresh/expiry, mapping and isolation | Repeat selected-method and provider checks for staging/production; deployment release gates remain required |
+| OpenAI text/audio         | Planned deterministic Gateway fixtures for success, malformed output, timeout and rate limits               | Future Gateway/voice features                                                                                                             | Real SDK/API compatibility, text/audio quality, latency, budgets and data controls                          |
+| E2B                       | Planned coordinator contract fixtures; no candidate execution inside trusted workloads                      | Future execution feature                                                                                                                  | Actual sandbox isolation, pinned runtimes, resource/network limits and cleanup                              |
 
 ElasticMQ is a candidate with an [SQS-compatible interface](https://github.com/softwaremill/elasticmq).
 [Testcontainers](https://node.testcontainers.org/modules/postgresql/) is an

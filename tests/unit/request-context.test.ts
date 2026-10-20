@@ -59,3 +59,19 @@ it('clears detached work after normal completion and reuses the runtime-owned sc
   expect(await detached).toBeUndefined();
   await runtime.closeResources();
 });
+
+it('retains only trusted socket transport and cancellation inside the active request', async () => {
+  const scope = createRequestScope();
+  const abort = new AbortController();
+  await scope.run(
+    async () => {
+      expect(scope.current()).toMatchObject({
+        sourceAddress: '127.0.0.1',
+        signal: abort.signal,
+      });
+    },
+    abort.signal,
+    { sourceAddress: '127.0.0.1' },
+  );
+  expect(scope.current()).toBeUndefined();
+});

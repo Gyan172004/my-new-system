@@ -173,5 +173,39 @@
     "files": {
       "src/components/Mode.ts": "'use client'; export const debug = process.env.NODE_ENV !== 'production';"
     }
+  },
+  "client_identity_backend_denied": {
+    "rule": "client-server-boundary",
+    "files": {
+      "src/modules/identity-ui/adapters/component.ts": "'use client'; import { verifyToken } from '@clerk/backend'; export const x = verifyToken;"
+    }
+  },
+  "client_identity_server_sdk_denied": {
+    "rule": "client-server-boundary",
+    "files": {
+      "src/modules/identity-ui/adapters/component.ts": "'use client'; import { clerkMiddleware } from '@clerk/nextjs/server'; export const x = clerkMiddleware;"
+    }
+  },
+  "client_identity_private_env_denied": {
+    "rule": "client-server-boundary",
+    "files": {
+      "src/modules/identity-ui/adapters/component.ts": "'use client'; export const x = process.env.CLERK_SECRET_KEY;"
+    }
+  },
+  "identity_browser_proxy_allowed": {
+    "files": {
+      "src/modules/identity-browser/adapters/proxy.ts": "import { clerkMiddleware } from '@clerk/nextjs/server'; export const proxy = clerkMiddleware;"
+    }
+  },
+  "identity_wrong_adapter_denied": {
+    "rule": "provider-adapter-only",
+    "files": {
+      "src/modules/identity-ui/adapters/component.ts": "import { verifyToken } from '@clerk/backend'; export const x = verifyToken;"
+    }
+  },
+  "identity_ui_allowed": {
+    "files": {
+      "src/modules/identity-ui/adapters/component.ts": "'use client'; import { SignIn } from '@clerk/nextjs'; export const x = SignIn;"
+    }
   }
 }

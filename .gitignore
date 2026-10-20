@@ -38,3 +38,8 @@ Thumbs.db
 
 # Local generated database secret files; never build or commit these values.
 /.local/
+
+# Browser test artifacts (may contain candidate content).
+/test-results/
+/playwright-report/
+/.clerk/

@@ -60,10 +60,6 @@ _None._
 - Milestone: M1 · Priority: P0 · Depends on: K-005, K-010
 - Acceptance: snapshot/event commit atomically; version checks prevent lost updates; event payloads are versioned.
 
-### K-012 — Add session ownership and authorization checks
-- Milestone: M1 · Priority: P0 · Depends on: K-002
-- Acceptance: cross-user read/write tests fail safely; Clerk token verification and provider-subject-to-internal-user mapping work; development/test identity adapter is prohibited in production.
-
 ### K-013 — Add idempotency and optimistic concurrency to session commands
 - Milestone: M1 · Priority: P0 · Depends on: K-005, K-011
 - Acceptance: same key/same payload returns original logical result; same key/different payload conflicts; stale version is rejected.
@@ -126,22 +122,31 @@ _None._
 
 ## In Progress
 
+
 ### K-028 — Establish environment configuration and secret-handling baseline
 - Milestone: M0 · Priority: P0 · Depends on: K-002
 - Acceptance: development/staging/production configuration is separated; required settings validate at startup; secret injection/storage is documented; example files contain placeholders only; secrets are absent from source control and logs.
 - Progress evidence: startup/configuration, environment examples, secret-free image/log checks and role/injection/rotation handoff are implemented locally. Owner confirmed on 2026-10-18 that staging/production resources are not ready. Owner approved deferring resource funding to deployment readiness (ADR-022). Actual resource separation, task-definition injection, least-privilege roles, verified remote TLS and rotation evidence remain T034; card is not Done. Verified local prerequisites may support later features with explicit engineering-design evidence; local T047/T048 no longer wait for T034. See [foundation runbook](../docs/runbooks/foundation.md#environment-isolation-and-secret-injection-handoff).
 
-### K-006 — Add CI checks and automated test stages
-- Milestone: M0 · Priority: P0 · Depends on: K-001, K-002
-- Acceptance: CI runs formatting/lint, unit and relevant integration/contract tests, dependency/static checks, and simple architecture-boundary checks; a deliberate failing check fails CI.
-
-- Progress evidence: Reviewed Phase 6 pipeline, scanners, container/layer/bridge and process/negative controls; local aggregate passed and full suite 212/212 passed. Hosted CI acceptance pending. See [foundation runbook](../docs/runbooks/foundation.md).
 
 ## In Review
 
 _None._
 
 ## Done
+
+### K-006 — Add CI checks and automated test stages
+- Milestone: M0 · Priority: P0 · Depends on: K-001, K-002
+- Acceptance: CI runs formatting/lint, unit and relevant integration/contract tests, dependency/static checks, and simple architecture-boundary checks; a deliberate failing check fails CI.
+
+- Completion evidence: Hosted GitHub Actions verify succeeded for foundation head 0370993, including the required checks, scans, container and negative-control stage. [Observed job](https://github.com/Gyan172004/my-new-system/actions/runs/39145525838/job/117728453724). Local full suite212/212 and deliberate failure controls are documented in the foundation runbook. K-028/T034 external-environment evidence remains deferred under ADR-022.
+
+### K-012 — Add session ownership and authorization checks
+- Milestone: M1 · Priority: P0 · Depends on: K-002, K-005, K-011
+- Acceptance: cross-user read/write tests fail safely; Clerk token verification and provider-subject-to-internal-user mapping work; development/test identity adapter is prohibited in production.
+
+- Dependency clarification: authentication adapters may start after K-002; K-005/K-011 are needed for real persisted cross-user service acceptance. K-014 consumes K-012 and owns HTTP error/ownership/replay integration; K-016 owns the end-to-end session journey. Neither is a prerequisite for K-012 completion. Authentication admission and denial-side-effect rules follow the identity feature designs.
+- Completion evidence: Feature 2 development acceptance verified: 312 full-suite tests, 215 coverage tests and five browser tests passed; real Clerk Google/email-code sign-in, stable mapping, refresh/token expiry, actual expired-code rejection, privacy and real PostgreSQL ownership checks passed. Owner screenshot plus read-only database inspection confirms the Google-linked internal mapping. See docs/runbooks/identity.md. K-010/K-011 full features, K-014/K-016 consumers and hosted/cloud release gates remain separate.
 
 ### K-004 — Add health and readiness endpoints
 - Milestone: M0 · Priority: P0 · Depends on: K-002

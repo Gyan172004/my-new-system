@@ -84,6 +84,12 @@ Exit criteria:
 
 Dependency note: a local development identity stub may unblock early vertical slices, but it must not be mistaken for production authentication.
 
+Identity adapter work can start after the foundation. K-012 completion also needs
+K-005/K-011 for actual persisted cross-user application-service tests; this does
+not require the session creation/API work. K-014 consumes completed K-012 and
+K-016 owns the later session end-to-end journey. Do not make those downstream
+checks prerequisites for K-012.
+
 ### Stage 2 — Problem catalogue and immutable Problem Packs
 
 **Priority:** P0  

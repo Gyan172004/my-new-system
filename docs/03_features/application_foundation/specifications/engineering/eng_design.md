@@ -506,3 +506,7 @@ Kanban IDs. Record limitations and unmet checks on those cards; do not create an
 independent tracker or mark provider acceptance from local fixtures. Introducing
 an emulator/dependency still requires its feature design, license/coverage review
 and meaningful tests. No such implementation or provisioning is performed here.
+
+## Hosted verification reconciliation — 2026-10-20
+
+Hosted Foundation CI is now observed successful for implementation head 0370993, including its required checks/scans/container/negative-control stage ([job](https://github.com/Gyan172004/my-new-system/actions/runs/39145525838/job/117728453724)). K-006 therefore moves to Done in canonical Kanban/CSV. All 47 locally completed task issue mirrors are reconciled with evidence and PR49; T034 remains open under ADR-022. This supersedes historical pending-CI observations without changing the 48-task inventory, external K-028 gate or application behavior.
