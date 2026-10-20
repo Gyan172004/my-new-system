@@ -14,6 +14,7 @@ const methods = new Set([
 const routes = new Set(['/api/v1/health/live', '/api/v1/health/ready']);
 const events = new Set([
   'http_completed',
+  'identity_denied',
   'http_failed',
   'database_error',
   'application_started',
@@ -26,6 +27,10 @@ const codes = new Set([
   'service_unavailable',
   'database_unavailable',
   'request_cancelled',
+  'unauthorized',
+  'forbidden',
+  'rate_limited',
+  'identity_unavailable',
 ]);
 export function createSafeLogger(
   config: RuntimeConfig,

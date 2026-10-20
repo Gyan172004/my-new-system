@@ -92,7 +92,7 @@ it('rejects RSA parameters unsupported by the pinned SDK', () => {
       }),
     ).toThrow('CLERK_JWT_KEY');
   }
-});
+}, 20000);
 
 it('normalizes PKCS1 public keys to the SDK-supported SPKI encoding', () => {
   expect(

@@ -236,3 +236,10 @@ behavior require explicit adapter checks. No stack/provider choices are reopened
 Browser SDK middleware lives in `identity-browser/public.ts`; client components live in `identity-ui/public.ts`. This keeps the allowed public entry convention without a server import reachable from a client barrel. Browser pages are dynamic; only the publishable key reaches the provider. Every sign-in and sign-up completion uses a validated local force redirect, overriding untrusted SDK query destinations. No private feature pages are added here.
 
 Account UI is keyed by verified Clerk user/session. `AccountStateBoundary` remounts local state on a change and exposes `useAccountSignal()` for aborting user-scoped requests. It renews its controller after React StrictMode effect replay. Consumers must use the signal and never persist bearer tokens or use shared private caches. Fixture-only browser pages prove clearing/cancellation; actual session-page integration remains K-014/K-016.
+
+`withCandidate(request, work)` is the shared Node route adapter. It passes the
+immutable caller and combined transport/request abort signal to owning services.
+It requires active trusted socket context, uses the same runtime-owned verifier,
+limiter and database pool across HMR, and sanitizes safe correlated failures before
+Next can serialize them. Protected responses use private/no-store and vary by
+Authorization. Health handlers do not call it.

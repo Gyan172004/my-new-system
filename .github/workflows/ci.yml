@@ -29,6 +29,8 @@ jobs:
         run: npm ci
       - name: Prepare isolated local services
         run: node --import tsx scripts/prepare-ci.ts
+      - name: Install Chromium for browser acceptance
+        run: npx playwright install --with-deps chromium
       - name: Required checks, scans, container and negative controls
         run: npm run verify:ci
       - name: Stop project services while preserving volumes

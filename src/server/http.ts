@@ -21,88 +21,92 @@ export function createHttpHandler(
   return (req: IncomingMessage, res: ServerResponse) => {
     const abort = new AbortController();
     void options.scope
-      .run(async () => {
-        const context = options.scope.current()!;
-        const route = routeTemplate(req.url);
-        let completed = false;
-        let finish!: () => void;
-        const closed = new Promise<void>((resolve) => {
-          finish = resolve;
-        });
-        const complete = () => {
-          if (completed) return;
-          completed = true;
-          const cancelled = !res.writableFinished;
-          if (cancelled) abort.abort();
-          options.logger.write('http_completed', {
-            requestId: context.requestId,
-            method: req.method,
-            route,
-            status: cancelled ? 499 : res.statusCode,
-            elapsedMs: performance.now() - context.startedAt,
-            ...(cancelled ? { code: 'request_cancelled' } : {}),
+      .run(
+        async () => {
+          const context = options.scope.current()!;
+          const route = routeTemplate(req.url);
+          let completed = false;
+          let finish!: () => void;
+          const closed = new Promise<void>((resolve) => {
+            finish = resolve;
           });
-          finish();
-        };
-        res.once('finish', complete);
-        res.once('close', complete);
-        const cancelled = () => abort.abort();
-        req.once('aborted', cancelled);
-        const fail = (draining: boolean) => {
-          if (res.destroyed) return;
-          if (res.headersSent) {
-            res.destroy();
-            return;
-          }
-          const status = draining || route !== 'unmatched' ? 503 : 500;
-          res.writeHead(status, {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-store',
-          });
-          res.end(
-            JSON.stringify(
-              route !== 'unmatched'
-                ? {
-                    status: 'unavailable',
-                    timestamp: new Date().toISOString(),
-                    checks: { application: 'unavailable' },
-                  }
-                : {
-                    code: draining ? 'service_unavailable' : 'internal_error',
-                    message: draining
-                      ? 'Service unavailable'
-                      : 'Request failed',
-                    requestId: context.requestId,
-                  },
-            ),
-          );
-        };
-        try {
-          if (options.isDraining()) fail(true);
-          else
-            await Promise.race([
-              Promise.resolve()
-                .then(() => handle(req, res))
-                .catch(() => {
-                  if (!completed) {
-                    options.logger.write('http_failed', {
+          const complete = () => {
+            if (completed) return;
+            completed = true;
+            const cancelled = !res.writableFinished;
+            if (cancelled) abort.abort();
+            options.logger.write('http_completed', {
+              requestId: context.requestId,
+              method: req.method,
+              route,
+              status: cancelled ? 499 : res.statusCode,
+              elapsedMs: performance.now() - context.startedAt,
+              ...(cancelled ? { code: 'request_cancelled' } : {}),
+            });
+            finish();
+          };
+          res.once('finish', complete);
+          res.once('close', complete);
+          const cancelled = () => abort.abort();
+          req.once('aborted', cancelled);
+          const fail = (draining: boolean) => {
+            if (res.destroyed) return;
+            if (res.headersSent) {
+              res.destroy();
+              return;
+            }
+            const status = draining || route !== 'unmatched' ? 503 : 500;
+            res.writeHead(status, {
+              'Content-Type': 'application/json',
+              'Cache-Control': 'no-store',
+            });
+            res.end(
+              JSON.stringify(
+                route !== 'unmatched'
+                  ? {
+                      status: 'unavailable',
+                      timestamp: new Date().toISOString(),
+                      checks: { application: 'unavailable' },
+                    }
+                  : {
+                      code: draining ? 'service_unavailable' : 'internal_error',
+                      message: draining
+                        ? 'Service unavailable'
+                        : 'Request failed',
                       requestId: context.requestId,
-                      method: req.method,
-                      route,
-                      code: 'internal_error',
-                    });
-                    fail(false);
-                  }
-                }),
-              closed,
-            ]);
-          await closed;
-        } finally {
-          req.off('aborted', cancelled);
-          res.off('finish', complete);
-          res.off('close', complete);
-        }
-      }, abort.signal)
+                    },
+              ),
+            );
+          };
+          try {
+            if (options.isDraining()) fail(true);
+            else
+              await Promise.race([
+                Promise.resolve()
+                  .then(() => handle(req, res))
+                  .catch(() => {
+                    if (!completed) {
+                      options.logger.write('http_failed', {
+                        requestId: context.requestId,
+                        method: req.method,
+                        route,
+                        code: 'internal_error',
+                      });
+                      fail(false);
+                    }
+                  }),
+                closed,
+              ]);
+            await closed;
+          } finally {
+            req.off('aborted', cancelled);
+            res.off('finish', complete);
+            res.off('close', complete);
+          }
+        },
+        abort.signal,
+        { sourceAddress: req.socket.remoteAddress },
+      )
       .catch(() => {
         if (!res.destroyed) res.destroy();
       });

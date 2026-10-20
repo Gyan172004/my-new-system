@@ -8,11 +8,13 @@ records. HTTP adapters translate the canonical contracts and invoke public servi
 
 | Planned owning module | Responsibility |
 | --- | --- |
-| identity-profile | Identity, candidate profile and preferences |
+| identity-profile | Verified identity mapping and authorization; later profile/preferences work remains separate |
+| identity-ui | Browser-safe embedded Clerk UI and account-scoped state/cancellation |
+| identity-browser | Node browser SDK middleware; separate from domain bearer admission/verification |
 | problem-catalogue | Published immutable Problem Packs and version resolution |
 | content-pipeline | Offline ingestion, normalization and enrichment |
 | content-publishing | Content validation, review, publish and deprecation |
-| interview | Backend-owned interview lifecycle and state transitions |
+| interview-session | Backend-owned lifecycle, guarded snapshots and versioned events; current prerequisite implements created-to-intro only |
 | conversation | Turn input/output and transcript references |
 | approach-assessment | Classification, confidence and abstention |
 | hints-variants | Ordered hint/variant policy and exposure |
@@ -31,7 +33,9 @@ Provider SDKs stay in their owning adapters. All OpenAI model/audio calls go
 through Model Gateway adapters; Clerk belongs to identity and E2B to execution
 coordination. AWS hosting does not authorize SDK calls from domain/UI code.
 Browser entrypoints (`use client`) must not reach server configuration, private
-modules, PostgreSQL or server-only packages, even through re-exports. Type-only
+server modules, PostgreSQL or server-only packages, even through re-exports. The
+explicit `identity-ui` browser adapter/application layers may be client-reachable;
+they can import the browser Clerk SDK, but not its server SDK or private configuration. Type-only
 imports do not waive the owning-module boundary. Keep public browser-safe DTOs
 separate from server implementation exports.
 

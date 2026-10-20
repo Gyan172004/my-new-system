@@ -2,3 +2,4 @@
 export { IdentityFailure } from './application/types';
 export type { AuthenticatedCaller } from './application/types';
 export { safeReturnPath } from './application/redirect';
+export { runtimeIdentity } from './application/service';

@@ -243,16 +243,16 @@ Task IDs continue after foundation T048. Every group ends explicit review then c
 - [x] T067 [US1] Implement browser-safe `src/modules/identity-ui/public.ts`/adapters, `src/app/sign-in/[[...sign-in]]/page.tsx`, minimal identity entry/layout and `src/proxy.ts` plumbing; honor runtime keys, selected Google/email OTP only, safe redirects, no secret client imports. Keep domain bearer auth separate. Depends T066/T062.
 - [x] T068 [US1] Run actual custom-server browser acceptance and runtime introspection; test account clearing/late-response protection in user-scoped UI, actual disabled modes, no console secret leakage and production build without keys; real Clerk cases remain Group07. Depends T067.
 - [x] T069 [US1] Review this group using `clerk-nextjs-patterns`, `clerk-testing`, `vercel-react-best-practices`, `frontend-design`, `next-dev-loop` when prerequisites available, `vitest` and `verification-before-completion`; independent review of wireframe/accessibility/client-server/SDK lifecycle; fix/re-review. Depends T068.
-- [ ] T070 [US1] Commit this reviewed group with message `<US=US1, ID=T070, K=K-012, GROUP=05> feat(identity): add embedded Google and email-code sign-in`. Depends T069.
+- [x] T070 [US1] Commit this reviewed group with message `<US=US1, ID=T070, K=K-012, GROUP=05> feat(identity): add embedded Google and email-code sign-in`. Depends T069.
 
 ## Group 06 — Integration, privacy and coverage
 
 **Map:** K-012. **Story:** US3. See canonical engineering §2/7 and technical specification.
 
-- [ ] T071 [US3] Write/run failing process/privacy/lifecycle cases in `tests/process/identity-privacy.test.ts` for source context, stable request IDs, canonical safe auth errors, allowed mapping bookkeeping and absent private downstream side effects; FR-05/08–11.
-- [ ] T072 [US3] Complete runtime/public application-service integration in `src/server/`, identity module and contract tests; preserve shared lifecycle/health/HMR, no provider failure fallback and uncached protected replies. Depends T071/T063/T068.
-- [ ] T073 [US3] Add `coverage:identity` and explicit all-files v8 scope/thresholds, run focused + full relevant unit/integration/contract/process/browser/build/security checks, inspect uncovered branches and add meaningful missing cases; record commands/results in `docs/runbooks/identity.md`; FR-01–11. Depends T072.
-- [ ] T074 [US3] Review this group using `mastering-typescript`, `vitest`, `clerk-testing`, `vercel-react-best-practices`, `requesting-code-review` and `verification-before-completion`; inspect privacy, coverage honesty, regressions and CI changes; fix/re-review. Depends T073.
+- [x] T071 [US3] Write/run failing process/privacy/lifecycle cases in `tests/process/identity-privacy.test.ts` for source context, stable request IDs, canonical safe auth errors, allowed mapping bookkeeping and absent private downstream side effects; FR-05/08–11.
+- [x] T072 [US3] Complete runtime/public application-service integration in `src/server/`, identity module and contract tests; preserve shared lifecycle/health/HMR, no provider failure fallback and uncached protected replies. Depends T071/T063/T068.
+- [x] T073 [US3] Add `coverage:identity` and explicit all-files v8 scope/thresholds, run focused + full relevant unit/integration/contract/process/browser/build/security checks, inspect uncovered branches and add meaningful missing cases; record commands/results in `docs/runbooks/identity.md`; FR-01–11. Depends T072.
+- [x] T074 [US3] Review this group using `mastering-typescript`, `vitest`, `clerk-testing`, `vercel-react-best-practices`, `requesting-code-review` and `verification-before-completion`; inspect privacy, coverage honesty, regressions and CI changes; fix/re-review. Depends T073.
 - [ ] T075 [US3] Commit this reviewed group with message `<US=US3, ID=T075, K=K-012, GROUP=06> test(identity): verify privacy integration and coverage gates`. Depends T074.
 
 ## Group 07 — Real provider acceptance and convergence
@@ -311,3 +311,17 @@ Issues mirror these task IDs; Kanban remains the status authority.
 | T078 | [#80](https://github.com/Gyan172004/my-new-system/issues/80) |
 | T079 | [#81](https://github.com/Gyan172004/my-new-system/issues/81) |
 | T080 | [#82](https://github.com/Gyan172004/my-new-system/issues/82) |
+
+## Runtime and coverage implementation notes
+
+The reusable route boundary is `src/server/identity-http.ts`; identity resources
+are owned by `application/service.ts` and the foundation registry. Trusted source
+and cancellation enter through the custom HTTP wrapper, never forwarded headers.
+The callback receives `(caller, signal)`; consumers must propagate the signal.
+
+`npm run coverage:identity` includes every identity server, UI and browser-adapter
+file plus supporting session code. Node V8 gates apply to the server/session scope
+(90% statements/lines/functions, 85% branches). UI/browser entries not executed by
+Node stay visible in that report; actual Playwright acceptance is separate and must
+not be presented as Node line coverage. Reports are generated in ignored
+`coverage/identity/`. CI includes coverage and browser stages without live credentials.

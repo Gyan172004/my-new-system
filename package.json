@@ -35,7 +35,9 @@
     "container:build": "node --import tsx scripts/build-container.ts",
     "verify:foundation": "node --import tsx scripts/verify-foundation.ts",
     "verify:ci-failures": "node --import tsx scripts/verify-ci-negative-controls.ts",
-    "verify:architecture": "npm run check:architecture && npm run test:architecture"
+    "verify:architecture": "npm run check:architecture && npm run test:architecture",
+    "coverage:identity": "APP_ENV=test vitest run --config vitest.identity.config.ts",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@clerk/backend": "3.25.0",

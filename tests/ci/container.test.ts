@@ -1,3 +1,4 @@
+import { acceptedMigrations } from '../helpers/migration-chain';
 import { execFileSync } from 'node:child_process';
 import { expect, it } from 'vitest';
 it('ships a non-root PID1 Node entrypoint with compiled migration and ordinary Next output', () => {
@@ -39,7 +40,7 @@ it('ships a non-root PID1 Node entrypoint with compiled migration and ordinary N
     server: true,
     migrate: true,
     next: true,
-    manifest: ['1781654400000_foundation'],
+    manifest: acceptedMigrations,
     secrets: false,
   });
 });

@@ -4,6 +4,7 @@ import {
   eventually,
   portIsFree,
 } from '../tests/helpers/process';
+import { acceptedMigrations } from '../tests/helpers/migration-chain';
 import { allocateTestDatabase } from '../tests/helpers/test-database';
 import { databaseProxy } from '../tests/helpers/database-proxy';
 import { rm } from 'node:fs/promises';
@@ -15,6 +16,7 @@ async function main() {
   let database: Awaited<ReturnType<typeof allocateTestDatabase>> | undefined;
   let proxy: Awaited<ReturnType<typeof databaseProxy>> | undefined;
   let cleanupFailed: boolean;
+  let applied: number;
   try {
     await rm(join(project.root, 'node_modules'), {
       recursive: true,
@@ -38,7 +40,8 @@ async function main() {
       APP_ENV: 'test',
       MIGRATION_DATABASE_URL: database.connectionString,
     });
-    if (JSON.parse(migrated.output()).applied !== 1)
+    applied = JSON.parse(migrated.output()).applied;
+    if (applied !== acceptedMigrations.length)
       throw new Error('verification_migration_failed');
     proxy = await databaseProxy(database.connectionString);
     const port = await availablePort();
@@ -103,7 +106,7 @@ async function main() {
     JSON.stringify({
       event: 'foundation_verified',
       cleanInstall: true,
-      migrated: 1,
+      migrated: applied,
       live: 200,
       ready: 200,
       outageReady: 503,

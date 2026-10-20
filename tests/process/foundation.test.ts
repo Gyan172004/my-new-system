@@ -1,3 +1,4 @@
+import { acceptedMigrations } from '../helpers/migration-chain';
 import { spawn } from 'node:child_process';
 import { expect, it } from 'vitest';
 it('completes a clean install/build/migrate/start/outage/recovery/stop journey against owned storage', async () => {
@@ -23,7 +24,7 @@ it('completes a clean install/build/migrate/start/outage/recovery/stop journey a
   expect(JSON.parse(lines.at(-1)!)).toEqual({
     event: 'foundation_verified',
     cleanInstall: true,
-    migrated: 1,
+    migrated: acceptedMigrations.length,
     live: 200,
     ready: 200,
     outageReady: 503,

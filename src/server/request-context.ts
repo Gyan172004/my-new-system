@@ -1,7 +1,12 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { randomUUID } from 'node:crypto';
 import { getRuntime, type RuntimeRegistry } from './runtime';
-export type RequestContext = Readonly<{ requestId: string; startedAt: number }>;
+export type RequestContext = Readonly<{
+  requestId: string;
+  startedAt: number;
+  sourceAddress: string | undefined;
+  signal: AbortSignal | undefined;
+}>;
 export function createRequestScope() {
   const storage = new AsyncLocalStorage<{
     context: RequestContext;
@@ -12,11 +17,17 @@ export function createRequestScope() {
       const slot = storage.getStore();
       return slot?.active ? slot.context : undefined;
     },
-    async run<T>(work: () => Promise<T>, signal?: AbortSignal): Promise<T> {
+    async run<T>(
+      work: () => Promise<T>,
+      signal?: AbortSignal,
+      transport?: { readonly sourceAddress: string | undefined },
+    ): Promise<T> {
       const slot = {
         context: Object.freeze({
           requestId: randomUUID(),
           startedAt: performance.now(),
+          sourceAddress: transport?.sourceAddress,
+          signal,
         }),
         active: !signal?.aborted,
       };

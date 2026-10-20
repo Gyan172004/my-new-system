@@ -191,3 +191,23 @@ existing [session state machine](../../interview_session/specifications/technica
 [LLM policy](../../interview_orchestration/specifications/technical/llm_interaction_policy.md),
 [execution contract](../../code_execution/specifications/technical/execution_contract.md)
 and [voice contract](../../voice_interaction_transcription/specifications/technical/voice_interaction_contract.md).
+
+## Runtime request boundary
+
+```text
+withCandidate(request, privateWork):
+  read active request ID, abort signal and source address from custom-server scope
+  require SERVING runtime and real socket source; ignore client identity/forwarded headers
+  combine request and transport abort signals
+  verify/admit/map using one runtime-owned identity service
+  reject if cancelled; invoke privateWork(caller, combinedSignal)
+  owning services pass combinedSignal to bounded database/provider work
+  reject if cancelled; return private, no-store response varying by Authorization
+  on failure: emit allowlisted denial code/status/request ID only
+              return safe ApiError with same request ID and Retry-After when limited
+```
+
+Closing the runtime clears limiter state and stops storage work. Transport cancellation
+invalidates detached request context. Existing PostgreSQL statement deadlines remain
+the final bound on server-side SQL after a client socket is destroyed. No new public
+interview API is introduced by this helper.
