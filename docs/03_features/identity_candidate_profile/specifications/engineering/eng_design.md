@@ -356,3 +356,7 @@ The preserved development instance is now claimed and its selected methods are c
 ### Claimed-provider follow-up
 
 Owner login and same-instance method configuration are now observed. A dry-run then partial development patch explicitly disabled passwords, retained Google and email_code-only verified email, and disabled GitHub; fresh pull assertions passed. Remaining T076/T083 acceptance is real Google consent, real-email delivery/repeat sign-in and expired-code rejection. Earlier accountless limitations above are historical observations, not current configuration blockers. See the runbook for the manual acceptance app; K-012 stays In Progress.
+
+### Owner sign-in follow-up
+
+Owner-reported Google/real-email sign-in, repeat email-code mapping across fresh sessions and actual provider expired-code rejection are recorded in the runbook. Only the owner account’s application server-verification/mapping confirmation remains pending; a read-only manual database check has not observed it. The fixture browser panel itself passed with HTTP200, and the owner was asked to open the signed-in home page. Keep T076/T083 unchecked and K-012 In Progress until that final evidence is observed. No new remediation task is needed for this existing acceptance gate.
