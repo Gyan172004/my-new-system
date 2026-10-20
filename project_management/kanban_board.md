@@ -122,13 +122,6 @@ _None._
 
 ## In Progress
 
-### K-012 — Add session ownership and authorization checks
-- Milestone: M1 · Priority: P0 · Depends on: K-002, K-005, K-011
-- Acceptance: cross-user read/write tests fail safely; Clerk token verification and provider-subject-to-internal-user mapping work; development/test identity adapter is prohibited in production.
-
-- Dependency clarification: authentication adapters may start after K-002; K-005/K-011 are needed for real persisted cross-user service acceptance. K-014 consumes K-012 and owns HTTP error/ownership/replay integration; K-016 owns the end-to-end session journey. Neither is a prerequisite for K-012 completion. Authentication admission and denial-side-effect rules follow the identity feature designs.
-- Evidence / remaining gate: Local identity implementation and narrow owned-storage prerequisite verified; real development email-code sign-in/token mapping and cross-user denial passed. K-012 remains In Progress pending the owner account’s application server-verification/mapping confirmation (T076/T083); account claim, selected methods, repeat email-code mapping and actual expired-code rejection are verified; owner reports Google and real-email sign-in passed; see docs/runbooks/identity.md. K-010/K-011 full acceptance remains separate.
-
 
 ### K-028 — Establish environment configuration and secret-handling baseline
 - Milestone: M0 · Priority: P0 · Depends on: K-002
@@ -146,6 +139,13 @@ _None._
 _None._
 
 ## Done
+
+### K-012 — Add session ownership and authorization checks
+- Milestone: M1 · Priority: P0 · Depends on: K-002, K-005, K-011
+- Acceptance: cross-user read/write tests fail safely; Clerk token verification and provider-subject-to-internal-user mapping work; development/test identity adapter is prohibited in production.
+
+- Dependency clarification: authentication adapters may start after K-002; K-005/K-011 are needed for real persisted cross-user service acceptance. K-014 consumes K-012 and owns HTTP error/ownership/replay integration; K-016 owns the end-to-end session journey. Neither is a prerequisite for K-012 completion. Authentication admission and denial-side-effect rules follow the identity feature designs.
+- Completion evidence: Feature 2 development acceptance verified: 312 full-suite tests, 215 coverage tests and five browser tests passed; real Clerk Google/email-code sign-in, stable mapping, refresh/token expiry, actual expired-code rejection, privacy and real PostgreSQL ownership checks passed. Owner screenshot plus read-only database inspection confirms the Google-linked internal mapping. See docs/runbooks/identity.md. K-010/K-011 full features, K-014/K-016 consumers and hosted/cloud release gates remain separate.
 
 ### K-004 — Add health and readiness endpoints
 - Milestone: M0 · Priority: P0 · Depends on: K-002
