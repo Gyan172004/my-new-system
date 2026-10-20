@@ -127,7 +127,7 @@ _None._
 - Acceptance: cross-user read/write tests fail safely; Clerk token verification and provider-subject-to-internal-user mapping work; development/test identity adapter is prohibited in production.
 
 - Dependency clarification: authentication adapters may start after K-002; K-005/K-011 are needed for real persisted cross-user service acceptance. K-014 consumes K-012 and owns HTTP error/ownership/replay integration; K-016 owns the end-to-end session journey. Neither is a prerequisite for K-012 completion. Authentication admission and denial-side-effect rules follow the identity feature designs.
-- Evidence / remaining gate: Local identity implementation and narrow owned-storage prerequisite verified; real development email-code sign-in/token mapping and cross-user denial passed. K-012 remains In Progress pending account-owner method configuration and real Google consent (T076/T083); see docs/runbooks/identity.md. K-010/K-011 full acceptance remains separate.
+- Evidence / remaining gate: Local identity implementation and narrow owned-storage prerequisite verified; real development email-code sign-in/token mapping and cross-user denial passed. K-012 remains In Progress pending real Google consent, real-email/repeat sign-in and expired email-code rejection (T076/T083); account claim and selected-method configuration are verified; see docs/runbooks/identity.md. K-010/K-011 full acceptance remains separate.
 
 
 ### K-028 — Establish environment configuration and secret-handling baseline
