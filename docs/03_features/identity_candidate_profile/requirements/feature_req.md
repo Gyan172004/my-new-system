@@ -135,3 +135,7 @@ commit using the foundation's structured metadata. GitHub issues mirror the
 canonical task IDs and Kanban cards; they do not replace Kanban or create another
 status authority. Do not prompt for routine engineering choices. Mandatory tool
 approvals and inaccessible external account controls remain real constraints.
+
+### Implementation acceptance evidence — 2026-10-20
+
+Local implementation, real PostgreSQL isolation and development Clerk email-code/token smoke are verified; see [observed commands and limitations](../../../runbooks/identity.md). AC-01 remains partial because real Google consent, account-owner method configuration and expired email-code rejection have not been observed. AC-08's local shell/keyboard/account clearing/font behavior is verified, while its exact provider-method configuration follows that same remaining gate. K-012 remains In Progress in Kanban/CSV; implementation and test counts do not waive these gates.

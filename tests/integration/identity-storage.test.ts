@@ -256,3 +256,58 @@ it('returns no provisional identity on storage outage/cancellation and recovers 
     }),
   ).rejects.toMatchObject({ status: 503, code: 'identity_unavailable' });
 });
+
+it('preserves contract-valid language and Unicode experience through real storage', async () => {
+  const { createUserRepository } =
+    await import('../../src/modules/identity-profile/persistence/users');
+  const { createSessionService } =
+    await import('../../src/modules/interview-session/application/service');
+  const owner = {
+    userId: (
+      await createUserRepository(db).resolve({
+        ...alice,
+        subject: 'unicode-context',
+      })
+    ).id,
+  };
+  const sessions = createSessionService(db);
+  const input = {
+    problemId: 'é'.repeat(128),
+    problemPackVersion: '版本'.repeat(42),
+    clientContext: {
+      preferredInterviewLanguage: 'language'.repeat(50),
+      selfReportedExperience: '🙂'.repeat(2000),
+    },
+  };
+  const created = await sessions.createPinned(owner, input);
+  expect(await sessions.readOwned(owner, created.sessionId)).toMatchObject({
+    problemId: input.problemId,
+    problemPackVersion: input.problemPackVersion,
+  });
+  const stored = await db.withClient((c) =>
+    c.query('SELECT context FROM interview_sessions WHERE id=$1', [
+      created.sessionId,
+    ]),
+  );
+  expect(stored.rows[0].context).toEqual(input.clientContext);
+  await expect(
+    sessions.createPinned(owner, {
+      ...input,
+      clientContext: { selfReportedExperience: '🙂'.repeat(2001) },
+    }),
+  ).rejects.toThrow('invalid_session_input');
+});
+it.each(['problemId', 'problemPackVersion'] as const)(
+  'rejects an oversized UTF-8 %s as input, before database work',
+  async (field) => {
+    const { createSessionService } =
+      await import('../../src/modules/interview-session/application/service');
+    const sessions = createSessionService(db);
+    await expect(
+      sessions.createPinned(
+        { userId: randomUUID() },
+        { problemId: 'x', problemPackVersion: 'v1', [field]: 'é'.repeat(129) },
+      ),
+    ).rejects.toThrow('invalid_session_input');
+  },
+);

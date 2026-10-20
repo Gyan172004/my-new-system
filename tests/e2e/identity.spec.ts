@@ -70,3 +70,36 @@ test('account boundary clears private UI and aborts a late response on switch an
   await page.getByRole('button', { name: 'Sign out' }).click();
   await expect(page.getByTestId('private')).toHaveText('empty');
 });
+
+test('loads local IBM Plex faces for body and terminal text', async ({
+  page,
+}) => {
+  const remoteFonts: string[] = [];
+  page.on('request', (request) => {
+    if (
+      request.resourceType() === 'font' &&
+      new URL(request.url()).origin !== new URL(page.url()).origin
+    )
+      remoteFonts.push(new URL(request.url()).host);
+  });
+  await page.goto('/sign-in');
+  const fonts = await page.evaluate(async () => {
+    await document.fonts.ready;
+    const bodyFamily = getComputedStyle(document.body).fontFamily;
+    const monoFamily = getComputedStyle(
+      document.querySelector('.topbar')!,
+    ).fontFamily;
+    const loaded = [...document.fonts]
+      .filter((font) => font.status === 'loaded')
+      .map((font) => font.family.replaceAll('"', ''));
+    return { bodyFamily, monoFamily, loaded };
+  });
+  expect(fonts.loaded.some((family) => fonts.bodyFamily.includes(family))).toBe(
+    true,
+  );
+  expect(fonts.loaded.some((family) => fonts.monoFamily.includes(family))).toBe(
+    true,
+  );
+  expect(fonts.bodyFamily).not.toEqual(fonts.monoFamily);
+  expect(remoteFonts).toEqual([]);
+});

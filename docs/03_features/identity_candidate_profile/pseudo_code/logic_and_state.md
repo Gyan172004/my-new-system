@@ -211,3 +211,5 @@ Closing the runtime clears limiter state and stops storage work. Transport cance
 invalidates detached request context. Existing PostgreSQL statement deadlines remain
 the final bound on server-side SQL after a client socket is destroyed. No new public
 interview API is introduced by this helper.
+
+Convergence implementation notes: the browser middleware reads the single validated secret from the server environment rather than passing a dynamic-key option. Session input validation counts experience as Unicode code points, pack references as UTF-8 bytes, and retains the total 16 KiB bound; preferred language has no separate 256-character limit. See the owning session pseudocode for guards before persistence.

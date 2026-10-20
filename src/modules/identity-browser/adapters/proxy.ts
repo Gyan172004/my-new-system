@@ -15,7 +15,8 @@ export async function identityBrowserProxy(
     if (!settings) throw new Error('identity_unavailable');
     const middleware = clerkMiddleware({
       publishableKey: settings.publishableKey,
-      secretKey: settings.secretKey,
+      // The startup-validated CLERK_SECRET_KEY stays in the server environment.
+      // Passing it here opts into dynamic-key propagation and another secret.
       jwtKey: settings.jwtKey,
       authorizedParties: [...settings.authorizedParties],
       clockSkewInMs: 0,

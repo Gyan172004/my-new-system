@@ -253,21 +253,21 @@ Task IDs continue after foundation T048. Every group ends explicit review then c
 - [x] T072 [US3] Complete runtime/public application-service integration in `src/server/`, identity module and contract tests; preserve shared lifecycle/health/HMR, no provider failure fallback and uncached protected replies. Depends T071/T063/T068.
 - [x] T073 [US3] Add `coverage:identity` and explicit all-files v8 scope/thresholds, run focused + full relevant unit/integration/contract/process/browser/build/security checks, inspect uncovered branches and add meaningful missing cases; record commands/results in `docs/runbooks/identity.md`; FR-01–11. Depends T072.
 - [x] T074 [US3] Review this group using `mastering-typescript`, `vitest`, `clerk-testing`, `vercel-react-best-practices`, `requesting-code-review` and `verification-before-completion`; inspect privacy, coverage honesty, regressions and CI changes; fix/re-review. Depends T073.
-- [ ] T075 [US3] Commit this reviewed group with message `<US=US3, ID=T075, K=K-012, GROUP=06> test(identity): verify privacy integration and coverage gates`. Depends T074.
+- [x] T075 [US3] Commit this reviewed group with message `<US=US3, ID=T075, K=K-012, GROUP=06> test(identity): verify privacy integration and coverage gates`. Depends T074.
 
 ## Group 07 — Real provider acceptance and convergence
 
 **Map:** K-012. **Story:** shared. See canonical engineering §2/7 and technical specification.
 
 - [ ] T076 Set up/verify one authorized isolated Clerk development instance through secret-safe CLI/runtime handling; configure Google/email OTP only and run bounded real sign-in/token/mapping smoke. Use disposable scaffold for accountless init; preserve existing envs; never print values. Record unavailable Google/provider controls honestly in `docs/runbooks/identity.md`. Depends T075.
-- [ ] T077 Run final actual provider/browser/storage/coverage checks; verify all ACs and K-010/K-011 readiness, run `$speckit-converge`, reconcile generated gaps into canonical engineering/Kanban/CSV and iterate implementation for actionable gaps; no fixture substitution. Depends T076.
+- [ ] T077 Run final actual provider/browser/storage/coverage checks; verify all ACs and K-010/K-011 readiness, run `$speckit-converge`, reconcile generated gaps into canonical engineering/Kanban/CSV and iterate implementation for actionable gaps; no fixture substitution. Depends T076 attempt and T075; unfinished provider acceptance remains T076/T083.
 - [ ] T078 Export any deduplicated convergence tasks with canonical mappings; finalize developer/recovery runbook and issue reference links, record real passed/failed/unavailable evidence and leave unmet acceptance explicit; synchronize canonical task execution marks from evidence. Depends T077.
 - [ ] T079 Review this final group using all applicable Clerk/Next/React/TypeScript/PostgreSQL/testing stack skills plus `requesting-code-review` and `verification-before-completion`; resolve all blocking actionable findings and re-review. Depends T078.
 - [ ] T080 Commit this reviewed group with message `<US=shared, ID=T080, K=K-012, GROUP=07> docs(identity): reconcile provider acceptance and verified handoff`. Depends T079.
 
 ## Dependencies and verification
 
-Groups 01 → 02 → 03 → 04 → 05 → 06 → 07; task-specific prerequisites apply. No parallel marker overrides a dependency. SDK research and independent reviews may run separately; mutations/commits remain sequential.
+Groups 01 → 02 → 03 → 04 → 05 → 06 → initial 07 provider attempt → 08 convergence remediation → final 07 closeout; task-specific prerequisites apply. No parallel marker overrides a dependency. SDK research and independent reviews may run separately; mutations/commits remain sequential.
 
 Independent acceptance: US1 proves identity cryptography/mapping and selected sign-in; US2 proves actual persisted isolation; US3 proves expiry/outage/privacy; US4 restrictions are included in config/verifier groups. Full provider, prerequisite and hosted/cloud gates stay explicit.
 
@@ -311,6 +311,12 @@ Issues mirror these task IDs; Kanban remains the status authority.
 | T078 | [#80](https://github.com/Gyan172004/my-new-system/issues/80) |
 | T079 | [#81](https://github.com/Gyan172004/my-new-system/issues/81) |
 | T080 | [#82](https://github.com/Gyan172004/my-new-system/issues/82) |
+| T081 | [#83](https://github.com/Gyan172004/my-new-system/issues/83) |
+| T082 | [#84](https://github.com/Gyan172004/my-new-system/issues/84) |
+| T083 | [#85](https://github.com/Gyan172004/my-new-system/issues/85) |
+| T084 | [#86](https://github.com/Gyan172004/my-new-system/issues/86) |
+| T085 | [#87](https://github.com/Gyan172004/my-new-system/issues/87) |
+| T086 | [#88](https://github.com/Gyan172004/my-new-system/issues/88) |
 
 ## Runtime and coverage implementation notes
 
@@ -325,3 +331,24 @@ file plus supporting session code. Node V8 gates apply to the server/session sco
 Node stay visible in that report; actual Playwright acceptance is separate and must
 not be presented as Node line coverage. Reports are generated in ignored
 `coverage/identity/`. CI includes coverage and browser stages without live credentials.
+
+## Phase 8: Convergence
+
+Canonical feature: `docs/03_features/identity_candidate_profile/`; canonical execution tasks. Maps K-012 and the accepted narrow K-010/K-011 prerequisite. This is Group08; its last two tasks are review and commit. T077 runs/assesses this loop before final Group07 closeout. External provider acceptance never becomes a synthetic pass.
+
+- [x] T081 [US1] Write/run a real pinned-SDK middleware regression in `tests/unit/identity-browser-proxy.test.ts`, then fix `src/modules/identity-browser/adapters/proxy.ts` to use the single validated runtime secret from its server environment without dynamic-key propagation. Preserve normalized PEM, safe failures, runtime-only configuration and domain admission separation; rerun actual Clerk browser smoke. Per FR-01/FR-06/FR-10, AC-01/AC-08 (partial, CRITICAL F1). Depends T075.
+- [x] T082 [US2] Write/run real-storage regressions for contract-valid preferred language longer than 256 characters and UTF-8 pack-reference byte limits; remove the unrequested language-specific bound and classify oversized references before SQL while retaining the total bounded context, strict fields and the contract's 2000-Unicode-character experience cap (including astral characters). Reconcile owning docs. Per FR-07, AC-07 (contradicts, HIGH F3). Depends T075.
+- [ ] T083 [US1] Complete account-owner claim/authentication-method configuration and real Google plus email-code acceptance, including negative codes, refresh/expiry, stable mapping and sign-out window. Keep T076/AC-01 unmet until observed; CLI accountless auth_email changes are refused and Google consent cannot be invented. Record available real-provider outcomes and exact remaining external action without storing keys/claim URLs. Per FR-01, AC-01, AC-05/AC-08 (partial, HIGH F2). Depends T081 and external account control.
+- [x] T084 [US1] Add an actual-browser font-loading regression, then self-host the retained wireframe's IBM Plex Sans/Mono using licensed pinned local assets and `next/font/local`; keep credential-free/offline builds, accessible fallbacks, existing palette and composition. Record font provenance/license. Per AC-08 and plan: retained wireframe (partial, MEDIUM F4). Depends T075.
+- [x] T085 Review this group using installed Clerk/Next/React/TypeScript/PostgreSQL/Vitest/frontend skills plus `requesting-code-review` and `verification-before-completion`; independently review code, contracts, fonts/licensing, privacy and actual provider evidence; resolve/re-review actionable blockers. External T083 stays explicit if unavailable. Depends completed local T081/T082/T084 and observed T083 attempt.
+- [ ] T086 Commit the reviewed local remediation and truthful provider limitations with `<US=shared, ID=T086, K=K-012, GROUP=08> fix(identity): close provider and contract convergence gaps`; do not mark external T083 or K-012 complete without acceptance. Depends T085.
+
+Convergence validation cost remains O(C) time and O(C) temporary memory for bounded input C (Unicode counting and serialization). Local font files are static build assets; no provider settings or new endpoint are added. Browser authentication continues using the single validated server environment key. Available real email-code/provider evidence and remaining Google/owner gates are recorded in the identity runbook.
+
+## Convergence assessment and remaining acceptance
+
+The second Spec Kit assessment checks all 11 functional requirements, 10 acceptance criteria, 10 plan constraints and five constitution principles against current code and observed tests, regardless of task checkbox state. The original local findings are resolved: actual middleware handles signed-out navigation, context validation follows the canonical contract, and the wireframe fonts load locally. No new API, ADR, schema migration or cloud resource was introduced by Group08.
+
+One existing HIGH/partial finding remains under FR-01, AC-01 and the provider-method portion of AC-08: account-owner method configuration, real Google consent and expired email-code rejection are unverified. T076/T083 already track this work, so the loop does not append duplicate tasks. Available email-code, refresh, signed-token expiry, sign-out-window and real mapping/isolation observations are in the runbook. This is not a fully converged feature or a K-012 completion claim. K-010/K-011 remain partial supporting prerequisites; their full features and K-014/K-016 consumer acceptance remain separate.
+
+To finish the external gate, claim the preserved development instance, confirm only Google and email verification codes are enabled, perform real Google and email sign-in/repeat sign-in, reject an expired email code without application mapping, and rerun provider/browser/privacy checks. Preserve local credentials outside Git and record outcomes only. The agent does not need further repository permission; account ownership/Google consent require actual external control.

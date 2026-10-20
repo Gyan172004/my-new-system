@@ -13,7 +13,7 @@ body {
   margin: 0;
   background: var(--deep);
   color: var(--text);
-  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  font-family: var(--font-plex-sans), system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.6;
 }
@@ -33,7 +33,7 @@ input:focus-visible {
   border-bottom: 1px solid #283344;
   display: flex;
   justify-content: space-between;
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: var(--font-plex-mono), monospace;
   font-size: 13px;
 }
 .topbar a {
@@ -55,7 +55,7 @@ input:focus-visible {
 }
 .signin .path,
 .path {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: var(--font-plex-mono), monospace;
   color: var(--cool);
   font-size: 13px;
 }

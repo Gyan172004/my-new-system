@@ -54,7 +54,7 @@ export function EmbeddedSignIn({ returnTo }: { returnTo: string }) {
           colorInputForeground: '#E8DFD2',
           colorMutedForeground: '#A4ADBD',
           borderRadius: '3px',
-          fontFamily: 'IBM Plex Sans, sans-serif',
+          fontFamily: 'var(--font-plex-sans), system-ui, sans-serif',
         },
         elements: {
           cardBox: { boxShadow: 'none' },

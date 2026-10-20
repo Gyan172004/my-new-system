@@ -243,3 +243,7 @@ It requires active trusted socket context, uses the same runtime-owned verifier,
 limiter and database pool across HMR, and sanitizes safe correlated failures before
 Next can serialize them. Protected responses use private/no-store and vary by
 Authorization. Health handlers do not call it.
+
+### Convergence reconciliation
+
+Browser middleware uses the startup-validated `CLERK_SECRET_KEY` from its server environment. It does not pass a dynamic `secretKey` option, which would require Clerk request-data encryption configuration. The domain verifier still uses only the validated public PEM and has no network fallback. The wireframe fonts are pinned, licensed local IBM Plex Sans/Mono assets in `src/app/fonts`; `next/font/local` supplies shared CSS variables to the shell and embedded component without build-time font fetching. Session context follows the owning session validation limits, counting Unicode characters rather than UTF-16 units.

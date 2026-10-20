@@ -8,12 +8,21 @@ import {
 const uuid = z.uuid();
 const inputSchema = z
   .object({
-    problemId: z.string().min(1).max(256),
-    problemPackVersion: z.string().min(1).max(256),
+    problemId: z
+      .string()
+      .min(1)
+      .refine((value) => Buffer.byteLength(value) <= 256),
+    problemPackVersion: z
+      .string()
+      .min(1)
+      .refine((value) => Buffer.byteLength(value) <= 256),
     clientContext: z
       .object({
-        selfReportedExperience: z.string().max(2000).optional(),
-        preferredInterviewLanguage: z.string().max(256).optional(),
+        selfReportedExperience: z
+          .string()
+          .refine((value) => [...value].length <= 2000)
+          .optional(),
+        preferredInterviewLanguage: z.string().optional(),
       })
       .strict()
       .optional(),
