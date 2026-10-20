@@ -10,7 +10,9 @@ K-002 and K-005 are Done. Reuse the existing config validation, shared pool,
 explicit migration runner, privacy-safe logs and isolated PostgreSQL test helper.
 The foundation runbook records local verification; this planning session did not
 rerun foundation acceptance. Under ADR-022, rely only on that verified local
-K-028 baseline. External resource isolation/T034 and hosted CI/K-006 stay open.
+K-028 baseline. External resource isolation/T034 stays open. Hosted CI/K-006 was
+subsequently verified for the foundation implementation head; see the foundation
+runbook’s hosted verification reconciliation.
 
 Installed baseline: Node 24.22.0, npm 11.19.1, Next.js 16.4.2, TypeScript 6.0.3,
 `pg` 8.23.1 and Vitest 5.0.5 as declared in `package.json`. Confirm actual runtime
@@ -168,9 +170,10 @@ checks. If rollback is needed, disable private entry points or restore a compati
 application image; never enable test/anonymous fallback. Retain user mappings for
 forward recovery. Do not drop identity rows after sessions reference them.
 
-K-012 remains on the canonical Kanban until its acceptance passes. K-006 hosted
-CI, T034/K-028 external evidence, K-026 operational gates and account-deletion
-policy are not satisfied by these documents.
+K-012 acceptance and K-006 hosted CI are now supported by observed evidence in
+the runbooks and recorded Done in Kanban/CSV. T034/K-028 external evidence,
+K-026 operational gates and account-deletion policy retain their separate scope;
+documents alone do not satisfy them.
 
 ## 7. Authorized execution protocol
 
@@ -351,6 +354,6 @@ Final Spec Kit convergence assessed all 11 functional requirements, 10 acceptanc
 
 The owner reported both real Google and real-email sign-in working and supplied the server-verification screenshot. A read-only check of the owned acceptance database confirms an active Google-linked owner mapping and unique subjects. Repeat email-code sign-in across fresh browser contexts retained the internal ID. Actual provider code expiry returned verification_expired, with expired status, no completed sign-in, no active session and an unauthenticated application401. This was a real wait for provider expiry using a development test address; real email delivery is owner-confirmed. The runbook distinguishes these evidence sources.
 
-All 38 tasks T049–T086 are complete. Kanban/CSV own K-012’s Done status. This does not complete the full K-010/K-011 features, K-014/K-016 consumer acceptance, hosted CI or staging/production/cloud release gates. No new production API, ADR or migration was added during provider acceptance; verification fixtures exist only in an owned temporary copy. The application source remains the version validated by the 312-test full suite, 215-test coverage run and five browser tests. Historical accountless restrictions and intermediate unmet gates remain in the chronological runbook as observations of those stages.
+All 38 tasks T049–T086 are complete. Kanban/CSV own K-012’s Done status. This does not complete the full K-010/K-011 features, K-014/K-016 consumer acceptance or staging/production/cloud release gates. Hosted CI acceptance is separately recorded for the implementation heads in the runbooks. No new production API, ADR or migration was added during provider acceptance; verification fixtures exist only in an owned temporary copy. The application source remains the version validated by the 312-test full suite, 215-test coverage run and five browser tests. Historical accountless restrictions and intermediate unmet gates remain in the chronological runbook as observations of those stages.
 
 Independent final review approved closure. The owned acceptance server/database have been cleaned up and both acceptance ports released; Clerk accounts and private development recovery material are retained. The scoped final documentation commit records the evidence and status reconciliation.

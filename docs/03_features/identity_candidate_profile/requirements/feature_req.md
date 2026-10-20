@@ -105,8 +105,9 @@ group commits and task-issue export for this feature. Provider setup uses an
 isolated development instance; production/cloud acceptance remains separate.
 
 K-002 is Done. Storage work also relies on K-005's verified local migration/test
-baseline. K-006 hosted CI and K-028 external environment acceptance remain open;
-ADR-022 permits documented reliance on the local foundation. K-012's mapping
+baseline. K-006 hosted CI acceptance is now verified in the foundation runbook;
+K-028 external environment evidence remains open. ADR-022 permits documented
+reliance on the verified local foundation. K-012's mapping
 and persisted ownership acceptance also depend on K-005/K-011. Identity adapter
 work can begin earlier. K-011's storage/state work has no K-012 prerequisite;
 K-014 consumes completed K-012 authorization. Do not add K-014 as an upstream
@@ -138,4 +139,4 @@ approvals and inaccessible external account controls remain real constraints.
 
 ### Implementation acceptance evidence — 2026-10-20
 
-All ten acceptance criteria are verified for this feature’s development scope. Evidence combines automated unit/integration/contract/process/browser checks, actual Clerk email-code/refresh/expiry tests, the owner’s real Google and real-email sign-in confirmation, and the screenshot showing server verification. A read-only database check confirms an active mapping for the Google-linked owner account with unique subjects. The approximately ten-minute actual provider code-expiry test rejected the code without completing sign-in or issuing a session. See [observed commands and evidence](../../../runbooks/identity.md). Kanban/CSV record K-012 completion; hosted CI, staging/production and later session-consumer acceptance retain their existing gates.
+All ten acceptance criteria are verified for this feature’s development scope. Evidence combines automated unit/integration/contract/process/browser checks, actual Clerk email-code/refresh/expiry tests, the owner’s real Google and real-email sign-in confirmation, and the screenshot showing server verification. A read-only database check confirms an active mapping for the Google-linked owner account with unique subjects. The approximately ten-minute actual provider code-expiry test rejected the code without completing sign-in or issuing a session. See [observed commands and evidence](../../../runbooks/identity.md). Kanban/CSV record K-012 completion. Hosted CI is separately verified for the implementation heads in the runbook; staging/production and later session-consumer acceptance retain their existing gates.
