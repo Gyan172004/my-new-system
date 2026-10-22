@@ -41,6 +41,7 @@ When a decision changes, update this record and all affected contracts/designs i
 | ADR-020 | Use author + independent technical review for Problem Pack publication | Accepted V1 content process |
 | ADR-021 | Use TypeScript + Next.js for the trusted application | Accepted owner choice, 2026-10-17 |
 | ADR-022 | Develop locally with explicit provider and cloud verification gates | Accepted owner choice, 2026-10-18 |
+| ADR-023 | Use verified operator identity plus configuration allowlists for initial content permissions | Accepted owner choice, 2026-10-23 |
 
 ## 3. Decisions
 
@@ -503,6 +504,56 @@ This is documentation policy, not executed emulator/provider evidence.
 **Revisit when:** A provider-specific limitation blocks a vertical slice or
 measured staging behavior differs from local assumptions.
 
+### ADR-023 — Use configuration allowlists for initial content staff permissions
+
+**Status:** Accepted owner choice, 2026-10-23; implementation remains planned.
+
+**Context:** Feature 3 needs independent human review and authorized seed
+publication before the full K-024 administration workflow. Candidate identity
+already exists, but a signed-in candidate must not automatically become staff.
+The owner accepted the recommended small-team configuration allowlist after
+reviewing it against database-managed role records.
+
+**Decision:** Verify the operator through the existing identity boundary and map
+to an active internal user ID. Content publishing checks a strict, reviewed,
+versioned server-configuration allowlist for `review_content`, `publish_content`
+and `withdraw_content`. Default grants are empty; unknown permissions or malformed
+entries fail configuration validation. Permission changes require reviewed
+configuration replacement/restart. This adds no database role manager, provider
+role setup or admin UI.
+
+**Consequences:**
+
+- Operator commands read ephemeral credentials from standard input; do not put
+  credentials in command-line values, logs or committed configuration. The
+  allowlist contains only non-secret internal IDs and permission names.
+- An operation uses one immutable configuration revision. Review/publication/audit
+  evidence records its revision and digest. Process replacement follows the
+  existing drain/lifecycle rules; it is not instantaneous in-flight revocation.
+- ADR-020's different-author/reviewer rule is unchanged. New publication requires
+  current reviewer and publisher grants; removing a reviewer blocks unpublished
+  approvals. Exact retries of an already-committed release require current
+  publisher permission and matching immutable content/review evidence, and do
+  not reselect/re-enable a release or generate another approval.
+- Actual author/reviewer/publisher assignments, independent content/source-rights
+  approval and configured-environment verification remain acceptance gates. No
+  actual staff grant or provider mutation is authorized by this decision.
+- Clerk/test-adapter environment restrictions and privacy rules remain binding.
+  A submitted review file, email/name or CLI flag is not proof of authority.
+
+**Alternatives:** Database role records support changes without restart, but
+need audited grant/revoke operations and more authorization tests. A full admin
+interface remains later work. Unsigned identity/approval flags would bypass the
+required authority checks and are rejected.
+
+**Impact:** Reconcile Feature 3's four canonical documents and operator test plan.
+Identity's verified-caller contract, candidate API payloads, event wire schemas
+and provider boundaries remain unchanged. Catalogue `400` declarations are a
+separate API-compatibility correction, covered by contract-consumer checks.
+
+**Revisit when:** Staff count or permission-change frequency justifies a reviewed
+database-backed role workflow under the content-administration feature.
+
 ## 4. Remaining implementation decisions and validation gates
 
 Major V1 provider/scope choices have been made. The following details remain implementation-level decisions or mandatory verification gates; do not silently invent them where they affect security, cost, or service behavior.
@@ -515,7 +566,7 @@ Major V1 provider/scope choices have been made. The following details remain imp
 | Model budgets | OpenAI model map in ADR-012 | Per-operation timeouts, token budgets, per-user limits, Astra escalation trigger and budget; prove quality on reviewed eval set | Production Model Gateway |
 | Voice UX | Turn-based voice, transcript visible, TTS output, text fallback | Supported audio mime-types/duration/size, UI consent wording/version, retry UX and latency thresholds | Voice feature implementation |
 | Data privacy | 365d transcript/history, 90d source, 30d execution output, 90d audit logs, no durable raw audio, 7d RDS backup | Privacy/legal review, OpenAI account data controls/residency, deletion SLA and backup expiry verification | Production launch |
-| Problem Pack roles | Author + independent technical reviewer; no self-approval | Assign actual people/role holders and escalation process for disputed/defective content | First published catalogue |
+| Problem Pack roles | Author + independent technical reviewer; ADR-023 configuration permission allowlists; no self-approval | Assign actual people/role holders, reviewed configuration and escalation process for disputed/defective content | First published catalogue |
 | Capacity/SLOs | 1,000 users, 100 interviews, 10 concurrent executions; initial targets remain provisional | Load-test headroom, autoscaling thresholds, final RPO/RTO and alert thresholds | Release approval |
 
 The following choices are resolved and must not be listed as open: Clerk authentication, turn-based voice in V1, Python/C++/Java, OpenAI-only model provider, AWS ECS/Fargate + RDS PostgreSQL + SQS Standard, E2B-managed sandbox default, the retention defaults above, and author/reviewer content governance.

@@ -40,10 +40,6 @@ _None._
 
 ## Backlog
 
-### K-007 — Define minimal Problem Pack schema and validation rules
-- Milestone: M1 · Priority: P0 · Depends on: K-002
-- Acceptance: schema covers candidate-visible statement/examples, version metadata, reference approaches, hint metadata, and private test references with visibility separation.
-
 ### K-008 — Create one reviewed seed Problem Pack
 - Milestone: M1 · Priority: P0 · Depends on: K-007
 - Acceptance: pack passes structural validation and human correctness review; provenance is recorded.
@@ -121,6 +117,11 @@ _None._
 - Acceptance: explicit versioned consent/revocation; bounded audio validation; OpenAI `gpt-transcribe` runs through the Model Gateway; transcript enters the same state machine as text; interviewer text is displayed and `gpt-4o-mini-tts` speech is streamed on demand; raw audio/speech is not durably stored by the application; provider failures do not advance state; text fallback, rate limits, log redaction and retention tests pass.
 
 ## In Progress
+
+### K-007 — Define minimal Problem Pack schema and validation rules
+- Milestone: M1 · Priority: P0 · Depends on: K-002
+- Acceptance: schema covers candidate-visible statement/examples, version metadata, reference approaches, hint metadata, and private test references with visibility separation.
+- Progress: owner authorized Feature 3 implementation on 2026-10-23. Specification, clarification, planning, checklist and remediated consistency review are accepted; schema implementation and its tests are next. [Canonical execution tasks](../docs/03_features/problem_catalogue/specifications/engineering/eng_design.md#31-detailed-execution-groups-and-reviewcommit-gates). K-008/K-009 remain incomplete pending engineering evidence and genuine seed review.
 
 
 ### K-028 — Establish environment configuration and secret-handling baseline
