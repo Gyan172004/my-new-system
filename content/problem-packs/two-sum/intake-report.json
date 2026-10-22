@@ -1,0 +1,67 @@
+{
+  "intakeDate": "2026-10-23",
+  "status": "draft-source-intake-not-reviewed-or-published",
+  "source": "Owner-supplied local files; original bytes preserved.",
+  "files": [
+    {
+      "path": "source/approaches.py",
+      "bytes": 8431,
+      "sha256": "92c9ae7dcffd26ed4764ad2f5e0a8d703e943088682df4716c1fafa3e4d45a8d"
+    },
+    {
+      "path": "source/run_tests.py",
+      "bytes": 2670,
+      "sha256": "b05c38a4a6998f7d543dc2475666d128494322e3d6779910d4dae0b398d77be5"
+    },
+    {
+      "path": "source/two-sum_tests_leetcode_paste.txt",
+      "bytes": 546,
+      "sha256": "fbdbf5761b25d23c49adfcdef6bb5a3e79000706b3c1c2c9608cc90766462835"
+    },
+    {
+      "path": "source/two-sum_tests.json",
+      "bytes": 650983,
+      "sha256": "7fba60c1eb5934c4a6235fe2a81577fe1a9f22641c3ff1ef13a7a395e129a72a"
+    },
+    {
+      "path": "source/two-sum_package.md",
+      "bytes": 25461,
+      "sha256": "795e245e4488fe2d875b5697d6da593b80db12c9701627aad0e95379a71c1e57"
+    }
+  ],
+  "validation": {
+    "method": "JSON parsing, constraint/type/unique-ID checks, independent complement-index pair counting, paste comparison, Python AST parsing only",
+    "caseCount": 37,
+    "visibilityCounts": {
+      "public": 3,
+      "hidden": 34
+    },
+    "categoryCounts": {
+      "example": 3,
+      "normal": 5,
+      "edge-size": 2,
+      "edge-position": 2,
+      "edge-same-element": 2,
+      "edge-zero": 2,
+      "edge-negative": 3,
+      "edge-duplicates": 2,
+      "edge-overflow": 6,
+      "edge-sorting": 2,
+      "performance": 8
+    },
+    "allCasesWithinDeclaredConstraints": true,
+    "allCasesHaveExactlyOneIndexPair": true,
+    "allExpectedPairsMatchIndependentCheck": true,
+    "pasteCaseCount": 29,
+    "allPasteCasesMatchJson": true,
+    "pythonSyntaxValid": true,
+    "suppliedPythonExecuted": false,
+    "approachCorrectnessOrPerformanceVerified": false
+  },
+  "unverifiedClaims": [
+    "Community retrieval totals and theme counts",
+    "Prior approach execution counts/timings",
+    "Authorship, source-use rights and independent human approval"
+  ],
+  "normalizationRequired": true
+}

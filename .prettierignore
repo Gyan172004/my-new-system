@@ -23,3 +23,5 @@ first-principles-teacher/
 next-env.d.ts
 
 .local/
+# Preserve the owner's original seed inputs byte-for-byte.
+content/problem-packs/two-sum/source/

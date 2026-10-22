@@ -5,8 +5,8 @@ K-003,Add structured logging and request correlation,Done,M0,P0,K-002,Correlatio
 K-004,Add health and readiness endpoints,Done,M0,P0,K-002,Liveness/readiness distinct and tested,"foundation,observability"
 K-005,Configure database migrations and test database workflow,Done,M0,P0,K-002,Migrations apply to empty DB; integration tests isolated,database
 K-006,Add CI checks and automated test stages,Done,M0,P0,K-001;K-002,"CI runs formatting/lint, unit and relevant integration/contract tests, dependency/static checks, and simple architecture-boundary checks; a deliberate failing check fails CI Hosted verify passed for foundation head 0370993, including required checks/scans/container/negative controls; see docs/runbooks/foundation.md. K-028/T034 cloud evidence remains separate.","ci,testing"
-K-007,Define minimal Problem Pack schema and validation rules,In Progress,M1,P0,K-002,Candidate-visible and private content classes separated; version metadata validated,content
-K-008,Create one reviewed seed Problem Pack,Backlog,M1,P0,K-007,Pack passes structural validation and human correctness review; provenance recorded,content
+K-007,Define minimal Problem Pack schema and validation rules,Done,M1,P0,K-002,Candidate-visible and private content classes separated; version metadata validated,content
+K-008,Create one reviewed seed Problem Pack,In Progress,M1,P0,K-007,Pack passes structural validation and human correctness review; provenance recorded,content
 K-009,Implement published Problem Pack retrieval and version pinning,Backlog,M1,P0,K-005;K-007;K-008,Session pins immutable version; candidate API excludes private fields,"content,api"
 K-010,Implement session state transition guards,Backlog,M1,P0,K-002,Allowed/forbidden transitions tested; arbitrary state setting rejected,session
 K-011,Implement session snapshot and event persistence,Backlog,M1,P0,K-005;K-010,Snapshot/event atomic; version checks prevent lost updates,"session,database"

@@ -127,13 +127,13 @@ Issue mirrors requested by the owner derive from these tasks, retain canonical K
 **Traceability:** K-007|K-008; P-01–04; FR-01/02/03/08/09/12; SC-01/02.  
 **Dependencies / independent acceptance:** Depends on T091. Independent acceptance: valid second problem fixture validates; invalid input returns bounded errors without execution or publication.
 
-- [ ] T092 [US1] RED: add tests/unit/problem-catalogue/schema.test.ts for exact nested field profiles/required fields in technical §2, closed categories/rules/checker/input profile, publication UUID author, pending draft markers, reasoned empty sections and reasoning-only variants; observe intended failures.
-- [ ] T093 [US1] Implement src/modules/content-publishing/domain/pack-schema.ts and public.ts using existing Zod; enforce "2 MiB UTF-8 per complete content bundle", "32 KiB per prose field", "128 KiB per individual test input/output JSON value", "1,000 test cases", "2,000 entries per content-entry collection", "nesting depth 32", "256 UTF-8 bytes" IDs/version and "256 KiB" candidate detail; run schema tests GREEN.
-- [ ] T094 [US1] RED: add tests/unit/problem-catalogue/validation.test.ts and checksum.test.ts for every ID/reference namespace (including plural approachIds/testCaseIds/sourceReferences), contiguous hints, examples/visibility, unique pair, nums "2–10,000", token/Unicode/key checks, checksum vectors and max "100 field paths with a truncation flag"; observe failures.
-- [ ] T095 [US1] Implement src/modules/content-publishing/domain/validate-pack.ts and checksum.ts: bounded raw-token scan before parse, pack-json-v1 safe lexical integers (no fraction/exponent/-0), duplicate keys/NUL/unpaired-surrogate rejection, UTF-16 key sort, no Unicode normalization, full content digest and separate embedded-data limits; run relevant unit tests GREEN.
-- [ ] T096 [US1] Add tests/unit/problem-catalogue/seed.test.ts and fixtures under tests/fixtures/problem-catalogue/ for the preserved owner draft and a second differently identified synthetic pack; validate original source hashes, corrected complexity/references, pending gates and no execution/fetch/path dereference; adapt content/problem-packs/two-sum/ only where canonical validation requires, never invent review.
-- [ ] T097 [US1] Dedicated review agent uses mastering-typescript, vitest, requesting-code-review and verification-before-completion to review schema/security/complexity/TDD evidence; root resolves findings with receiving-code-review and reruns focused tests; reconcile docs/03_features/problem_catalogue/ on accepted changes.
-- [ ] T098 [US1] Root verifies scoped diff and focused checks, then commits group 01 using the exact title below; include only schema/validator/checksum/fixture/content and reconciled docs paths in docs/03_features/problem_catalogue/specifications/engineering/eng_design.md.
+- [x] T092 [US1] RED: add tests/unit/problem-catalogue/schema.test.ts for exact nested field profiles/required fields in technical §2, closed categories/rules/checker/input profile, publication UUID author, pending draft markers, reasoned empty sections and reasoning-only variants; observe intended failures.
+- [x] T093 [US1] Implement src/modules/content-publishing/domain/pack-schema.ts and public.ts using existing Zod; enforce "2 MiB UTF-8 per complete content bundle", "32 KiB per prose field", "128 KiB per individual test input/output JSON value", "1,000 test cases", "2,000 entries per content-entry collection", "nesting depth 32", "256 UTF-8 bytes" IDs/version and "256 KiB" candidate detail; run schema tests GREEN.
+- [x] T094 [US1] RED: add tests/unit/problem-catalogue/validation.test.ts and checksum.test.ts for every ID/reference namespace (including plural approachIds/testCaseIds/sourceReferences), contiguous hints, examples/visibility, unique pair, nums "2–10,000", token/Unicode/key checks, checksum vectors and max "100 field paths with a truncation flag"; observe failures.
+- [x] T095 [US1] Implement src/modules/content-publishing/domain/validate-pack.ts and checksum.ts: bounded raw-token scan before parse, pack-json-v1 safe lexical integers (no fraction/exponent/-0), duplicate keys/NUL/unpaired-surrogate rejection, UTF-16 key sort, no Unicode normalization, full content digest and separate embedded-data limits; run relevant unit tests GREEN.
+- [x] T096 [US1] Add tests/unit/problem-catalogue/seed.test.ts and fixtures under tests/fixtures/problem-catalogue/ for the preserved owner draft and a second differently identified synthetic pack; validate original source hashes, corrected complexity/references, pending gates and no execution/fetch/path dereference; adapt content/problem-packs/two-sum/ only where canonical validation requires, never invent review.
+- [x] T097 [US1] Dedicated review agent uses mastering-typescript, vitest, requesting-code-review and verification-before-completion to review schema/security/complexity/TDD evidence; root resolves findings with receiving-code-review and reruns focused tests; reconcile docs/03_features/problem_catalogue/ on accepted changes.
+- [x] T098 [US1] Root verifies scoped diff and focused checks, then commits group 01 using the exact title below; include only schema/validator/checksum/fixture/content and reconciled docs paths in docs/03_features/problem_catalogue/specifications/engineering/eng_design.md.
 
 **Commit title:** `<US=US1, ID=T098, K=K-007|K-008, GROUP=01> feat(catalogue): validate canonical problem packs`
 
@@ -439,3 +439,32 @@ All 46 mirrors were created and checked for unique task IDs across open and clos
 | T130 | [#133](https://github.com/Gyan172004/my-new-system/issues/133) |
 | T131 | [#134](https://github.com/Gyan172004/my-new-system/issues/134) |
 | T132 | [#135](https://github.com/Gyan172004/my-new-system/issues/135) |
+
+### Group 01 — observed validation acceptance
+
+T092–T098 implemented and reviewed the strict schema, raw JSON admission,
+reference/data validation, canonical checksums and immutable validation results.
+Schema tests first exposed 15 failures against the permissive stub; semantic
+validation first exposed 28 failures. Review then reproduced excessive schema
+error allocation, added a failing real-process regression and fixed it with
+bounded schema preflight. The adversarial 512 KiB input dropped from roughly
+100 MiB extra heap to about 7 MiB while retaining 100 safe errors and truncation.
+The second independent review accepted the fix without weakening validation.
+
+Fresh pinned-runtime commands observed after the fix:
+
+- `APP_ENV=test npm run test:unit`: 20 files, 295 tests passed, including all 93
+  catalogue tests and the real-process memory regression.
+- `APP_ENV=test npm run check:architecture`: passed, zero violations.
+- Scoped ESLint and `npm run typecheck`: passed.
+- Reviewer independently ran all 93 focused tests and the adversarial probe.
+
+A pre-fix `APP_ENV=test npm test` run was deliberately interrupted with SIGINT
+(exit 130) to apply the review fix; it produced no acceptance result. Full-suite,
+container, HTTP and final coverage evidence remain Group 06 work.
+
+The owner's draft validates all 37 cases, including the 10,000-element inputs;
+original source hashes are unchanged. Its metadata still blocks publication.
+K-007 schema acceptance is met; K-008/K-009 require genuine seed approval and
+subsequent implementation evidence. Synthetic approval markers prove no human
+review or production authority.

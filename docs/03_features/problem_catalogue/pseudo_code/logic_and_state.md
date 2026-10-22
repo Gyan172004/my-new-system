@@ -101,6 +101,8 @@ function validateBundle(source, signal):
     requireSafeIntegerTokens(bytes)                 // before native parsing can round
     pack = parseJson(bytes)                         // malformed JSON => typed failure
     errors = new BoundedErrors(maximum = 100)
+    boundedSchemaPreflight(packSchema, pack, errors, stopAfter = 101)
+    if errors.notEmpty: return invalid(errors)      // cap creation, not only serialization
     validateStrictSchema(pack, errors)              // required types, sizes, unknown keys
     if errors.notEmpty: return invalid(errors)
     requireSupported(pack.schemaVersion, errors)
@@ -164,6 +166,24 @@ function validateBundle(source, signal):
 
     checksum = sha256(canonicalJson(contentOnly(pack)))
     return valid(immutable(pack), checksum)
+
+function boundedSchemaPreflight(schema, value, errors, stopAfter):
+    if errors.truncated: return
+    remember errors.count
+    if schema is optional or nullable:
+        visit its inner schema unless value is the permitted absent/null marker
+        return
+    if schema is strict object:
+        reject an unknown property at its safe containing path
+        visit each declared child using the declared property name
+    else if schema is array or tuple:
+        reject oversized arrays or wrong tuple lengths before visiting children
+        visit children in order, stopping once the diagnostic budget is exhausted
+    else:
+        require schema is an explicitly supported scalar node
+    if children failed: return                     // never bulk-parse invalid descendants
+    validate this node's remaining rules with the same selected strict schema
+    collect at most 100 safe paths; the next finding sets errors.truncated
 
 function canonicalJson(value):
     if value is non-null object and not array:

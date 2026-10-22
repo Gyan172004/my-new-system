@@ -1,0 +1,48 @@
+{
+  "checkedOn": "2026-10-23",
+  "status": "production-schema-and-data-checks-passed-not-publishable",
+  "draftFile": "pack.draft.json",
+  "draftFileSha256": "d0c08d9f40d4f5fc10d8b3d36949a801915b93c9b18202a9b06d975393d4a143",
+  "draftBytes": 929089,
+  "maximumDepth": 8,
+  "counts": {
+    "approaches": 12,
+    "mistakes": 8,
+    "hints": 7,
+    "hintLadders": 2,
+    "followups": 22,
+    "reasoningOnlyVariants": 11,
+    "cases": 37,
+    "publicCases": 3,
+    "generatedHiddenCases": 34
+  },
+  "checksPassed": [
+    "Draft top-level sections, explicit pending author and rights review",
+    "Implemented size/depth/text/test-payload bounds",
+    "Unique section IDs and resolved named references",
+    "Contiguous independent ladders and selected rule descriptors",
+    "Preserved all supplied case inputs, expected pairs, visibility and order",
+    "Independent base-constraint and unique-index-pair count for all 37 cases",
+    "Candidate examples contain the 3 public examples only",
+    "Original file hashes and bytes remain unchanged",
+    "Local document links resolve"
+  ],
+  "productionSchemaValidated": true,
+  "productionCheckerImplemented": false,
+  "suppliedPythonExecuted": false,
+  "solverOrBenchmarkResultsVerified": false,
+  "humanReviewApproved": false,
+  "publicationAllowed": false,
+  "independentAgentReview": "No important actionable defects reported; not a substitute for required independent human approval.",
+  "publicationBlockers": [
+    "Verified author and assigned ADR-023 reviewer/publisher grants",
+    "Independent human content and source-rights approval of the final content revision",
+    "Implemented and verified authorized publication path"
+  ],
+  "selectedInputProfile": "two-sum-base-v1",
+  "executionGates": [
+    "Executable checker, sandbox/harness and Python/C++/Java toolchain qualification before submissions are enabled; not a metadata-only publication prerequisite"
+  ],
+  "canonicalDraftChecksum": "a7267a548322067f59e648f8818ddb4314a46ca73d1f7c5f5ceed6acde1310f9",
+  "productionValidationEvidence": "Node 24.22.0; Group 01: 93 focused tests, 295 total unit tests, independent code review accepted. Metadata readiness does not grant publication authority."
+}

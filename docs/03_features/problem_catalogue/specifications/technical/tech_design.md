@@ -129,7 +129,12 @@ measured capacity or a new public wire contract.
 Validation proceeds in this order: bounded read → JSON/schema checks → identity
 and reference checks → ordering/visibility/rule checks → test metadata checks →
 canonical content checksum. Cap errors at 100 field paths with a truncation
-flag. Automated validation does not prove algorithmic correctness or source
+flag. Bound diagnostic generation itself: a schema-tree preflight stops after
+the 101st finding, retaining at most 100 safe paths and a truncation flag.
+Containers reach the bulk strict parser only after their descendants pass;
+unsupported schema nodes fail closed. This prevents invalid numeric arrays from
+allocating an unbounded library error list. The complete strict schema remains
+the authority after preflight. Automated validation does not prove algorithmic correctness or source
 rights; independent review supplies that evidence.
 
 Do not fetch source URLs, dereference filesystem paths or execute imported code.

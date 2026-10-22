@@ -40,9 +40,6 @@ _None._
 
 ## Backlog
 
-### K-008 — Create one reviewed seed Problem Pack
-- Milestone: M1 · Priority: P0 · Depends on: K-007
-- Acceptance: pack passes structural validation and human correctness review; provenance is recorded.
 
 ### K-009 — Implement published Problem Pack retrieval and version pinning
 - Milestone: M1 · Priority: P0 · Depends on: K-005, K-007, K-008
@@ -118,10 +115,10 @@ _None._
 
 ## In Progress
 
-### K-007 — Define minimal Problem Pack schema and validation rules
-- Milestone: M1 · Priority: P0 · Depends on: K-002
-- Acceptance: schema covers candidate-visible statement/examples, version metadata, reference approaches, hint metadata, and private test references with visibility separation.
-- Progress: owner authorized Feature 3 implementation on 2026-10-23. Specification, clarification, planning, checklist and remediated consistency review are accepted; schema implementation and its tests are next. [Canonical execution tasks](../docs/03_features/problem_catalogue/specifications/engineering/eng_design.md#31-detailed-execution-groups-and-reviewcommit-gates). K-008/K-009 remain incomplete pending engineering evidence and genuine seed review.
+### K-008 — Create one reviewed seed Problem Pack
+- Milestone: M1 · Priority: P0 · Depends on: K-007
+- Acceptance: pack passes structural validation and human correctness review; provenance is recorded.
+- Progress: the complete Two Sum draft passes the implemented schema/data checks for all 37 cases. Verified author assignment, independent human correctness/source-rights review and final exact-checksum approval remain [T132 / #135](https://github.com/Gyan172004/my-new-system/issues/135); no seed has been published.
 
 
 ### K-028 — Establish environment configuration and secret-handling baseline
@@ -135,6 +132,11 @@ _None._
 _None._
 
 ## Done
+
+### K-007 — Define minimal Problem Pack schema and validation rules
+- Milestone: M1 · Priority: P0 · Depends on: K-002
+- Acceptance: schema covers candidate-visible statement/examples, version metadata, reference approaches, hint metadata, and private test references with visibility separation.
+- Completion evidence: strict schema, bounded diagnostic generation, reference/input profile validation and canonical checksums passed 93 focused tests within 295 passing unit tests. Architecture, TypeScript, scoped lint and independent review passed. Original seed bytes are preserved; human seed approval remains K-008. See the [engineering evidence](../docs/03_features/problem_catalogue/specifications/engineering/eng_design.md#group-01--observed-validation-acceptance).
 
 ### K-006 — Add CI checks and automated test stages
 - Milestone: M0 · Priority: P0 · Depends on: K-001, K-002
