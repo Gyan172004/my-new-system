@@ -190,6 +190,15 @@ durable records must produce the same canonical checksum without the original
 authoring files. No discarded metadata or mutable external URL may be needed
 to explain an already-published pack.
 
+The implemented release stores `author_id` as its UUID foreign key and
+`authored_author_id` as the original text, with a UUID-equivalence check. This
+preserves authored uppercase UUID spelling when PostgreSQL normalizes the FK.
+Stable problem IDs/slugs cannot change. Candidate, interview, provenance and
+complete case JSONB text have conservative 4 MiB storage ceilings because
+PostgreSQL adds whitespace when serializing JSONB. The complete authored input
+still has the 2 MiB admission limit and all selected per-field/data limits;
+these storage ceilings introduce no tighter content limit.
+
 The existing `interview_sessions` table already stores an immutable text pair
 `problem_id`/`problem_pack_version`. Do not rewrite its migration or add a pack
 FK that invalidates identity test fixtures. A later FK, if selected, needs an

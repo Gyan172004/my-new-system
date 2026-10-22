@@ -44,6 +44,7 @@ _None._
 ### K-009 — Implement published Problem Pack retrieval and version pinning
 - Milestone: M1 · Priority: P0 · Depends on: K-005, K-007, K-008
 - Acceptance: sessions pin an immutable published version; candidate API excludes private fields.
+- Progress: shared transactions and sealed immutable storage passed 39 focused/migration/readiness checks and independent PostgreSQL review. Candidate HTTP, publication and actual session pinning are still being built using synthetic fixtures; full acceptance remains blocked by K-008 genuine seed review. See [canonical engineering evidence](../docs/03_features/problem_catalogue/specifications/engineering/eng_design.md#group-02--observed-transaction-and-storage-acceptance).
 
 ### K-010 — Implement session state transition guards
 - Milestone: M1 · Priority: P0 · Depends on: K-002 and `session_state_machine.md`

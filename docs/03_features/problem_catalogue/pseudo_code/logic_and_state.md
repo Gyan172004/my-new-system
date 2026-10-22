@@ -295,10 +295,9 @@ function publishBundle(operatorCredentials, source, reviewId, signal):
         requireFinalContentApprovalAnnotations(pack) // no pending content evidence
 
         // Public catalogue write port owns its own SQL.
-        catalogue.ensureProblem(scope, pack.problemId, pack.slug)
-        // INSERT ... ON CONFLICT(id) DO NOTHING; reject slug bound to another ID.
-        // Existing ID must retain the same stable slug.
-        catalogue.lockProblemExclusive(scope, pack.problemId)
+        catalogue.lockProblem(scope, pack.problemId, pack.slug)
+        // Atomically create if absent, then lock. Reject a slug bound to another
+        // ID or a changed slug for this ID. Withdrawal omits slug and creates nothing.
         existing = catalogue.findRelease(scope, pack.problemId, pack.version)
         if existing exists:
             if existing.checksum != validated.checksum:
@@ -315,6 +314,8 @@ function publishBundle(operatorCredentials, source, reviewId, signal):
         release = catalogue.installImmutableRelease(scope, pack,
                          validated.checksum, publishedAt)
         // Installs release, complete suite/cases and eligible availability.
+        // Store the author UUID FK and its original spelling separately; exact
+        // reconstruction uses authored text, ordered cases and all optional fields.
         event = makeCanonicalEnvelope(
             eventId = newUuid(),
             eventType = "content.problem_pack.published",

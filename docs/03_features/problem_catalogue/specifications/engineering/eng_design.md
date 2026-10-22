@@ -142,12 +142,12 @@ Issue mirrors requested by the owner derive from these tasks, retain canonical K
 **Traceability:** K-007|K-009; P-06; FR-04/07/10/11; SC-02/04/06.  
 **Dependencies / independent acceptance:** Depends on T098. No requirement for actual human seed approval. Independent acceptance: real PostgreSQL rejects incomplete/mutable releases; transaction adapter preserves domain errors and rolls back safely.
 
-- [ ] T099 RED: add tests/unit/problem-catalogue/transaction.test.ts and tests/integration/problem-catalogue/storage.test.ts using real isolated PostgreSQL: known-domain rollback, unknown/driver/cancel/rollback failure sanitization, same connection, foreign/expired/completed scope rejection and no leaked clients; observe failures.
-- [ ] T100 Implement src/server/transaction.ts over existing src/server/database.ts with opaque scopes, owning-repository-only unwrap and tagged known-domain outcomes returned through withClient; bounded deadlines and failed rollback destroy connection; run transaction tests GREEN.
-- [ ] T101 RED: extend tests/integration/problem-catalogue/storage.test.ts for empty/identity-populated migrations, FKs/indexes, duplicate version/slug, full JSONB checksum reconstruction, initial sealed rejection, only sealing transition, missing/late/changed/deleted cases, deferred unsealed commit, wrong-problem current pointer and immutable audit/publication evidence; observe failures.
-- [ ] T102 Add migrations/<new_timestamp>_problem_catalogue.sql for seven canonical tables, indexed FKs, immutable release/case triggers and deferred completeness guard; preserve applied SQL and arbitrary identity fixture pins; implement owning repositories in src/modules/problem-catalogue/persistence/{releases.ts,test-suites.ts} plus narrow public.ts; run real PostgreSQL storage tests GREEN.
-- [ ] T103 Dedicated review agent applies supabase-postgres-best-practices, mastering-typescript and requesting-code-review to constraints, migration compatibility, SQL parameterization, lock order, transaction outcomes and cancellation; root fixes/reviews until clean and reruns affected tests; record evidence in docs/03_features/problem_catalogue/specifications/engineering/eng_design.md.
-- [ ] T104 Root verifies focused real-database/architecture checks and scoped diff, then commits group 02 using the title below; update docs/03_features/problem_catalogue/specifications/engineering/eng_design.md with observed results.
+- [x] T099 RED: add tests/unit/problem-catalogue/transaction.test.ts and tests/integration/problem-catalogue/storage.test.ts using real isolated PostgreSQL: known-domain rollback, unknown/driver/cancel/rollback failure sanitization, same connection, foreign/expired/completed scope rejection and no leaked clients; observe failures.
+- [x] T100 Implement src/server/transaction.ts over existing src/server/database.ts with opaque scopes, owning-repository-only unwrap and tagged known-domain outcomes returned through withClient; bounded deadlines and failed rollback destroy connection; run transaction tests GREEN.
+- [x] T101 RED: extend tests/integration/problem-catalogue/storage.test.ts for empty/identity-populated migrations, FKs/indexes, duplicate version/slug, full JSONB checksum reconstruction, initial sealed rejection, only sealing transition, missing/late/changed/deleted cases, deferred unsealed commit, wrong-problem current pointer and immutable audit/publication evidence; observe failures.
+- [x] T102 Add migrations/<new_timestamp>_problem_catalogue.sql for seven canonical tables, indexed FKs, immutable release/case triggers and deferred completeness guard; preserve applied SQL and arbitrary identity fixture pins; implement owning repositories in src/modules/problem-catalogue/persistence/{releases.ts,test-suites.ts} plus narrow public.ts; run real PostgreSQL storage tests GREEN.
+- [x] T103 Dedicated review agent applies supabase-postgres-best-practices, mastering-typescript and requesting-code-review to constraints, migration compatibility, SQL parameterization, lock order, transaction outcomes and cancellation; root fixes/reviews until clean and reruns affected tests; record evidence in docs/03_features/problem_catalogue/specifications/engineering/eng_design.md.
+- [x] T104 Root verifies focused real-database/architecture checks and scoped diff, then commits group 02 using the title below; update docs/03_features/problem_catalogue/specifications/engineering/eng_design.md with observed results.
 
 **Commit title:** `<US=shared, ID=T104, K=K-007|K-009, GROUP=02> feat(catalogue): persist sealed releases atomically`
 
@@ -468,3 +468,33 @@ original source hashes are unchanged. Its metadata still blocks publication.
 K-007 schema acceptance is met; K-008/K-009 require genuine seed approval and
 subsequent implementation evidence. Synthetic approval markers prove no human
 review or production authority.
+
+### Group 02 — observed transaction and storage acceptance
+
+T099–T104 added the opaque shared transaction adapter, migration
+`1792713600000_problem_catalogue.sql`, seven relations and narrow catalogue
+installer. Known domain aborts survive rollback outside the sanitizing database
+wrapper. Tests observe backend reuse for known aborts, backend replacement after
+unknown SQL failures, immediate canceled-scope invalidation and recovery.
+
+Independent review found and reproduced a valid large case rejected by the
+original 256 KiB storage ceiling. A failing regression drove conservative 4 MiB
+JSONB text ceilings, retaining the 2 MiB authored input limit. The original UUID
+spelling survives full checksum reconstruction. Review also strengthened the
+otherwise-valid late-insert and coordinated sealing-race evidence. Removing the
+case guard made the regression fail; restoring it returned all 22 focused tests
+to green. Genuine review/publication/audit rows reject update/delete, and
+identity-populated migration and arbitrary legacy session pins remain valid.
+
+Fresh root verification with the pinned runtime:
+
+- `APP_ENV=test npm test -- tests/unit/problem-catalogue/transaction.test.ts tests/integration/problem-catalogue/storage.test.ts tests/integration/migrations.test.ts tests/integration/readiness.test.ts`: four files, 39 tests passed.
+- The independent reviewer separately passed 22 transaction/storage tests and
+  11 migration tests, with no remaining blocking finding.
+- Typecheck, scoped ESLint and architecture checks passed.
+
+The accepted migration-chain fixture, table-list expectation and future-unknown
+migration fixture were reconciled for the fourth revision; earlier migrations
+and bespoke partial-migration counts were preserved. A broad pre-fix full run
+was interrupted (exit 130); final full-suite/process/container acceptance remains
+T126. Publication, candidate HTTP and actual session pins are still later groups.
