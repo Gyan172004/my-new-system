@@ -125,4 +125,10 @@ Before enabling an operation:
 
 ## 11. Open decisions
 
-V1 provider/model selection is recorded in ADR-012: OpenAI only; `gpt-6.1-sol` for interview turns, approach assessment, hint support, and feedback; `gpt-6-luna` for focused intent/stage classification; `gpt-6-astra` only after reviewed evaluation and explicit budget approval; `gpt-transcribe` for voice input; `gpt-4o-mini-tts` for speech output. The Model Gateway centralizes IDs/configuration and records them with each operation. Per-operation timeouts/token budgets and the Astra escalation trigger still require implementation tuning. Transcript/session history retention is 365 days; raw audio is not durably stored by the application; logs must exclude audio and unrestricted candidate text/source.
+V1 staging/production provider/model selection is recorded in ADR-012: OpenAI only; `gpt-6.1-sol` for interview turns, approach assessment, hint support, and feedback; `gpt-6-luna` for focused intent/stage classification; `gpt-6-astra` only after reviewed evaluation and explicit budget approval; `gpt-transcribe` for voice input; `gpt-4o-mini-tts` for speech output. The Model Gateway centralizes IDs/configuration and records them with each operation. Per-operation timeouts/token budgets and the Astra escalation trigger still require implementation tuning. Transcript/session history retention is 365 days; raw audio is not durably stored by the application; logs must exclude audio and unrestricted candidate text/source.
+
+ADR-024 permits explicit local Groq `openai/gpt-oss-120b` testing with synthetic
+inputs only. Groq requires development mode and a trusted synthetic-input harness;
+real candidate/session data and automatic provider fallback remain prohibited.
+Test mode rejects real-provider dispatch. This exception does not qualify OpenAI
+operations or change the production text/audio map above.

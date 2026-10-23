@@ -65,10 +65,6 @@ _None._
 - Milestone: M1 · Priority: P0 · Depends on: K-014, K-015
 - Acceptance: candidate opens problem, starts session, responds, advances, refreshes/reopens, and sees persisted state; invalid transitions and retries are tested.
 
-### K-017 — Add Model Gateway skeleton and structured-output validation
-- Milestone: M2 · Priority: P1 · Depends on: K-002, K-006
-- Acceptance: OpenAI adapter is isolated; operation map is centrally configured (`gpt-6.1-sol`, `gpt-6-luna`, conditional `gpt-6-astra`, `gpt-transcribe`, `gpt-4o-mini-tts`); fake adapter verifies timeout, bounded retry, schema validation, and usage metadata. Gateway seam can be built against mocks in parallel; integrate after session contracts.
-
 ### K-018 — Implement LLM interaction policy and regression fixtures
 - Milestone: M2 · Priority: P1 · Depends on: K-017
 - Acceptance: model cannot bypass state policy; fixtures cover ambiguity, abstention, invalid output, and prompt injection.
@@ -110,6 +106,11 @@ _None._
 - Acceptance: explicit versioned consent/revocation; bounded audio validation; OpenAI `gpt-transcribe` runs through the Model Gateway; transcript enters the same state machine as text; interviewer text is displayed and `gpt-4o-mini-tts` speech is streamed on demand; raw audio/speech is not durably stored by the application; provider failures do not advance state; text fallback, rate limits, log redaction and retention tests pass.
 
 ## In Progress
+
+### K-017 — Add Model Gateway skeleton and structured-output validation
+- Milestone: M2 · Priority: P1 · Depends on: K-002, K-006
+- Acceptance: OpenAI adapter is isolated; operation map is centrally configured (`gpt-6.1-sol`, `gpt-6-luna`, conditional `gpt-6-astra`, `gpt-transcribe`, `gpt-4o-mini-tts`); fake adapter verifies timeout, bounded retry, schema validation, and usage metadata. Gateway seam can be built against mocks in parallel; integrate after session contracts.
+- Progress: owner-authorized Stage 4 orchestration is active on `feature/model-gateway`; reviewed planning/tasks and derived issue mirrors are recorded in the [gateway engineering design](../docs/03_features/model_gateway/specifications/engineering/eng_design.md). Code/provider acceptance remains unverified; external OpenAI gate T184 stays pending.
 
 ### K-009 — Implement published Problem Pack retrieval and version pinning
 - Milestone: M1 · Priority: P0 · Depends on: K-005, K-007, K-008
