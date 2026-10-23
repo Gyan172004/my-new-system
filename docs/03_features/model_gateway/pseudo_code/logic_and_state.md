@@ -23,6 +23,12 @@ buildGateway(settings, registry):
 ADR-024 is an accepted design decision, not a runtime approval flag. Synthetic
 provenance comes from the trusted fixture harness, not a request boolean.
 
+Ordinary runtime composition refuses Groq. The trusted operator runner chooses
+the single frozen source fixture by ID and exposes only `run(signal)`; extra
+JavaScript arguments cannot replace its input/context. Low-level factories remain
+trusted controlled-test seams; the core also rejects real adapters in test and
+Groq in remote environments. No production source imports the test fixture tree.
+
 ## 2. Invoke a text operation
 
 ```text

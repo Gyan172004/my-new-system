@@ -1,14 +1,7 @@
-export const probeInput = Object.freeze({
-  text: 'Synthetic gateway probe v1.',
-});
-export const probeOutput = Object.freeze({
-  schemaVersion: 1,
-  acknowledged: true,
-});
-export const probeContext = Object.freeze({
-  requestId: 'b648277e-ad0b-48cf-996d-128c2475f0ce',
-  operationId: 'synthetic-probe-v1',
-});
+import { syntheticProbeFixture } from '../../../src/modules/model-gateway/public';
+export const probeInput = syntheticProbeFixture.input;
+export const probeOutput = syntheticProbeFixture.output;
+export const probeContext = syntheticProbeFixture.context;
 export const outputCases = [
   { value: { schemaVersion: 1, acknowledged: true }, valid: true },
   { value: { schemaVersion: 2, acknowledged: true }, valid: false },

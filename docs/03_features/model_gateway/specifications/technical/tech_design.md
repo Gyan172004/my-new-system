@@ -89,7 +89,7 @@ schemas and semantic checks; do not invent a universal interview response.
 ADR-012. No automatic model/provider substitution. Reverify account access,
 model IDs and endpoint/schema support before live acceptance or deployment.
 
-Proposed server settings: `MODEL_GATEWAY_ADAPTER=disabled|fake|groq|openai`
+Server settings: `MODEL_GATEWAY_ADAPTER=disabled|fake|groq|openai`
 (default `disabled`), `GROQ_API_KEY`, `OPENAI_API_KEY`. Keep operation/model/policy
 configuration in one trusted, versioned registry. Only selected real adapters
 require their key. Keys live in ignored `.env.local` for local runs; remote
@@ -110,6 +110,17 @@ live session records or a caller-supplied `synthetic=true` flag. Future Groq
 business-operation tests still require synthetic fixtures and owning-feature
 schema/evaluation review; qualifying a schema does not authorize real candidate
 data. No public handler may invoke the Groq adapter.
+
+`runtimeModelGateway` lazily uses a process-wide symbol in the existing runtime
+resource registry; ordinary composition refuses Groq. The operator runner
+`createSyntheticProbeRunner` accepts only `gateway-probe-v1` and exposes
+`run(signal)`, close and destroy, with no input/context parameter. Its frozen
+fixture lives in `application/probe-fixture.ts`; test fixtures reexport it so
+production never imports the test tree. Low-level adapter/gateway factories are
+trusted composition seams for controlled fixtures, not consumer capabilities.
+Core validation independently rejects real providers in test and Groq remotely.
+The runtime has no injected-fetch or endpoint configuration. Shutdown uses the
+existing resource hooks; health probes never construct a provider call.
 
 Controlled-server contract tests construct adapters with an injected test
 transport and dummy credentials, independently of runtime adapter selection.

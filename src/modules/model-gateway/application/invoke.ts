@@ -198,7 +198,12 @@ export function createModelGateway({
         metadata.evaluationVersion = definition.evaluationVersion;
         const input = probeInputSchema.safeParse(parsed.data.input);
         if (!input.success) return failure('invalid_request');
-        if (adapter.provider !== 'fake' && environment === undefined)
+        if (
+          adapter.provider !== 'fake' &&
+          (environment === undefined ||
+            environment === 'test' ||
+            (adapter.provider === 'groq' && environment !== 'development'))
+        )
           return failure('configuration_error');
         release = admission.acquire(definition.limits.maxConcurrent);
         if (!release) return failure('saturated', true);

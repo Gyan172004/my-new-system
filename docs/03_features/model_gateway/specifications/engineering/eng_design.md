@@ -496,3 +496,75 @@ synthetic evidence remain group 04; aggregate overflow remains T174 above.
 
 Commit title:
 `<US=US3, ID=T162, K=K-017, GROUP=03> feat(gateway): isolate provider text adapters`.
+
+### Group 04 — runtime, privacy and trusted operator probe
+
+Root verified the full RED-implemented T163-T170 slice directly (config,
+runtime composition, native-fetch/privacy architecture rules, boundary scanner
+refactor to an importable `checkBoundaries` function, and the operator smoke
+script) under the pinned Node 24.22.0/npm 11.19.1 runtime; the active shell's
+default Node 20.20.2 cannot run `dependency-cruiser` (requires `^22||^24||>=26`)
+and produced a false `architecture-analysis-unavailable` result until the
+pinned binary was used explicitly.
+
+Full pinned-runtime results: `npm run format:check`, `npm run lint`, `npm run
+typecheck` all clean; `npm run test:unit` 38 files/514 tests, `APP_ENV=test npm
+run test:integration` 20 files/129 tests, `npm run test:contract` 8 files/193
+tests, `npm run verify:architecture` ([] violations, 3 files/45 tests),
+`APP_ENV=test npm run test:process` 8 files/22 tests — all passed. `npm run
+test:ci` has one unrelated pre-existing failure in `tests/ci/container.test.ts`
+(`unsafe_test_target`, missing `TEST_DB_*` environment) outside gateway scope;
+no gateway file is implicated.
+
+T171 dedicated review (root, in place of a separately spawned background
+review agent after an unrelated incident below) covered
+`src/server/model-gateway.ts`, `src/server/config.ts`'s `parseModelGatewayConfig`,
+`src/modules/model-gateway/application/probe-fixture.ts`,
+`scripts/model-gateway-smoke.ts` and their tests. Confirmed: the disabled
+adapter stays lazy with zero provider calls; `runtimeModelGateway` reuses one
+gateway across HMR and refuses general Groq composition
+(`throw ConfigurationError(['MODEL_GATEWAY_ADAPTER'])`); only
+`createSyntheticProbeRunner` with the exact fixed `gateway-probe-v1` fixture id
+can reach Groq, and the core `invoke()` independently re-rejects
+groq/openai-in-wrong-environment even if trusted composition were bypassed;
+shutdown/drain cancels active native transport and blocks resurrection; the
+smoke CLI accepts only `--adapter fake|groq|openai`, the fixed fixture name and
+`--count` 1-5, with SIGINT/SIGTERM-bound `AbortController` cancellation. The
+privacy test drives real `CANARY`-tagged secrets/content through the logger
+and result metadata and asserts none leak; it is not mocked away. No
+blocking or material finding was raised.
+
+Process incident: a background `/code-review` invocation (run as a forked
+background skill to perform T171) executed `git stash` against the live
+working tree and did not restore it, silently dropping seven tracked files
+including the `parseModelGatewayConfig` addition to `src/server/config.ts`;
+this was caught because `parseRuntimeConfig(...).modelGateway` came back
+`undefined` during T172 preparation. `git stash pop` restored the exact
+stashed diff with no loss; the responsible background agents were stopped via
+`TaskStop` to prevent a repeat before T171 was completed directly as above.
+Feedback on the tool behavior was filed separately; it is not a code defect in
+this feature.
+
+T172 live Groq synthetic probe, run once (`APP_ENV=development npm run
+model-gateway:smoke -- --adapter groq --fixture gateway-probe-v1 --count 1`)
+after fixing an unrelated `.env.local` variable-name typo
+(`OQ_API_KEY` → `GROQ_API_KEY`) that would otherwise have left the key
+unconfigured:
+
+| Field | Value |
+| --- | --- |
+| outcome | `success` |
+| provider | `groq` |
+| configuredModel / reportedModel | `openai/gpt-oss-120b` / `openai/gpt-oss-120b` |
+| attempts | 1 |
+| durationMs | 629.09 |
+| inputSchemaVersion / outputSchemaVersion | 1 / 1 |
+| usageCompleteness | `complete` (inputTokens 239, outputTokens 59, totalTokens 298, reasoningTokens 34) |
+| costCompleteness / actualCharge | `unknown` / `unknown` |
+
+No secret value, candidate input or provider body was read into agent context;
+only the sanitized `modelCallLogFields` projection above is retained. This
+Groq evidence does not satisfy T184 (separate external OpenAI gate).
+
+T163-T172 are complete; T173 (scoped-diff verification and group commit)
+follows.

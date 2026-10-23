@@ -29,3 +29,4 @@ export type {
 } from './application/types';
 export { createGroqAdapter } from './adapters/groq';
 export { createOpenAIAdapter } from './adapters/openai';
+export { syntheticProbeFixture } from './application/probe-fixture';
