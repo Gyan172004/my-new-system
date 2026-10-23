@@ -75,6 +75,29 @@ gateway payload; every field is validated before it leaves this function.
 gateway_refused | policy_rejected | gateway_unavailable`; a gateway failure
 coded `output_limit` is reported under `gateway_invalid_output`.
 
+The `interview_turn` operation's registered Zod output schema — the concrete
+shape `IO-01` registers and this layer validates against — is:
+
+```typescript
+z.strictObject({
+  schemaVersion: z.literal(1),
+  responseText: z.string().min(1).max(4_000), // bounded well under the 1,024-completion-token budget
+  suggestedTransitionSignal: z
+    .enum(['ready_to_advance', 'needs_clarification', 'none'])
+    .optional(),
+  matchedReferenceApproachId: referenceIdSchema.optional(), // omitted = abstention
+});
+```
+
+reusing the Model Gateway's existing bounded reference-identifier pattern
+(`validation.ts`'s `reference` schema: 1-128 chars,
+`^[A-Za-z0-9][A-Za-z0-9_.:-]*$`) for `matchedReferenceApproachId`, consistent
+with how pack content IDs are already shaped elsewhere in this platform. The
+registered input schema mirrors `gateway_probe`'s shape —
+`z.strictObject({ text: z.string().min(1).max(8_192) })` — where `text` is
+the per-stage prompt module's rendered dynamic payload (see §3), not raw
+`AllowlistedContext` JSON.
+
 Each gateway call's `operationId` is derived from `turnId` and the attempt
 number (`"interview_turn:" + turnId + ":" + attempt`), so it is unique per
 candidate turn and distinct between the original attempt and the FR-008
@@ -111,6 +134,27 @@ stage's prompt may read (candidate-visible pack fields, bounded recent-turn
 window, session-scoped evidence already collected). Building the context is a
 pure projection from the session read model; it must not accept or forward a
 whole session or Problem Pack record (mirrors the gateway's own input rule).
+
+**Reconciling 14 per-stage prompts with the gateway's one static
+`prompt.body` per operation.** The Model Gateway's registry pins exactly one
+immutable `prompt.id`/`prompt.version`/`prompt.body` per registered operation
+(gateway tech design §3) — it has no concept of per-call prompt variation.
+`interview_turn`'s registered `prompt.body` is therefore a **generic,
+stage-agnostic operation-level framing instruction** (naming the operation
+contract, the untrusted-data boundary, and the structured-output requirement
+— never stage-specific content), registered once and versioned like
+`gateway_probe`'s. The 14 per-stage templates in this section are a
+*different, narrower* concern: they produce the **dynamic `input` payload**
+(this operation's `OperationInput['interview_turn']`, structurally like
+`gateway_probe`'s `{ text: string }` — a single bounded rendered-text field)
+that the gateway forwards to the provider alongside its one static
+`prompt.body`. Each stage module's own `version` is recorded by **this
+feature's own telemetry** (`FR-010`), not by the gateway's `promptVersion`
+metadata field — that field only ever reflects the registered operation's
+single static framing-prompt version, since the gateway has no caller-supplied
+per-call prompt-version field in its context. Do not conflate the two: a
+gateway call metadata diff never proves which stage template was used; only
+this feature's own recorded `currentStage` + stage-template `version` does.
 
 Candidate-origin fields are wrapped in an `UntrustedText` nominal type before
 being interpolated; the renderer encloses them in a fixed delimiter and a
