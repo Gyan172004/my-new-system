@@ -37,20 +37,18 @@ function runtime(databaseUrl = f.config.databaseUrl) {
   return r;
 }
 function call(r: RuntimeRegistry, problemId?: string) {
-  return scopes
-    .get(r)!
-    .run(
-      () =>
-        catalogueGet(
-          new Request('http://fixture/api/v1/problems', {
-            headers: { authorization: 'Bearer test_bob' },
-          }),
-          problemId,
-          r,
-        ),
-      undefined,
-      { sourceAddress: '127.0.0.1' },
-    );
+  return scopes.get(r)!.run(
+    () =>
+      catalogueGet(
+        new Request('http://fixture/api/v1/problems', {
+          headers: { authorization: 'Bearer test_bob' },
+        }),
+        problemId,
+        r,
+      ),
+    undefined,
+    { sourceAddress: '127.0.0.1' },
+  );
 }
 it('rejects malformed internal handler IDs before querying postgres', async () => {
   const r = runtime();
