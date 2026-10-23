@@ -268,7 +268,14 @@ export interface PromptModule {
 
 /**
  * Renders only the context's already-allowlisted fields (never the full
- * pack) as plain `key: value` lines, stably ordered.
+ * pack) as plain `key: value` lines, stably ordered. Values are
+ * delimiter-neutralized before capping, same as `renderRecentTurns` —
+ * this module's provenance contract ("already-redacted" per the header
+ * comment) does not guarantee every allowlisted field is pack-authored
+ * rather than paraphrased from candidate text upstream, so neutralization
+ * is applied uniformly to every text blob interpolated into the rendered
+ * prompt rather than singling out `candidateInput` as the only defended
+ * field.
  */
 export function renderContextFields(context: AllowlistedContext): string {
   const keys = Object.keys(context.visibleFields).sort();
@@ -277,19 +284,30 @@ export function renderContextFields(context: AllowlistedContext): string {
     'CONTEXT:',
     ...keys.map(
       (key) =>
-        `- ${key}: ${capLength(context.visibleFields[key] ?? '', MAX_PACK_FIELD_VALUE_LENGTH)}`,
+        `- ${key}: ${capLength(neutralizeDelimiterOccurrences(context.visibleFields[key] ?? ''), MAX_PACK_FIELD_VALUE_LENGTH)}`,
     ),
   ].join('\n');
 }
 
-/** Renders the bounded recent-turn window as plain `SPEAKER: text` lines. */
+/**
+ * Renders the bounded recent-turn window as plain `SPEAKER: text` lines.
+ * Every turn's text is delimiter-neutralized before capping — a
+ * `speaker: 'candidate'` entry is candidate-origin text by definition
+ * (llm_interaction_policy.md §7), and a candidate who plants a forged
+ * delimiter pair in one turn would otherwise have it echoed, unneutralized,
+ * into every subsequent stage's prompt for as long as that turn stays in
+ * the K-turn window. Neutralizing `interviewer`-speaker text too is
+ * harmless defense-in-depth (trusted text never legitimately contains the
+ * literal delimiter sequence) and keeps this function's behavior uniform
+ * rather than branching on speaker identity.
+ */
 export function renderRecentTurns(context: AllowlistedContext): string {
   if (context.recentTurns.length === 0) return 'RECENT TURNS: (none)';
   return [
     'RECENT TURNS:',
     ...context.recentTurns.map(
       (turn) =>
-        `- ${turn.speaker}: ${capLength(turn.text, MAX_RECENT_TURN_TEXT_LENGTH)}`,
+        `- ${turn.speaker}: ${capLength(neutralizeDelimiterOccurrences(turn.text), MAX_RECENT_TURN_TEXT_LENGTH)}`,
     ),
   ].join('\n');
 }

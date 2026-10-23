@@ -77,3 +77,34 @@ it('allowlists a bounded model-call summary and strips content, secrets and unkn
   });
   expect(output).not.toContain('CANARY');
 });
+it('allowlists interview_turn evaluationVersion alongside the probe default, and nulls anything else', () => {
+  let output = '';
+  const logger = createSafeLogger(
+    parseRuntimeConfig({
+      APP_ENV: 'test',
+      DATABASE_URL: 'postgresql://unreachable.invalid/app',
+    }),
+    new Writable({
+      write(chunk, _encoding, callback) {
+        output += String(chunk);
+        callback();
+      },
+    }),
+  );
+  logger.write('model_call_completed', {
+    operation: 'interview_turn',
+    evaluationVersion: 'interview-turn-v1',
+  });
+  expect(JSON.parse(output)).toMatchObject({
+    evaluationVersion: 'interview-turn-v1',
+  });
+
+  output = '';
+  logger.write('model_call_completed', {
+    operation: 'interview_turn',
+    evaluationVersion: 'some-unlisted-version',
+  });
+  expect(JSON.parse(output)).toMatchObject({
+    evaluationVersion: null,
+  });
+});

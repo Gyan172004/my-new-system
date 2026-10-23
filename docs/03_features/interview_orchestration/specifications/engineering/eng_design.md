@@ -657,5 +657,62 @@ overstate. **Verdict: APPROVE**, no changes required.
 Committed as
 `<US=shared, ID=T214, K=K-018, GROUP=06> test(orchestration): verify regression fixtures and guarded-commit boundary`.
 
+### Second-opinion review pass (2026-10-24, after proper `mastering-typescript`/`vitest`/`requesting-code-review`/`speckit-*` skill symlinks were installed)
+
+Groups 01-06's original review tasks were conducted by agents instructed to
+apply those skills before the symlinks existed, so the skill content itself
+was not actually loadable at the time. After the symlinks were fixed, each
+group was re-reviewed fresh — one dedicated reviewer per group, using the
+real `requesting-code-review` skill's `code-reviewer.md` template verbatim,
+exact commit-range SHAs, and genuinely loaded `mastering-typescript`/
+`vitest` skill content — specifically briefed to find anything the original
+pass might have missed, not to rubber-stamp.
+
+**Results:** Groups 01, 04, and 06 returned clean approvals (no blocking or
+important findings; Group 01's reviewer additionally reran the full
+repo-wide suite from an isolated worktree at the exact commit and confirmed
+zero collateral breakage). Groups 02, 03, and 05 each surfaced one or more
+real findings, all fixed directly by root:
+
+- **Group 03 (the most significant finding):** `renderRecentTurns` embedded
+  `speaker: 'candidate'` turn text — candidate-origin text by the module's
+  own type definition — without the same delimiter-neutralization applied
+  to the current turn's `candidateInput`. The reviewer demonstrated a live
+  bypass: a forged delimiter pair planted in one past turn survived
+  unneutralized into every subsequent stage's prompt for as long as that
+  turn stayed in the K=6 window (4 delimiter occurrences instead of the
+  expected 2). Fixed by applying `neutralizeDelimiterOccurrences`
+  uniformly inside both `renderRecentTurns` and `renderContextFields`
+  (allowlisted pack fields), rather than treating `candidateInput` as the
+  only defended field — closes the same bypass class for any text blob
+  interpolated into a rendered prompt, not just the one call site already
+  fixed. Added `tests/unit/interview-orchestration/security-hardening.test.ts`
+  "Finding 3": RED confirmed via `git stash` (4 occurrences, matching the
+  reviewer's reproduction exactly) before the fix, GREEN after.
+- **Group 02:** the `logger.ts` `evaluationVersion` allowlist fix (from the
+  original review cycle) shipped with no regression test proving it
+  actually works — a future accidental revert would pass silently. Added
+  two cases to `tests/unit/model-gateway/logger.test.ts`; RED confirmed by
+  temporarily reverting the allowlist to one value and observing the new
+  test fail, then restored and reconfirmed GREEN.
+- **Group 05:** two non-blocking nice-to-haves — `mapGatewayFailure`'s
+  `default` branch (any `GatewayErrorCode` outside the four itemized ones)
+  had zero test coverage; added a `provider_auth_failed` →
+  `gateway_unavailable` case to `propose-turn.test.ts`. Separately,
+  `tech_design.md` §2's literal interface sketch had silently fallen out of
+  sync with the implemented `ProposeTurnRequest` (missing the
+  caller-constructed `gateway`/`onCallRecorded` fields, both legitimate,
+  already-reviewed additions); added a one-paragraph addendum reconciling
+  the two rather than letting the documented interface diverge from the
+  shipped one.
+
+Reran the full scoped suite after all fixes: **28 files, 540 tests
+passing** (was 530 before this pass: +4 Finding-3 recentTurns cases, +1
+Finding-3 pack-field case, +2 logger cases, +1 default-branch case, +1 —
+also includes the 4 `guarded-commit.test.ts` cases now folded into this
+command's explicit path list for the first time), `tsc --noEmit`/eslint/
+prettier all clean. No file outside the six already-reviewed groups' own
+modules/tests was touched by this pass.
+
 Group 07 (coverage/CI convergence, final PR) follows; this section will be
 extended as its RED/GREEN/review/commit evidence is observed.

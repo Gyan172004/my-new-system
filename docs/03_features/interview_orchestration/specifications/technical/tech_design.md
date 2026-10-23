@@ -56,11 +56,23 @@ declare function proposeTurn(request: {
   recentTurns: readonly CandidateVisibleTurn[]; // bounded window, already redacted
   candidateInput: UntrustedText; // delimited, labeled untrusted
   signal: AbortSignal;
+  gateway: ModelGateway; // caller-constructed; proposeTurn never builds its own
+  onCallRecorded?: (record: TelemetryRecord) => void; // FR-010 telemetry (IO-05)
 }): Promise<
   | { kind: "proposal"; proposal: TurnProposal; callMetadata: GatewayCallMetadata }
   | { kind: "fallback"; reason: FallbackReason; callMetadata: GatewayCallMetadata | null }
 >;
 ```
+
+The implemented `ProposeTurnRequest` (`application/propose-turn.ts`) adds two
+fields beyond this sketch, both additive and dependency-injection-shaped
+rather than behavioral departures: `gateway: ModelGateway` — the caller
+constructs and passes in the gateway instance, so `proposeTurn` never
+configures a provider itself and tests can inject a fake adapter (satisfies
+FR-011/SC-002's "no live provider call" requirement) — and the optional
+`onCallRecorded` telemetry callback added in Group 06 (`IO-05`) to surface
+`TelemetryRecord` (including `applyPolicy`'s rejected `failedStep`) without
+widening the function's own return type.
 
 `TurnProposal` is a discriminated, fully validated structure containing the
 interviewer's candidate-visible response text, an optional

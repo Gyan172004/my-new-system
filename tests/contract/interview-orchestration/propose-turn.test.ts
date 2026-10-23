@@ -214,6 +214,36 @@ it('issues exactly one logical gateway call and falls back with zero repair atte
   expect(invokeCalls).toBe(1);
 });
 
+it("maps a non-itemized, non-repairable gateway code to gateway_unavailable via mapGatewayFailure's default branch", async () => {
+  // Closes a branch-coverage gap a reviewer found: no prior test drove
+  // mapGatewayFailure's `default` case (any GatewayErrorCode outside
+  // {invalid_output, refused, output_limit, timeout}). provider_auth_failed
+  // is a clean example: non-retryable, not in REPAIRABLE_GATEWAY_CODES, and
+  // not 'timeout' — it must go straight to fallback with zero repair
+  // attempts and the generic gateway_unavailable reason.
+  let sendCalls = 0;
+  const adapter: GatewayAdapter = {
+    provider: 'fake',
+    async send() {
+      sendCalls++;
+      return {
+        status: 'failure',
+        code: 'provider_auth_failed',
+        retryable: false,
+        internalRetry: false,
+      } satisfies AdapterResult;
+    },
+  };
+  const gateway = createModelGateway({ adapter });
+  const result = await proposeTurn({ ...baseRequest(), gateway });
+
+  expect(result).toMatchObject({
+    kind: 'fallback',
+    reason: 'gateway_unavailable',
+  });
+  expect(sendCalls).toBe(1);
+});
+
 it('returns a policy rejection as a fallback when the reference-approach ID is outside the pinned pack', async () => {
   const adapter: GatewayAdapter = {
     provider: 'fake',
