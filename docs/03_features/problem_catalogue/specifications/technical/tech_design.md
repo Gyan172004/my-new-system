@@ -364,8 +364,11 @@ after that wrapper resolves. Unknown SQL/driver/cancellation failures remain
 infrastructure errors. A rollback failure invalidates the connection; a domain
 abort must never be returned as successful work or mislabeled a commit.
 
-Existing pinned reads require session ownership checks in the session consumer,
-then exact-version lookup; a caller-supplied version does not grant access.
+The existing interview-session service exposes internal
+`createPublishedSession(verifiedCaller, problemId, signal?)` and
+`readPinnedCandidateOwned(verifiedCaller, sessionId, signal?)` operations. Creation
+resolves and writes the snapshot/created event inside one shared transaction.
+The owned read checks session ownership before exact-version lookup; a caller-supplied version does not grant access.
 Read old content even when withdrawn, but fail recoverably if the stored version
 is corrupt/missing. Never substitute the current version.
 

@@ -186,12 +186,12 @@ Issue mirrors requested by the owner derive from these tasks, retain canonical K
 **Traceability:** K-009; P-08/09/11; FR-04/07/08/10/11; SC-03/04/06.  
 **Dependencies / independent acceptance:** Depends on T112 and T118. Independent acceptance: real session snapshot and created event select one eligible release atomically under publish/withdraw races; old pins remain exact.
 
-- [ ] T119 [US4] RED: add tests/integration/problem-catalogue/pinning.test.ts with real identity user/session/event storage for createPublishedSession verified caller+problemId only, same transaction, rollback between resolve/snapshot/event, cancellation and expired/foreign scope; observe failures.
-- [ ] T120 [US4] Adapt src/modules/interview-session/application/service.ts, public.ts and persistence/sessions.ts to createPublishedSession via opaque shared transaction and catalogue public resolver; retain owning validation and existing fixture-only createPinned behavior without new pack FK/backfill; run real session tests GREEN.
-- [ ] T121 [US4] RED: extend tests/integration/problem-catalogue/{pinning.test.ts,concurrency.test.ts} for publication/withdrawal/new-pin common lock races, no fallback when current withdrawn, original A after publish B, exact retries after uncertain responses, owner checks and missing/corrupt pin safe failures; observe failures.
-- [ ] T122 [US4] Implement necessary lock/pinned-read behavior in src/modules/problem-catalogue/application/resolve.ts and src/modules/interview-session/application/service.ts; verify actual persisted snapshot/event invariants and existing identity integration/architecture regressions GREEN.
-- [ ] T123 [US4] Dedicated review agent applies mastering-typescript, supabase-postgres-best-practices, vitest and requesting-code-review to same-connection atomicity, deadlock order, cancellation, privacy/ownership and compatibility; root fixes/reviews and reruns relevant real-PostgreSQL race/regression checks; reconcile docs/03_features/problem_catalogue/.
-- [ ] T124 [US4] Root verifies scoped diff then commits group 05 using the title below; docs/03_features/problem_catalogue/specifications/engineering/eng_design.md explicitly retains later K-013/K-014 HTTP/idempotency and K-016 journey ownership.
+- [x] T119 [US4] RED: add tests/integration/problem-catalogue/pinning.test.ts with real identity user/session/event storage for createPublishedSession verified caller+problemId only, same transaction, rollback between resolve/snapshot/event, cancellation and expired/foreign scope; observe failures.
+- [x] T120 [US4] Adapt src/modules/interview-session/application/service.ts, public.ts and persistence/sessions.ts to createPublishedSession via opaque shared transaction and catalogue public resolver; retain owning validation and existing fixture-only createPinned behavior without new pack FK/backfill; run real session tests GREEN.
+- [x] T121 [US4] RED: extend tests/integration/problem-catalogue/{pinning.test.ts,concurrency.test.ts} for publication/withdrawal/new-pin common lock races, no fallback when current withdrawn, original A after publish B, exact retries after uncertain responses, owner checks and missing/corrupt pin safe failures; observe failures.
+- [x] T122 [US4] Implement necessary lock/pinned-read behavior in src/modules/problem-catalogue/application/resolve.ts and src/modules/interview-session/application/service.ts; verify actual persisted snapshot/event invariants and existing identity integration/architecture regressions GREEN.
+- [x] T123 [US4] Dedicated review agent applies mastering-typescript, supabase-postgres-best-practices, vitest and requesting-code-review to same-connection atomicity, deadlock order, cancellation, privacy/ownership and compatibility; root fixes/reviews and reruns relevant real-PostgreSQL race/regression checks; reconcile docs/03_features/problem_catalogue/.
+- [x] T124 [US4] Root verifies scoped diff then commits group 05 using the title below; docs/03_features/problem_catalogue/specifications/engineering/eng_design.md explicitly retains later K-013/K-014 HTTP/idempotency and K-016 journey ownership.
 
 **Commit title:** `<US=US4, ID=T124, K=K-009, GROUP=05> feat(catalogue): pin published content with session creation`
 
@@ -601,3 +601,34 @@ disposed. MCP `get_errors` reported no connected browser session despite the
 active browser; no zero-runtime-error claim is based on that unavailable probe.
 The independent final HTTP/transport rerun passed seven tests in 44 seconds;
 T117 is accepted with no remaining blocking findings.
+
+Hosted Foundation CI passed the reviewed Group 03 head [`ea926c6`](https://github.com/Gyan172004/my-new-system/actions/runs/39899625362). Group 04 and later heads require their own observed CI results.
+
+The first Group 04 hosted run ([`1c7a963`](https://github.com/Gyan172004/my-new-system/actions/runs/39900364053)) failed at formatting of `admission.test.ts`; later checks did not run. Root reproduced the formatter failure and applied its formatting-only correction in `b1a0d8a`, then observed the scoped format check pass. Fresh hosted/final acceptance remains required for the corrected head; no functional pass is inferred from that failed run.
+
+### Group 05 — observed atomic session pin acceptance
+
+T119–T124 add internal published-session creation and owner-first historical
+candidate lookup through the existing session service. New creation accepts the
+verified caller and problem ID, resolves the eligible version and inserts its
+snapshot/created event through one opaque shared scope. The owning repository
+joins that connection without a nested transaction. Existing fixture creation,
+owned reads/start behavior and arbitrary legacy fixture pins remain compatible;
+no new session-pack foreign key, HTTP endpoint or replay policy was introduced.
+
+The first test run observed seven missing-operation failures. The implementation
+then passed real PostgreSQL checks for one backend PID/transaction ID, rollback
+after resolve/snapshot/event writes, expired/foreign scopes and safe domain codes.
+Final coverage adds all three cancellation points with released-lock proof,
+owner-before-content lookup, missing/physically corrupted history without
+fallback, A preserved after B publication/withdrawal, and both commit orders of
+publication/withdrawal races coordinated with real blocking evidence. Exact
+publication retry after a lost commit response cannot change a stored pin.
+
+Root freshly ran `APP_ENV=test npx vitest run tests/integration/problem-catalogue/pinning.test.ts tests/integration/identity-storage.test.ts`:
+two files / 29 tests passed, including all 20 final pinning tests. Typecheck passed.
+The dedicated reviewer independently passed the same 29 tests, scoped ESLint,
+typecheck and architecture, and accepted T123 with no actionable findings. Its
+earlier architecture-inclusive check passed 61 tests. K-013/K-014 still own HTTP
+command idempotency and K-016 owns the full candidate journey; real seed approval
+remains T132.

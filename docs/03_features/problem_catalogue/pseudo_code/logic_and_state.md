@@ -501,8 +501,8 @@ function resolveForNewSession(problemId, scope):
                       suiteVersion: release.suiteVersion})
 
 // Feature 3 / P-11: real internal pin creation, owned by interview-session.
-function createPublishedSession(verifiedCaller, problemId, clientContext, signal):
-    requireValidatedCallerAndContext(verifiedCaller, problemId, clientContext)
+function createPublishedSession(verifiedCaller, problemId, signal):
+    requireValidatedCallerAndProblemId(verifiedCaller, problemId)
     return transaction(scope, signal):
         pin = catalogue.resolveForNewSession(problemId, scope)
         if pin is failure: abortDomain(pin.code, pin.path)
@@ -510,12 +510,22 @@ function createPublishedSession(verifiedCaller, problemId, clientContext, signal
         session = sessionRepository.insertSnapshotAndCreatedEvent(
                       scope, ownerId = verifiedCaller.userId,
                       problemId = pin.problemId, problemPackVersion = pin.version,
-                      clientContext = clientContext)
+                      clientContext = empty)
         return session
     // Accept only problemId, never an arbitrary caller-selected version.
     // K-009 tests real snapshot/event rows and publication/withdrawal races.
     // K-013/K-014 later put idempotency and the HTTP command facade around this
     // same operation; they do not add an independently committed inner operation.
+
+function readPinnedCandidateOwned(verifiedCaller, sessionId, signal):
+    requireValidCallerAndSessionIdsOrReturnNone()
+    session = sessionRepository.readOwned(verifiedCaller.userId, sessionId, signal)
+    if session absent: return none             // no content query before ownership
+    try:
+        return catalogue.readPinnedCandidate(session.problemId,
+                                              session.problemPackVersion, signal)
+    on missingCorruptOrUnavailableContent:
+        return fail("pinned_content_unavailable") // no current-version fallback
 
 function readPinnedCandidate(problemId, version, signal):
     // Called by an owning service after session authorization.
@@ -532,7 +542,7 @@ session migration and ownership checks remain in their current owner. K-009
 acceptance uses this actual internal service and real session/event rows, not a
 fixture that manually wires disconnected reads/writes. K-014/K-016 retain HTTP,
 command replay and complete journey acceptance. Preserve the old fixture-only
-createPinned path for identity regressions without exposing it publicly.
+createPinned path for identity regressions without exposing it over HTTP.
 
 ## 8. Withdraw a release without changing history
 
