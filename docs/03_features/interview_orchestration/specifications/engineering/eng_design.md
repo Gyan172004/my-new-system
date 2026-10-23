@@ -358,5 +358,54 @@ run), `tsc --noEmit`/eslint/prettier all clean.
 Committed as
 `<US=US1, ID=T196, K=K-018, GROUP=02> feat(orchestration): register interview_turn operation`.
 
-Groups 03–07 (remaining implementation) follow; this section will be
+### Group 03 — IO-02: per-stage prompt modules and `AllowlistedContext`
+
+RED: `src/modules/interview-orchestration/` did not exist; new test files
+failed to collect (`Cannot find module`). Baseline before this group:
+393/393 (20 files).
+
+GREEN: created the module — `application/allowlisted-context.ts`
+(`buildAllowlistedContext`, `STAGE_FIELD_ALLOWLIST` for all 14 prompt-bearing
+stages, `K=6`/`F=8`, `UntrustedText`/`wrapUntrusted`, a runtime
+`isPromptBearingStage` guard that throws for `created`/`completed` and for
+any stage name smuggled past the type system), 14 pure prompt modules
+matching `session_state_machine.md` §2's stage names exactly, and
+`public.ts`. 469/469 passing (393 + 76 new), scope held to only new files —
+`src/modules/model-gateway/` untouched (confirmed by empty `git diff
+--stat`).
+
+The dedicated reviewer (loading `mastering-typescript`/`vitest`/
+`requesting-code-review`) reproduced two **blocking** issues directly,
+not just by inspection: (1) the untrusted-content delimiter had no
+self-escaping — a candidate string containing the literal
+`<<<CANDIDATE_INPUT>>>` delimiter could forge a closing/reopening pair and
+inject text that would read as outside the untrusted block to a downstream
+reader, defeating policy §7's delimiting requirement; the reviewer's
+reproduction produced 4 delimiter occurrences instead of 2. (2) realistic
+max-size input (full `K=6` turns, `F`-scale pack fields, a long candidate
+string) rendered to ~26,680 characters for the worst-case stage, failing the
+Model Gateway's registered 8,192-character input bound — nothing in this
+layer bounded component sizes before concatenation, so the overflow would
+only ever surface later at the gateway, defeating this layer's stated
+purpose of producing an already-bounded `text` field.
+
+Root fixed both directly: `wrapUntrusted` now neutralizes every literal
+occurrence of the delimiter sequence inside candidate text (replacing it
+with a non-matching placeholder whose edge characters can't reconstitute the
+delimiter) before embedding, guaranteeing exactly 2 delimiter occurrences in
+any rendered output regardless of candidate content; `renderContextFields`/
+`renderRecentTurns`/`wrapUntrusted` now apply fixed per-component character
+caps (250 chars/pack-field value, 250 chars/recent-turn text, 1,800 chars
+candidate input, each with a visible `…[truncated]` marker) sized so the
+worst-case stage's combined output (~6,417 chars, arithmetic verified) stays
+comfortably under the gateway's 8,192-char bound with margin. Both fixes
+shipped with their own RED (reproducing the reviewer's exact failure modes)
+→ GREEN regression tests. Reran the full suite after both fixes: **23
+files, 487 tests passing** (469 + 18 new), typecheck/eslint/prettier clean,
+gateway module still untouched.
+
+Committed as
+`<US=US1, ID=T200, K=K-018, GROUP=03> feat(orchestration): build allowlisted context and stage prompts`.
+
+Groups 04–07 (remaining implementation) follow; this section will be
 extended as each group's RED/GREEN/review/commit evidence is observed.
