@@ -38,7 +38,8 @@
     "verify:architecture": "npm run check:architecture && npm run test:architecture",
     "coverage:identity": "APP_ENV=test vitest run --config vitest.identity.config.ts",
     "test:e2e": "playwright test",
-    "content:pack": "node --env-file-if-exists=.env.local --import tsx scripts/content-pack.ts"
+    "content:pack": "node --env-file-if-exists=.env.local --import tsx scripts/content-pack.ts",
+    "coverage:catalogue": "APP_ENV=test vitest run --config vitest.catalogue.config.ts"
   },
   "dependencies": {
     "@clerk/backend": "3.25.0",

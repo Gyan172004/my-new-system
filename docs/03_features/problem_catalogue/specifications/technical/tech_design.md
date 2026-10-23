@@ -1,6 +1,6 @@
 # Problem Catalogue and Immutable Problem Packs — Technical Design
 
-**Status:** Owner-approved design; implementation authorized on 2026-10-23. Runtime acceptance remains pending.  
+**Status:** Reviewed implementation passes local code acceptance; genuine seed and external release gates remain pending.  
 **Feature:** 3. **Kanban:** K-007–K-009. **Date:** 2026-10-22.
 **Reconciled:** 2026-10-23 following owner acceptance of the audit recommendations.  
 **Behavior:** [requirements](../../requirements/feature_req.md).

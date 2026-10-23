@@ -114,7 +114,7 @@ _None._
 ### K-009 — Implement published Problem Pack retrieval and version pinning
 - Milestone: M1 · Priority: P0 · Depends on: K-005, K-007, K-008
 - Acceptance: sessions pin an immutable published version; candidate API excludes private fields.
-- Progress: reviewed immutable storage and authorized synthetic review/publication/withdrawal are committed (engineering Groups 02/03). Candidate HTTP acceptance and actual session pinning remain under implementation; K-008 genuine seed review still gates full completion. See [canonical engineering evidence](../docs/03_features/problem_catalogue/specifications/engineering/eng_design.md#group-03--observed-review-and-publication-acceptance).
+- Progress: reviewed code now covers immutable publication, candidate HTTP and real atomic session pins. Local acceptance passed 522 Vitest tests, five browser tests and the catalogue/identity coverage gates. Full completion still requires K-008 genuine seed approval (T132 / #135); no real seed is published. See [canonical engineering evidence](../docs/03_features/problem_catalogue/specifications/engineering/eng_design.md#group-06--coverage-and-convergence-evidence).
 
 ### K-008 — Create one reviewed seed Problem Pack
 - Milestone: M1 · Priority: P0 · Depends on: K-007

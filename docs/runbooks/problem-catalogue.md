@@ -1,6 +1,6 @@
 # Problem catalogue operations
 
-Use the pinned Node/npm runtime and the application's existing database configuration. Run migrations before staff commands. No imported Python/reference program is executed by these commands.
+Run operator commands from the reviewed repository checkout with its pinned Node/npm runtime and development dependencies, using the application's existing database configuration. The runtime application image ships the application server and migrations. Run migrations before staff commands. No imported Python/reference program is executed by these commands.
 
 `npm run content:pack -- validate content/problem-packs/two-sum/pack.draft.json` validates an offline draft without authentication or database access. A successful checksum is not human approval or publication. The supplied Two Sum draft remains unpublished until its author, independent reviewer and rights/content evidence are genuine.
 

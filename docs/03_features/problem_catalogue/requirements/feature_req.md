@@ -1,6 +1,6 @@
 # Problem Catalogue and Immutable Problem Packs — Requirements
 
-**Status:** Owner-approved design; implementation authorized on 2026-10-23. Acceptance evidence remains to be produced.  
+**Status:** Reviewed implementation passes local code acceptance; genuine seed and external release gates remain pending.  
 **Feature:** 3 in delivery order (Stage 2). **Kanban:** K-007, K-008, K-009.  
 **Date:** 2026-10-22.
 

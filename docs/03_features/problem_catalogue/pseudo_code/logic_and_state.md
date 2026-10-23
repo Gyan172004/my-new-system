@@ -1,6 +1,6 @@
 # Problem Catalogue and Immutable Problem Packs — Pseudocode
 
-**Status:** Owner-approved algorithms; implementation authorized on 2026-10-23. These algorithms are not executable acceptance evidence.  
+**Status:** Reviewed implementation passes local code acceptance; genuine seed and external release gates remain pending.  
 **Feature:** 3. **Kanban:** K-007–K-009. **Date:** 2026-10-22.
 **Reconciled:** 2026-10-23; owner-accepted audit corrections and ADR-023.  
 **Inputs:** [requirements](../requirements/feature_req.md),

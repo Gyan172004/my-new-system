@@ -1,6 +1,6 @@
 # Problem Catalogue and Immutable Problem Packs — Engineering Design
 
-**Status:** Owner-approved implementation plan; implementation authorized on 2026-10-23. Tests and acceptance remain pending.  
+**Status:** Reviewed implementation passes local code acceptance; genuine seed and external release gates remain pending.  
 **Feature:** 3. **Kanban:** K-007–K-009. **Date:** 2026-10-22.
 **Reconciled:** 2026-10-23; owner-accepted audit recommendations and ADR-023.  
 **Inputs:** [requirements](../../requirements/feature_req.md),
@@ -20,25 +20,26 @@ Next.js, Zod, `pg`, explicit SQL migrations, Vitest and existing contract tools.
 Read [development instructions](../../../../development.md) before running the
 application. Do not upgrade dependencies to satisfy a skill example.
 
-Proposed source layout:
+Implementation entry points:
 
 ```text
 src/modules/content-publishing/
   public.ts
   domain/pack-schema.ts, validate-pack.ts, checksum.ts
-  application/operators.ts, review.ts, publish.ts, withdraw.ts
+  application/service.ts, operators.ts, review.ts, publish.ts, withdraw.ts, types.ts
   persistence/reviews.ts, publications.ts
 src/modules/problem-catalogue/
   public.ts
-  application/read.ts, resolve.ts, projections.ts
-  persistence/releases.ts, test-suites.ts
+  application/installer.ts, read.ts, resolve.ts, projections.ts
+  persistence/releases.ts, test-suites.ts, reads.ts
 src/app/api/v1/problems/route.ts
 src/app/api/v1/problems/[problemId]/route.ts
 content/problem-packs/two-sum/       # authored input; never under public/
-scripts/content-pack.ts             # proposed operator command, not present yet
-src/server/transaction.ts           # proposed shared opaque transaction scope
+scripts/content-pack.ts             # bounded operator command
+src/server/transaction.ts           # shared opaque transaction scope
+src/server/content-staff.ts, catalogue-http.ts
 src/modules/interview-session/      # adapt existing internal service/repository to join scope
-migrations/<new_timestamp>_problem_catalogue.sql
+migrations/1792713600000_problem_catalogue.sql
 tests/unit/problem-catalogue/
 tests/integration/problem-catalogue/
 tests/contract/problem-catalogue.test.ts
@@ -200,11 +201,11 @@ Issue mirrors requested by the owner derive from these tasks, retain canonical K
 **Traceability:** K-007|K-008|K-009; P-12; FR-01–12; SC-01–06.  
 **Dependencies / independent acceptance:** Depends on T124 for code acceptance; T132 separately gates real seed and full K-008/K-009 completion. Independent acceptance: fresh observed evidence, reviewed gap-free implementation and honest release limits.
 
-- [ ] T125 Add vitest.catalogue.config.ts and package.json feature coverage script covering all new production modules, shared transaction, touched HTTP/command adapters and relevant session changes; require >=90% statements/lines/functions and >=85% branches unless existing stricter gates apply; do not exclude difficult behavior or count fixtures as production. Wire the catalogue coverage command into scripts/verify-ci.ts and prove its failure propagates with the existing CI negative-control tests.
-- [ ] T126 Run pinned-runtime npm run format:check, lint, typecheck, check:architecture, test:architecture, test:unit, APP_ENV=test npm run test:integration, test:contract, npm test, npm run build and feature coverage; execute actual authenticated HTTP acceptance and applicable lifecycle/readiness/privacy regressions; record exact commands/results/failures/skips in docs/03_features/problem_catalogue/specifications/engineering/eng_design.md.
-- [ ] T127 Run installed $speckit-converge against .specify/work/problem_catalogue/; reconcile actual gaps into docs/03_features/problem_catalogue/specifications/engineering/eng_design.md as new unique T tasks with K mappings; iterate implementation/TDD/review/coverage/analyze/converge until no unresolved code acceptance gaps.
-- [ ] T128 Reconcile all four docs in docs/03_features/problem_catalogue/, ADR register and canonical contracts where accepted design changed; finish docs/runbooks/problem-catalogue.md with empty catalogue, safe staff config, author/reviewer review, publish/retry/withdraw/recovery and deployment least-privilege gates; preserve original content/problem-packs/two-sum/source/ bytes.
-- [ ] T129 Dedicated final review agent applies requesting-code-review, verification-before-completion and relevant TypeScript/PostgreSQL/Vitest/Next.js skills to full requirement/test/privacy/ownership/error/logging coverage; root resolves findings technically, reruns affected checks and repeats convergence when changes warrant; record review evidence in docs/03_features/problem_catalogue/specifications/engineering/eng_design.md.
+- [x] T125 Add vitest.catalogue.config.ts and package.json feature coverage script covering all new production modules, shared transaction, touched HTTP/command adapters and relevant session changes; require >=90% statements/lines/functions and >=85% branches unless existing stricter gates apply; do not exclude difficult behavior or count fixtures as production. Wire the catalogue coverage command into scripts/verify-ci.ts and prove its failure propagates with the existing CI negative-control tests.
+- [x] T126 Run pinned-runtime npm run format:check, lint, typecheck, check:architecture, test:architecture, test:unit, APP_ENV=test npm run test:integration, test:contract, npm test, npm run build and feature coverage; execute actual authenticated HTTP acceptance and applicable lifecycle/readiness/privacy regressions; record exact commands/results/failures/skips in docs/03_features/problem_catalogue/specifications/engineering/eng_design.md.
+- [x] T127 Run installed $speckit-converge against .specify/work/problem_catalogue/; reconcile actual gaps into docs/03_features/problem_catalogue/specifications/engineering/eng_design.md as new unique T tasks with K mappings; iterate implementation/TDD/review/coverage/analyze/converge until no unresolved code acceptance gaps.
+- [x] T128 Reconcile all four docs in docs/03_features/problem_catalogue/, ADR register and canonical contracts where accepted design changed; finish docs/runbooks/problem-catalogue.md with empty catalogue, safe staff config, author/reviewer review, publish/retry/withdraw/recovery and deployment least-privilege gates; preserve original content/problem-packs/two-sum/source/ bytes.
+- [x] T129 Dedicated final review agent applies requesting-code-review, verification-before-completion and relevant TypeScript/PostgreSQL/Vitest/Next.js skills to full requirement/test/privacy/ownership/error/logging coverage; root resolves findings technically, reruns affected checks and repeats convergence when changes warrant; record review evidence in docs/03_features/problem_catalogue/specifications/engineering/eng_design.md.
 - [ ] T130 Update project_management/kanban_board.md and kanban_tasks.csv together only for demonstrated completion; preserve genuine seed gates, deferred K-028 cloud and deployment acceptance, record derived issue/PR links in canonical engineering design and concise handoff only where useful in docs/project_notes/.
 - [ ] T131 Root verifies final scoped diff and observed test evidence, commits group 06 with the title below, pushes feature/problem-catalogue-immutable-packs and opens new linked PR against confirmed dependency branch/base; include tests and pending seed/release gates in PR and docs/03_features/problem_catalogue/specifications/engineering/eng_design.md.
 - [ ] T132 EXTERNAL CONTENT GATE: obtain genuine verified author, distinct authorized human reviewer, source-rights evidence and exact finalized checksum approval for content/problem-packs/two-sum/; configure actual reviewed staff assignments outside committed secrets, then authorized review/publish and real-seed acceptance. Until supplied keep this task pending, seed unpublished and K-008/K-009 incomplete; synthetic code work and draft PR are independently reviewable.
@@ -501,33 +502,9 @@ T126. Publication, candidate HTTP and actual session pins are still later groups
 
 Hosted Foundation CI also passed for both reviewed heads: [Group 01 `b1ecf03`](https://github.com/Gyan172004/my-new-system/actions/runs/39868321203) and [Group 02 `cfe5736`](https://github.com/Gyan172004/my-new-system/actions/runs/39869557301). These runs cover those commits only; subsequent changes require fresh acceptance.
 
-### Interrupted Group 03/04 checkpoint — 2026-10-23
-
-The agent platform stopped the publication, catalogue-read and dedicated T111
-review agents with a usage-limit error. This is an execution interruption, not
-approval or acceptance. Group 03/04 code and runbook changes remain uncommitted;
-T105 onward remain unchecked pending their review/commit gates. No new PR exists.
-The last committed head is `cfe5736` on
-`feature/problem-catalogue-immutable-packs`; both committed groups passed hosted
-CI as linked above. Preserve unrelated pre-existing skill/setup changes.
-
-Root's latest `APP_ENV=test npm run test:unit` passed **26 files / 324 tests**.
-Root separately passed **24 tests** across transaction, storage and the new
-availability-lock integration file. A mixed focused run initially hit the CLI
-subprocess test's 5-second test budget (25 passed / 1 timed out); the publisher
-subsequently adjusted that process-test budget and the fresh full unit run above
-passed. T111's reviewer reported 37 focused tests passing before the platform
-interruption, but did not complete its review. This is not T111 sign-off.
-
-Resume with dedicated publication review, including the installer availability
-lock and identity/public-barrel boundaries, then root verification and T112
-commit. The read agent added routes, transport/contract tests and a real Next
-HTTP fixture; its actual HTTP result is not yet accepted. Finish T115–T118 and
-Next MCP/browser verification before session pinning T119–T124. T125 must enforce
-catalogue coverage in CI and keep the existing identity/session coverage gate
-passing when session production code expands. Continue convergence/final review
-and the stacked PR against `feature/identity-candidate-access`. T132 remains a
-genuine independent human content gate; the real Two Sum seed stays unpublished.
+The agent platform briefly interrupted Group 03/04 work. Execution resumed;
+review and acceptance evidence is recorded below. No acceptance was inferred
+from that interruption or the saved working tree.
 
 ### Group 03 — observed review and publication acceptance
 
@@ -632,3 +609,86 @@ typecheck and architecture, and accepted T123 with no actionable findings. Its
 earlier architecture-inclusive check passed 61 tests. K-013/K-014 still own HTTP
 command idempotency and K-016 owns the full candidate journey; real seed approval
 remains T132.
+
+### Group 06 — coverage and convergence evidence
+
+`APP_ENV=test npm run coverage:catalogue` passed 40 files / 421 tests. The report
+retains all 32 runtime production files selected by the feature configuration:
+984/1,068 statements (92.13%), 917/972 lines (94.34%), 192/199 functions (96.48%)
+and 702/792 branches (88.63%). The initial trustworthy parent-process baseline
+passed 419 tests but missed the statements gate at 89.60%; real in-process CLI
+identity/storage and route-adapter tests closed that gap without production
+changes or exclusions. CLI entrypoint/main lines remain visibly uncovered; actual
+CLI subprocess tests separately verify its behavior.
+
+The pinned V8 provider's subprocess attachment mishandled TSX extended-context
+source remapping, so that experimental report was rejected and attachment is
+disabled. No provider patch, dependency upgrade, ignore marker or threshold
+reduction was used. Coverage-only test budgets are 15 seconds to accommodate
+instrumentation; application deadlines and test assertions are unchanged.
+
+`APP_ENV=test npm run coverage:identity` passed 30 files / 372 tests. Its existing
+identity/session module gates remain unchanged and pass: statements 95.06%,
+lines 98.18%, functions 98.31%, branches 94.54%; identity HTTP remains 100% for
+statements/lines/functions and 88.88% branches. Existing browser-only UI stays
+visible but unexecuted in this Node report; its acceptance is measured separately
+with Playwright. The Group 05 hosted run failed the old identity selectors at
+84.36% statements because new author/session integration paths were absent.
+Adding their legitimate tests to the selector resolves that gate without lowering
+it; final hosted verification must use the new configuration.
+
+Catalogue coverage is now a required CI stage. The stage-list test first failed
+without it. A real passing coverage baseline followed by an added uncovered
+production function proves the stage fails with a threshold diagnostic and
+`ci_stage_failed:catalogue-coverage`. Five CI controls passed. The final reviewer
+independently passed runtime-adapter and CI-control files: seven tests total.
+
+The installed `$speckit-converge` assessed all 12 FRs, six SCs, four journeys,
+12 implementation obligations, five constitution principles and 46 task
+descriptions against source/tests/config. It found no actionable buildable-code
+gap and appended no tasks; the working task file remained byte-identical during
+that assessment. Existing final verification/review/handoff tasks and external
+T132 remain applicable. SC-01's genuine reviewed-seed portion remains unmet;
+code-scope convergence does not establish full K-008/K-009 completion.
+
+### Final local verification — observed results
+
+All commands used Node 24.22.0/npm 11.19.1; database checks used isolated owned
+PostgreSQL leases. These are development acceptance results, not cloud or human
+seed approval.
+
+| Command / check                           | Observed result                                                                                                     |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `APP_ENV=test npm test`                   | 58 files / 522 tests passed, including unit, real integration, contract, architecture, process and CI suites        |
+| `APP_ENV=test npm run test:e2e`           | Five browser tests passed after the deterministic hydration-readiness regression and fixture fix                    |
+| `npm run format:check`                    | Passed                                                                                                              |
+| `npm run lint`                            | Passed, zero warnings                                                                                               |
+| `npm run typecheck`                       | Passed                                                                                                              |
+| `npm run check:architecture`              | Passed, zero violations                                                                                             |
+| `APP_ENV=test npm run build`              | Passed; both catalogue routes appear as dynamic server routes                                                       |
+| `APP_ENV=test npm run container:build`    | Passed; local image `sha256:785c9a23a6849eb6f9ac59c054b804be63f6ea9802cb105ed2e4a5e2f766ce5a`                       |
+| `APP_ENV=test npm run verify:foundation`  | Clean install, four migrations, live/ready 200, dependency outage ready 503, recovery 200 and clean shutdown passed |
+| `npm audit --audit-level=high`            | Zero vulnerabilities                                                                                                |
+| `npm run scan:secrets`                    | Passed                                                                                                              |
+| `npm run scan:filesystem`                 | Zero high/critical vulnerability or misconfiguration findings                                                       |
+| `npm run scan:image`                      | Zero high/critical findings for the built image                                                                     |
+| `APP_ENV=test npm run coverage:catalogue` | 421 tests passed; all four 90/85 coverage gates passed as detailed above                                            |
+| `APP_ENV=test npm run coverage:identity`  | 372 tests passed; existing gated modules/HTTP thresholds passed as detailed above                                   |
+
+The first final Playwright run passed four of five tests; the existing identity
+account-boundary fixture stayed empty after its first click. An unchanged focused
+retry passed, but was not accepted as a fix. A controlled client-JavaScript hold
+then reproduced the lost action on an SSR-enabled fixture button. The retained
+readiness regression failed before the fixture change and passed afterward.
+Only the test fixture now disables its load control until an effect observes its
+current live account signal; production UI and all original privacy/cancellation
+assertions are unchanged. Root's fresh `APP_ENV=test npm run test:e2e` passed
+all five tests in 58.4 seconds. The full Vitest run above preceded this test-only
+fixture correction; the affected browser suite was rerun in full afterward.
+
+The final T129 review accepted implemented code scope with no actionable findings.
+It independently ran seven runtime-adapter/CI tests, inspected the final 522-test
+Vitest and five-test Playwright evidence, verified retained coverage denominators
+and reviewed the fixture readiness correction without weakening privacy checks.
+Human seed acceptance, unavailable MCP browser-error introspection and external
+production/deployment gates remain explicitly excluded from that acceptance.

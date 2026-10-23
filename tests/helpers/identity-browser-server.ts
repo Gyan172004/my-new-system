@@ -21,12 +21,14 @@ try {
     join(route, 'page.tsx'),
     `
 'use client';
-import {useState} from 'react';
+import {useEffect,useState} from 'react';
 import {AccountStateBoundary,useAccountSignal} from '../../modules/identity-ui/public';
 function Private({owner,onCancel}) {
  const signal=useAccountSignal(); const [data,setData]=useState('empty');
+ const [readySignal,setReadySignal]=useState<AbortSignal|undefined>();
+ useEffect(()=>{if(!signal.aborted)setReadySignal(signal)},[signal]);
  const load=()=> {const cancel=()=>{clearTimeout(timer);onCancel()}; const timer=setTimeout(()=>{signal.removeEventListener('abort',cancel);if(!signal.aborted)setData('private:'+owner)},500); signal.addEventListener('abort',cancel,{once:true});};
- return <><p data-testid="owner">{owner}</p><p data-testid="private">{data}</p><button onClick={load}>Load private response</button></>;
+ return <><p data-testid="owner">{owner}</p><p data-testid="private">{data}</p><button disabled={readySignal!==signal||signal.aborted} onClick={load}>Load private response</button></>;
 }
 export default function Fixture(){const [owner,setOwner]=useState('alice'); const [cancelled,setCancelled]=useState(0);return <><button onClick={()=>setOwner('bob')}>Switch account</button><button onClick={()=>setOwner('signed-out')}>Sign out</button><p data-testid="cancelled">{cancelled}</p><AccountStateBoundary accountKey={owner}><Private owner={owner} onCancel={()=>setCancelled(n=>n+1)}/></AccountStateBoundary></>}
 `,
