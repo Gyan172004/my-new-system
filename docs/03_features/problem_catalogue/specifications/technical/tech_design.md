@@ -279,6 +279,9 @@ publish evidence, then change the current release pointer. An exact retry
 returns the original record without moving the current pointer back to an old
 version or re-enabling a withdrawn release. A checksum conflict fails.
 
+Review UUID inputs are validated and normalized before lookup, persistence and
+receipt comparison, so valid case variations retain exact retry behavior.
+
 Current means the explicitly selected release, not lexicographically greatest
 version text. Publishing a new version selects it. Withdrawing the current
 version clears the pointer; there is no automatic fallback to an older release.
@@ -380,8 +383,8 @@ local fixtures.
 
 The permission choice and the audit corrections are selected planning decisions
 under ADR-023 and the owner's 2026-10-23 clarification. Remaining gates are actual
-staff assignments, implementation/verification of the selected strict schema and
-metadata registries, independent content/source approval, and normal engineering
-acceptance. Executable evaluation still waits for its owning execution gates;
+staff assignments, independent content/source approval, and remaining engineering
+acceptance. The selected strict schema, metadata registries and synthetic
+review/publication path have passed their reviewed implementation checks. Executable evaluation still waits for its owning execution gates;
 metadata-only publication does not imply candidate execution is enabled. Any
 material departure from ADR-006/020/021/022/023 goes through the existing register.

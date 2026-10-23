@@ -143,9 +143,9 @@ Before publication, assign actual author/reviewer/publisher identities and
 approve source use and content correctness. The permission mechanism is selected
 in ADR-023; actual allowlist assignments remain an operational gate. The
 canonical catalogue operations declare `400` for malformed query/path input;
-implementation must pass the corresponding contract and handler tests. Runtime
-schema/checker implementation and content approval remain work to execute, not
-evidence established by planning.
+implementation must pass the corresponding contract and handler tests. The strict runtime schema and synthetic publication path have reviewed engineering
+evidence in the engineering design. Genuine content approval remains pending;
+executable checker/harness qualification belongs to the later execution gates.
 
 ### Clarifications — 2026-10-23
 

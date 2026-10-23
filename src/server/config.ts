@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createPublicKey } from 'node:crypto';
+import { parseStaffConfiguration } from './content-staff';
 
 type Environment = Readonly<Record<string, string | undefined>>;
 const timer = (fallback: number) =>
@@ -197,8 +198,18 @@ export function parseRuntimeConfig(raw: Environment) {
       result.error.issues.map((issue) => String(issue.path[0])),
     );
   const value = result.data;
+  let contentStaff;
+  try {
+    contentStaff = parseStaffConfiguration(raw);
+  } catch {
+    throw new ConfigurationError([
+      'CONTENT_STAFF_GRANTS_JSON',
+      'CONTENT_STAFF_CONFIG_REVISION',
+    ]);
+  }
   return Object.freeze({
     appEnv: value.APP_ENV,
+    contentStaff,
     databaseUrl: value.DATABASE_URL,
     port: value.PORT,
     logLevel: value.LOG_LEVEL,

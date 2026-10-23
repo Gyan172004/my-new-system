@@ -122,6 +122,17 @@ export function createReleaseRepository(db: TransactionDatabase) {
         [problemId, releaseId],
       );
     },
+    // Callers acquire the owning problem lock before this availability lock.
+    async lockAvailability(scope: TransactionScope, releaseId: string) {
+      const result = await repositoryClient(scope, db).query<{
+        status: 'eligible' | 'withdrawn';
+      }>(
+        'SELECT status FROM catalogue_release_availability WHERE release_id=$1 FOR UPDATE',
+        [releaseId],
+      );
+      const row = result.rows[0];
+      return row ? Object.freeze({ status: row.status }) : null;
+    },
     async setAvailability(
       scope: TransactionScope,
       releaseId: string,

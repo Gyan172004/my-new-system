@@ -63,7 +63,7 @@ approval. The executable checker remains unimplemented. Observed checks are in
 [draft-validation.json](draft-validation.json).
 
 Before publication: assign a verified author and different reviewer with ADR-023 configuration grants; review content and source rights;
-approve the exact final content revision; and implement/use the authorized
-publication path. Executable checker/harness qualification is required before
+approve the exact final content revision; and use the reviewed authorized
+publication command. Executable checker/harness qualification is required before
 enabling submissions, not before metadata-only seed publication. Updating identity/content invalidates a previous
 draft checksum. Kanban remains the project status source.

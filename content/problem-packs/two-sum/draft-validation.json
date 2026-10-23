@@ -36,13 +36,13 @@
   "independentAgentReview": "No important actionable defects reported; not a substitute for required independent human approval.",
   "publicationBlockers": [
     "Verified author and assigned ADR-023 reviewer/publisher grants",
-    "Independent human content and source-rights approval of the final content revision",
-    "Implemented and verified authorized publication path"
+    "Independent human content and source-rights approval of the final content revision"
   ],
   "selectedInputProfile": "two-sum-base-v1",
   "executionGates": [
     "Executable checker, sandbox/harness and Python/C++/Java toolchain qualification before submissions are enabled; not a metadata-only publication prerequisite"
   ],
   "canonicalDraftChecksum": "a7267a548322067f59e648f8818ddb4314a46ca73d1f7c5f5ceed6acde1310f9",
-  "productionValidationEvidence": "Node 24.22.0; Group 01: 93 focused tests, 295 total unit tests, independent code review accepted. Metadata readiness does not grant publication authority."
+  "productionValidationEvidence": "Node 24.22.0; Group 01: 93 focused tests, 295 total unit tests, independent code review accepted. Metadata readiness does not grant publication authority.",
+  "authorizedPublicationPathImplemented": true
 }

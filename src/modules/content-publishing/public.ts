@@ -11,3 +11,7 @@ export {
   parsePackJson,
   PackJsonFailure,
 } from './domain/checksum';
+export { createPublishingService } from './application/service';
+export { PublishingFailure } from './application/operators';
+export type { PublishingIdentity } from './application/operators';
+export type { PublicationReceipt, PublicationEvent } from './application/types';

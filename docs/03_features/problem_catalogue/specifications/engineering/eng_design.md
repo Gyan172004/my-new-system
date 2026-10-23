@@ -156,14 +156,14 @@ Issue mirrors requested by the owner derive from these tasks, retain canonical K
 **Traceability:** K-008|K-009; P-05/07/08; FR-03/04/07/10/11/12; SC-01/02/04/06.  
 **Dependencies / independent acceptance:** Depends on T104. Code/test fixtures proceed independently of external seed approval T132. Independent acceptance: authorized synthetic publication is atomic, repeatable, auditable and withdrawal preserves historical releases.
 
-- [ ] T105 [US2] RED: add tests/unit/problem-catalogue/operator-permissions.test.ts and tests/integration/problem-catalogue/publication.test.ts for verified existing identity, no claimed operator, default deny, malformed/duplicate/unknown grants, revision/digest/restart snapshot, independent exact-checksum review, rights/case/followup approval and revoked reviewer behavior; add tests/unit/problem-catalogue/author-verification.test.ts and tests/integration/problem-catalogue/author-verification.test.ts for identity-owned lookupActiveUser UUID validation, active mapped-user proof, unknown/disabled denial, no user creation/PII leakage and optional opaque same-database transaction joining; observe failures.
-- [ ] T106 [US2] Implement src/modules/content-publishing/application/{operators.ts,review.ts} and persistence/reviews.ts plus src/server/config.ts owner changes: CONTENT_STAFF_GRANTS_JSON defaults [] with exactly {userId,permissions[]}; nonempty requires CONTENT_STAFF_CONFIG_REVISION; empty uses disabled-v1 and empty-set digest; allow only review_content/publish_content/withdraw_content; add server-only lookupActiveUser(userId, transaction?, signal) in src/modules/identity-profile/application/service.ts, public.ts and owning persistence/users.ts, returning only immutable {userId} for an active existing verified mapping, rejecting absent/disabled author proof without trusting claimed IDs or cross-module private imports; bind distinct reviewer/author proof in review.ts; run tests GREEN.
-- [ ] T107 [US2] RED: extend tests/integration/problem-catalogue/publication.test.ts and concurrency.test.ts plus tests/contract/problem-publication-event.test.ts for rollback/no partial selection, exact-retry original receipt after withdrawal/reviewer removal, conflicting checksums, duplicate/conflicting publishers, safe audit fields and canonical durable publication envelope separate from session_events; observe failures.
-- [ ] T108 [US2] Implement src/modules/content-publishing/application/{publish.ts,withdraw.ts} and persistence/publications.ts with common problem→availability lock order, complete sealing and canonical event in one transaction; exact retries require current publisher authority without reselect/re-enable; withdrawal clears current without fallback; run publication/concurrency/contract tests GREEN.
-- [ ] T109 [US2] RED: add tests/unit/problem-catalogue/command.test.ts for scripts/content-pack.ts bounded file/stdin behavior, offline unsigned draft validation, ephemeral credential on stdin only, no identity/approval flags or imported code execution, safe errors/cancellation and no credential/content logs; observe failures.
-- [ ] T110 [US2] Implement scripts/content-pack.ts with validate/review/publish/withdraw adapters over narrow public services; add only required package.json scripts without dependency upgrades; document safe invocation and uncertain-commit exact retry in docs/runbooks/problem-catalogue.md; run command tests GREEN.
-- [ ] T111 [US2] Dedicated review agent applies mastering-typescript, vitest, supabase-postgres-best-practices and security/identity boundaries in requesting-code-review; root verifies feedback, fixes/reviews and reruns publication/operator/concurrency/command/contract checks; reconcile docs/03_features/problem_catalogue/.
-- [ ] T112 [US2] Root verifies scoped diff and tests then commits group 03 with the title below; real seed stays unpublished without T132 and K-008/K-009 remain gated in project_management/kanban_board.md.
+- [x] T105 [US2] RED: add tests/unit/problem-catalogue/operator-permissions.test.ts and tests/integration/problem-catalogue/publication.test.ts for verified existing identity, no claimed operator, default deny, malformed/duplicate/unknown grants, revision/digest/restart snapshot, independent exact-checksum review, rights/case/followup approval and revoked reviewer behavior; add tests/unit/problem-catalogue/author-verification.test.ts and tests/integration/problem-catalogue/author-verification.test.ts for identity-owned lookupActiveUser UUID validation, active mapped-user proof, unknown/disabled denial, no user creation/PII leakage and optional opaque same-database transaction joining; observe failures.
+- [x] T106 [US2] Implement src/modules/content-publishing/application/{operators.ts,review.ts} and persistence/reviews.ts plus src/server/config.ts owner changes: CONTENT_STAFF_GRANTS_JSON defaults [] with exactly {userId,permissions[]}; nonempty requires CONTENT_STAFF_CONFIG_REVISION; empty uses disabled-v1 and empty-set digest; allow only review_content/publish_content/withdraw_content; add server-only lookupActiveUser(userId, transaction?, signal) in src/modules/identity-profile/application/service.ts, public.ts and owning persistence/users.ts, returning only immutable {userId} for an active existing verified mapping, rejecting absent/disabled author proof without trusting claimed IDs or cross-module private imports; bind distinct reviewer/author proof in review.ts; run tests GREEN.
+- [x] T107 [US2] RED: extend tests/integration/problem-catalogue/publication.test.ts and concurrency.test.ts plus tests/contract/problem-publication-event.test.ts for rollback/no partial selection, exact-retry original receipt after withdrawal/reviewer removal, conflicting checksums, duplicate/conflicting publishers, safe audit fields and canonical durable publication envelope separate from session_events; observe failures.
+- [x] T108 [US2] Implement src/modules/content-publishing/application/{publish.ts,withdraw.ts} and persistence/publications.ts with common problem→availability lock order, complete sealing and canonical event in one transaction; exact retries require current publisher authority without reselect/re-enable; withdrawal clears current without fallback; run publication/concurrency/contract tests GREEN.
+- [x] T109 [US2] RED: add tests/unit/problem-catalogue/command.test.ts for scripts/content-pack.ts bounded file/stdin behavior, offline unsigned draft validation, ephemeral credential on stdin only, no identity/approval flags or imported code execution, safe errors/cancellation and no credential/content logs; observe failures.
+- [x] T110 [US2] Implement scripts/content-pack.ts with validate/review/publish/withdraw adapters over narrow public services; add only required package.json scripts without dependency upgrades; document safe invocation and uncertain-commit exact retry in docs/runbooks/problem-catalogue.md; run command tests GREEN.
+- [x] T111 [US2] Dedicated review agent applies mastering-typescript, vitest, supabase-postgres-best-practices and security/identity boundaries in requesting-code-review; root verifies feedback, fixes/reviews and reruns publication/operator/concurrency/command/contract checks; reconcile docs/03_features/problem_catalogue/.
+- [x] T112 [US2] Root verifies scoped diff and tests then commits group 03 with the title below; real seed stays unpublished without T132 and K-008/K-009 remain gated in project_management/kanban_board.md.
 
 **Commit title:** `<US=US2, ID=T112, K=K-008|K-009, GROUP=03> feat(catalogue): authorize reviewed publication and withdrawal`
 
@@ -200,7 +200,7 @@ Issue mirrors requested by the owner derive from these tasks, retain canonical K
 **Traceability:** K-007|K-008|K-009; P-12; FR-01–12; SC-01–06.  
 **Dependencies / independent acceptance:** Depends on T124 for code acceptance; T132 separately gates real seed and full K-008/K-009 completion. Independent acceptance: fresh observed evidence, reviewed gap-free implementation and honest release limits.
 
-- [ ] T125 Add vitest.catalogue.config.ts and package.json feature coverage script covering all new production modules, shared transaction, touched HTTP/command adapters and relevant session changes; require >=90% statements/lines/functions and >=85% branches unless existing stricter gates apply; do not exclude difficult behavior or count fixtures as production.
+- [ ] T125 Add vitest.catalogue.config.ts and package.json feature coverage script covering all new production modules, shared transaction, touched HTTP/command adapters and relevant session changes; require >=90% statements/lines/functions and >=85% branches unless existing stricter gates apply; do not exclude difficult behavior or count fixtures as production. Wire the catalogue coverage command into scripts/verify-ci.ts and prove its failure propagates with the existing CI negative-control tests.
 - [ ] T126 Run pinned-runtime npm run format:check, lint, typecheck, check:architecture, test:architecture, test:unit, APP_ENV=test npm run test:integration, test:contract, npm test, npm run build and feature coverage; execute actual authenticated HTTP acceptance and applicable lifecycle/readiness/privacy regressions; record exact commands/results/failures/skips in docs/03_features/problem_catalogue/specifications/engineering/eng_design.md.
 - [ ] T127 Run installed $speckit-converge against .specify/work/problem_catalogue/; reconcile actual gaps into docs/03_features/problem_catalogue/specifications/engineering/eng_design.md as new unique T tasks with K mappings; iterate implementation/TDD/review/coverage/analyze/converge until no unresolved code acceptance gaps.
 - [ ] T128 Reconcile all four docs in docs/03_features/problem_catalogue/, ADR register and canonical contracts where accepted design changed; finish docs/runbooks/problem-catalogue.md with empty catalogue, safe staff config, author/reviewer review, publish/retry/withdraw/recovery and deployment least-privilege gates; preserve original content/problem-packs/two-sum/source/ bytes.
@@ -498,3 +498,60 @@ migration fixture were reconciled for the fourth revision; earlier migrations
 and bespoke partial-migration counts were preserved. A broad pre-fix full run
 was interrupted (exit 130); final full-suite/process/container acceptance remains
 T126. Publication, candidate HTTP and actual session pins are still later groups.
+
+Hosted Foundation CI also passed for both reviewed heads: [Group 01 `b1ecf03`](https://github.com/Gyan172004/my-new-system/actions/runs/39868321203) and [Group 02 `cfe5736`](https://github.com/Gyan172004/my-new-system/actions/runs/39869557301). These runs cover those commits only; subsequent changes require fresh acceptance.
+
+### Interrupted Group 03/04 checkpoint — 2026-10-23
+
+The agent platform stopped the publication, catalogue-read and dedicated T111
+review agents with a usage-limit error. This is an execution interruption, not
+approval or acceptance. Group 03/04 code and runbook changes remain uncommitted;
+T105 onward remain unchecked pending their review/commit gates. No new PR exists.
+The last committed head is `cfe5736` on
+`feature/problem-catalogue-immutable-packs`; both committed groups passed hosted
+CI as linked above. Preserve unrelated pre-existing skill/setup changes.
+
+Root's latest `APP_ENV=test npm run test:unit` passed **26 files / 324 tests**.
+Root separately passed **24 tests** across transaction, storage and the new
+availability-lock integration file. A mixed focused run initially hit the CLI
+subprocess test's 5-second test budget (25 passed / 1 timed out); the publisher
+subsequently adjusted that process-test budget and the fresh full unit run above
+passed. T111's reviewer reported 37 focused tests passing before the platform
+interruption, but did not complete its review. This is not T111 sign-off.
+
+Resume with dedicated publication review, including the installer availability
+lock and identity/public-barrel boundaries, then root verification and T112
+commit. The read agent added routes, transport/contract tests and a real Next
+HTTP fixture; its actual HTTP result is not yet accepted. Finish T115–T118 and
+Next MCP/browser verification before session pinning T119–T124. T125 must enforce
+catalogue coverage in CI and keep the existing identity/session coverage gate
+passing when session production code expands. Continue convergence/final review
+and the stacked PR against `feature/identity-candidate-access`. T132 remains a
+genuine independent human content gate; the real Two Sum seed stays unpublished.
+
+### Group 03 — observed review and publication acceptance
+
+T105–T112 implement immutable staff configuration, identity-owned active-author
+lookup, approved/rejected checksum-bound review, atomic publication and
+idempotent withdrawal. The credential-safe command runs offline validation or
+verified operations with bounded stdin/files and runtime cleanup. The real seed
+remains unpublished; synthetic fixture evidence does not satisfy T132.
+
+Root's focused nine-file command across operator/author/command unit tests,
+author/publication/concurrency/availability/command integration tests and the
+publication event contract passed 39 tests. Typecheck, global ESLint and the
+source architecture check passed. The dedicated reviewer independently passed
+73 tests including architecture and identified a valid uppercase review UUID
+whose first receipt differed from its retry. Root observed the regression fail,
+normalized the validated UUID once and passed all 14 publication tests; the
+reviewer independently reran those 14 tests and accepted T111 without outstanding
+findings. Review also drove an equivalent lint-safe control-character check.
+The earlier CLI process timeout is resolved by its explicit process-test budget.
+
+`lockAvailability` is a catalogue-owned narrow write port returning only a frozen
+status DTO; its real two-connection test proves FOR UPDATE exclusion and release
+on commit. Withdrawal locks problem then availability, preserves the first
+reason/audit on retry and clears current selection without fallback. New
+publication checks the reviewer's current grant; historical retry checks current
+publisher authority and recorded approval without reselecting or re-enabling.
+Commands and safe recovery are documented in the operations runbook.

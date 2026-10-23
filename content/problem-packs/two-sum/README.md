@@ -99,5 +99,4 @@ The [requirements](../../../docs/03_features/problem_catalogue/requirements/feat
 and [technical design](../../../docs/03_features/problem_catalogue/specifications/technical/tech_design.md)
 remain authoritative. The implemented strict schema and data checks now validate
 this draft. Finalize its identity/review fields, obtain independent human approval
-for the exact resulting revision, then use the authorized publication path when
-implemented. Structural success does not complete K-008 or K-009.
+for the exact resulting revision, then use the implemented authorized publication command. Structural success does not complete K-008 or K-009.

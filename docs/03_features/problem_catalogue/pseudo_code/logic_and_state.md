@@ -280,6 +280,7 @@ content. Rejection creates no eligible catalogue release.
 function publishBundle(operatorCredentials, source, reviewId, signal):
     publisher = verifyOperator(operatorCredentials)
     requirePermission(publisher, "publish_content")
+    reviewId = normalizeValidatedUuid(reviewId)
     validated = validateBundle(source, signal)
     if validated.invalid: return validated.failure
     pack = validated.pack

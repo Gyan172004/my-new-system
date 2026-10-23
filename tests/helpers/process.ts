@@ -265,6 +265,7 @@ export async function createProcessProject(): Promise<ProcessProject> {
       'scripts',
       'migrations',
       'tests/helpers',
+      'tests/fixtures',
       'config',
       'package.json',
       'package-lock.json',
