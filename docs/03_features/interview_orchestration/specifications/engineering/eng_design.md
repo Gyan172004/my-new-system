@@ -184,3 +184,90 @@ K-018 completion needs this feature's own implementation/tests plus K-017's
 production acceptance for any live-provider claim; fixture-only passage against
 the fake adapter does not establish production readiness. Update Kanban/CSV
 status only after observed criteria pass.
+
+## 7. Observed orchestration evidence
+
+### Group 00 — planning gate
+
+Separate agents ran specify, clarify, plan, checklist, and tasks against
+`.specify/work/interview_orchestration/`. Specify left two genuine
+`[NEEDS CLARIFICATION]` markers (the `interview_turn` timeout/token budget,
+and the `K`/`F` constants); the owner resolved both on 2026-10-24 (15s
+total/6s attempt/1,024 tokens, reusing `gateway_probe`'s defaults; `K=6`,
+`F=8`), and clarify propagated the concrete values into this document, the
+requirements doc, and the technical design, in addition to `spec.md`.
+
+The checklist stage found one genuine gap (`CHK010`): this document's own
+IO-05 task text under-named the FR-011 fixture set (seven categories, no
+abstention, three distinct codes compressed into "refusal"). Corrected here
+directly; `CHK010` now reads Satisfied in
+`.specify/work/interview_orchestration/checklists/orchestration.md`.
+
+The first `$speckit-analyze`-equivalent pass found one **CRITICAL** finding
+(`F1`): reading the actual K-017 implementation
+(`src/modules/model-gateway/application/{types,operations,invoke}.ts`) showed
+operation dispatch is hardwired to the single literal `gateway_probe` — not
+generically registry-driven as earlier design text assumed — which would
+have blocked `interview_turn` from ever being dispatchable. This is
+consistent with K-017's own stated Stage 4 scope (model_gateway requirements
+§1: "enable them only when their schemas, context rules and evaluations are
+defined"), i.e. K-017 deliberately deferred this generalization to the
+consuming feature rather than omitting it by oversight. Added as `FR-013`
+and task `IO-00` above, narrowly scoped to the operation-identity/schema-
+selection switch only (never provider adapters/transport/budget/retry/usage
+logic), with a mandatory regression test proving `gateway_probe`'s existing
+behavior is unchanged. Three lesser findings (`F2`: stale "existing
+guarded-commit path" wording given K-014/K-016 are Backlog; `F3`: an
+ambiguous `classification-contract.ts` reference, now removed from this
+stage's file list — that module is `IO-07`'s own deliverable; `F4`: an
+under-specific "no new route/event" verification claim) were also corrected
+directly in this document and propagated into the Spec-Kit artifacts.
+
+A second analyze pass independently re-verified every fix (re-reading the
+gateway source files again, re-grepping the full task-ID sequence, re-reading
+`kanban_board.md` directly rather than trusting the first pass's cached
+claim) and found **zero CRITICAL/HIGH findings**. It surfaced one MEDIUM
+(`checklists/requirements.md` still said "FR-001–FR-012", not updated for the
+new `FR-013`, and `FR-013` had no Success Criterion of its own) and two LOW
+observations (a non-defect wording note, and a soft spot in `IO-00`'s
+disabled-stub-vs-schema-bearing-operation filter semantics). Root fixed the
+MEDIUM (added `SC-009` to `spec.md`, updated the checklist's FR/SC ranges)
+and the LOW task-specification gap (clarified that `IO-00`'s candidate filter
+widens by name membership in the closed operation set, not by schema
+presence, so still-disabled schema-less stubs keep failing closed) directly,
+rather than running a third full analyze pass for non-blocking findings.
+
+`tasks.md` ultimately defines 38 tasks, `T185`–`T222`, across Groups
+00–07 (Group 01 is the new `IO-00` gateway-dispatch generalization, inserted
+ahead of the original Group 01/`IO-01`, which shifted to Group 02; every
+later group shifted accordingly). Root committed Group 00 as
+`<US=shared, ID=T188, K=K-018, GROUP=00> docs(orchestration): record reviewed implementation tasks`
+(commit `4bfdef1`), containing only this feature's four canonical documents
+and `README.md` — `.specify/work/interview_orchestration/` is gitignored
+(`.specify/.gitignore`), matching the K-017 precedent.
+
+### Derived issue export
+
+The taskstoissues agent deduplicated against all existing issues, created 38
+derived mirrors titled `T<id>: <task text>` with full task/dependency/group
+text in the body and an explicit "Acceptance evidence: not yet observed"
+placeholder, and read every one back to confirm title/body integrity and zero
+duplicates/skips. GitHub assigned `#190`–`#227` (not starting at `#189`,
+which turned out to already be K-017's own PR). These mirrors do not replace
+Kanban/CSV as the status authority.
+
+| Task  | Issue | Task  | Issue | Task  | Issue | Task  | Issue |
+| ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
+| T185  | #190  | T195  | #200  | T205  | #210  | T215  | #220  |
+| T186  | #191  | T196  | #201  | T206  | #211  | T216  | #221  |
+| T187  | #192  | T197  | #202  | T207  | #212  | T217  | #222  |
+| T188  | #193  | T198  | #203  | T208  | #213  | T218  | #223  |
+| T189  | #194  | T199  | #204  | T209  | #214  | T219  | #224  |
+| T190  | #195  | T200  | #205  | T210  | #215  | T220  | #225  |
+| T191  | #196  | T201  | #206  | T211  | #216  | T221  | #226  |
+| T192  | #197  | T202  | #207  | T212  | #217  | T222  | #227  |
+| T193  | #198  | T203  | #208  | T213  | #218  |       |       |
+| T194  | #199  | T204  | #209  | T214  | #219  |       |       |
+
+Groups 01–07 (implementation) follow; this section will be extended as each
+group's RED/GREEN/review/commit evidence is observed.
