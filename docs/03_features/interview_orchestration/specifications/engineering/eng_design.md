@@ -407,5 +407,53 @@ gateway module still untouched.
 Committed as
 `<US=US1, ID=T200, K=K-018, GROUP=03> feat(orchestration): build allowlisted context and stage prompts`.
 
-Groups 04–07 (remaining implementation) follow; this section will be
+### Group 04 — IO-03: policy layer and deterministic fallback selection
+
+RED: `application/{policy,fallback}.ts` did not exist; new tests failed to
+collect. Baseline before this group (`npm run test:unit`): 623/623 (41
+files).
+
+GREEN: implemented `applyPolicy`'s five ordered steps (stage applicability,
+reference-ID containment, hint-ladder containment, content-exposure,
+transition authority) exactly matching `tech_design.md` §4's order, and
+`selectFallback`/`FALLBACK_TURN` for all 14 prompt-bearing stages, reusing
+Group 03's `isPromptBearingStage` guard rather than duplicating it.
+`OperationOutput['interview_turn']` is imported through the Model Gateway's
+`public.ts` only. 642/642 passing (623 + 19 new).
+
+The hint-ladder-containment step has no real signal to check against yet —
+the registered `interviewTurnOutputSchema` carries no hint-index field (that
+belongs to Stage 6/K-019's own design). Rather than fabricate a free-text
+heuristic (which `tech_design.md` §4 step 4 explicitly rejects for the
+*different* content-exposure check, and would be equally wrong here),
+`impliedHintIndex` is implemented as a documented placeholder returning `0`,
+wired into a real, executing comparison against `allowedHintIndex` — proven
+live by a test asserting rejection at `allowedHintIndex: -1` (which only
+fails because the comparison genuinely runs). A reviewer independently
+confirmed this is honestly wired, not faked.
+
+The dedicated reviewer (`mastering-typescript`/`vitest`/
+`requesting-code-review`) returned **APPROVE WITH FOLLOW-UPS** — nothing
+blocking, three items: (1) abstention was proven only for `initial_approach`
+in the original tests, not the other two approach-discussion stages
+(`approach_clarification`/`improve_approach`), even though the shared code
+path made correctness not actually in doubt; (2) `containsPrivateFieldValue`
+does exact-literal substring containment with no case/whitespace
+normalization — a real but *documented, design-intended* residual gap per
+tech_design.md §4 step 4's own "containment check against known restricted
+values, not a heuristic classifier" framing, tracked here rather than fixed
+now since normalizing risks false positives without a reviewed normalization
+rule; (3) the handoff's test-file count was off by two (43, not 41 — pass
+count was correct). Root added the missing per-stage abstention tests
+(`approach_clarification`/`improve_approach`) directly: 115/115 passing in
+the scoped `tests/unit/interview-orchestration` suite, typecheck/eslint/
+prettier clean. Item (2) remains an open, explicitly tracked follow-up for a
+future hardening pass (likely alongside K-019, which owns the real
+approach-assessment confidence/evidence logic this containment check is a
+coarse backstop for).
+
+Committed as
+`<US=US2, ID=T204, K=K-018, GROUP=04> feat(orchestration): enforce policy layer and deterministic fallback`.
+
+Groups 05–07 (remaining implementation) follow; this section will be
 extended as each group's RED/GREEN/review/commit evidence is observed.

@@ -42,7 +42,13 @@ const PROMPT_BEARING_STAGE_SET: ReadonlySet<string> = new Set(
   PROMPT_BEARING_STAGES,
 );
 
-function isPromptBearingStage(
+/**
+ * Runtime guard shared by every module that must distinguish the 14
+ * prompt-bearing stages from `created`/`completed` (e.g. `fallback.ts`'s
+ * `selectFallback`, Group 04) — exported so callers never duplicate this
+ * check against `PROMPT_BEARING_STAGE_SET`.
+ */
+export function isPromptBearingStage(
   stage: InterviewStage,
 ): stage is PromptBearingStage {
   return PROMPT_BEARING_STAGE_SET.has(stage);

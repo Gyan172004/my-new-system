@@ -3,6 +3,7 @@
 
 export {
   buildAllowlistedContext,
+  isPromptBearingStage,
   wrapUntrusted,
   renderUntrustedBlock,
   PROMPT_BEARING_STAGES,
@@ -21,6 +22,20 @@ export type {
   PromptParts,
   UntrustedText,
 } from './application/allowlisted-context';
+
+export { applyPolicy } from './application/policy';
+export type {
+  ApplyPolicyContext,
+  ApplyPolicyPack,
+  ApplyPolicyRequest,
+  PolicyDecision,
+  PolicyFailedStep,
+  TurnProposal,
+  ValidatedInterviewTurnOutput,
+} from './application/policy';
+
+export { FALLBACK_TURN, selectFallback } from './application/fallback';
+export type { FallbackTurn } from './application/fallback';
 
 import type {
   AllowlistedContext,
