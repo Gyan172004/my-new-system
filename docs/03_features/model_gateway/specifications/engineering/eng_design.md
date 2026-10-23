@@ -665,3 +665,20 @@ precedent exactly. No blocking or material finding. Reran the full scoped
 suite directly afterward:
 `npx vitest run tests/unit/model-gateway tests/contract/model-gateway tests/integration/model-gateway tests/ci/negative-controls.test.ts`
 — 20 files/385 tests passed.
+
+T182: updated `project_management/kanban_board.md`'s K-017 entry with the
+groups 00-05 implementation/verification summary and the real Groq probe
+result; retained "In Progress" status and the explicit T184 external gate.
+`project_management/kanban_tasks.csv`'s K-017 row needed no change (status
+field already "In Progress"). Derived GitHub issue mirrors for T174-T184
+(`#178`-`#188`) were already exported under T136; no new export needed.
+
+T183: committed group 05 as
+`<US=shared, ID=T183, K=K-017, GROUP=05> test(gateway): verify coverage and acceptance gates`
+(commit `8f91c64`), pushed `feature/model-gateway` to
+`Gyan172004/my-new-system`, and opened
+[PR #189](https://github.com/Gyan172004/my-new-system/pull/189) stacked on
+`feature/problem-catalogue-immutable-packs`, carrying the full verification
+summary, the real Groq result, and the pending T184/OpenAI gate. Hosted CI
+results (if run) apply only to the tested commit. Groups 00-05 are complete;
+T184 (external OpenAI gate) remains the only item open on K-017.
