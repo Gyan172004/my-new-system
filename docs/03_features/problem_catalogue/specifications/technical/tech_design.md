@@ -122,7 +122,12 @@ cases, 2,000 entries per content-entry collection and nesting depth 32. The
 bounded test input/output data. `two-sum-base-v1` permits nums length 2–10,000;
 embedded data stays within its profile and 128 KiB per-value bound. Candidate detail
 must serialize within 256 KiB. IDs/version labels are nonempty and at most
-256 UTF-8 bytes, matching the existing session pin columns. List limits remain
+256 UTF-8 bytes, matching the existing session pin columns. Stable problem IDs
+and pack-version labels reject C0 controls and DEL; problem IDs also reject the
+exact URL dot segments `.` and `..`. Unicode IDs remain allowed, and dot-only
+version labels remain allowed because versions are not URL path segments. These
+guards keep admitted content addressable through candidate detail and exact
+pinned reads. List limits remain
 the canonical 1–100, default 20. These are reviewable engineering limits, not
 measured capacity or a new public wire contract.
 

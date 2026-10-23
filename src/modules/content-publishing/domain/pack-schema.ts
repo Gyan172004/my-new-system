@@ -92,13 +92,25 @@ const caseSchema = z.strictObject({
   }),
 });
 export const packSchema = z.strictObject({
-  problemId: id,
+  problemId: id.refine(
+    (value) =>
+      value !== '.' &&
+      value !== '..' &&
+      ![...value].some(
+        (char) => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127,
+      ),
+  ),
   slug: z
     .string()
     .min(1)
     .max(256)
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-  version: id,
+  version: id.refine(
+    (value) =>
+      ![...value].some(
+        (char) => char.charCodeAt(0) < 32 || char.charCodeAt(0) === 127,
+      ),
+  ),
   schemaVersion: z.literal(1),
   authorId: z.uuid().nullable(),
   candidate: z.strictObject({

@@ -207,3 +207,43 @@ describe('bounded schema diagnostics', () => {
     expect(report.result.errors).toHaveLength(100);
   }, 20000);
 });
+
+describe('addressable stable problem identities', () => {
+  it.each([
+    '.',
+    '..',
+    'line\nfeed',
+    'tab\tname',
+    'return\rname',
+    'end\u007fname',
+  ])(
+    'rejects unaddressable problem ID %j in drafts and publications',
+    (problemId) => {
+      const p = { ...createApprovedPack(), problemId };
+      for (const mode of ['draft', 'publication'] as const) {
+        expect(validatePack(JSON.stringify(p), mode)).toMatchObject({
+          ok: false,
+          errors: [{ code: 'invalid_schema', path: 'problemId' }],
+        });
+      }
+    },
+  );
+  it('retains Unicode problem IDs and dot-segment version labels', () => {
+    const p = { ...createApprovedPack(), problemId: '问题-😀', version: '..' };
+    expect(validatePack(JSON.stringify(p), 'publication')).toMatchObject({
+      ok: true,
+    });
+  });
+});
+it.each(['line\nfeed', 'tab\tname', 'return\rname', 'end\u007fname'])(
+  'rejects control-bearing version labels %j before they become unreadable pins',
+  (version) => {
+    const p = { ...createApprovedPack(), version };
+    for (const mode of ['draft', 'publication'] as const) {
+      expect(validatePack(JSON.stringify(p), mode)).toMatchObject({
+        ok: false,
+        errors: [{ code: 'invalid_schema', path: 'version' }],
+      });
+    }
+  },
+);

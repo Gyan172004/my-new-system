@@ -41,11 +41,6 @@ _None._
 ## Backlog
 
 
-### K-009 — Implement published Problem Pack retrieval and version pinning
-- Milestone: M1 · Priority: P0 · Depends on: K-005, K-007, K-008
-- Acceptance: sessions pin an immutable published version; candidate API excludes private fields.
-- Progress: shared transactions and sealed immutable storage passed 39 focused/migration/readiness checks and independent PostgreSQL review. Candidate HTTP, publication and actual session pinning are still being built using synthetic fixtures; full acceptance remains blocked by K-008 genuine seed review. See [canonical engineering evidence](../docs/03_features/problem_catalogue/specifications/engineering/eng_design.md#group-02--observed-transaction-and-storage-acceptance).
-
 ### K-010 — Implement session state transition guards
 - Milestone: M1 · Priority: P0 · Depends on: K-002 and `session_state_machine.md`
 - Acceptance: allowed and forbidden transitions are tested; client/model cannot set arbitrary state.
@@ -115,6 +110,11 @@ _None._
 - Acceptance: explicit versioned consent/revocation; bounded audio validation; OpenAI `gpt-transcribe` runs through the Model Gateway; transcript enters the same state machine as text; interviewer text is displayed and `gpt-4o-mini-tts` speech is streamed on demand; raw audio/speech is not durably stored by the application; provider failures do not advance state; text fallback, rate limits, log redaction and retention tests pass.
 
 ## In Progress
+
+### K-009 — Implement published Problem Pack retrieval and version pinning
+- Milestone: M1 · Priority: P0 · Depends on: K-005, K-007, K-008
+- Acceptance: sessions pin an immutable published version; candidate API excludes private fields.
+- Progress: reviewed immutable storage and authorized synthetic review/publication/withdrawal are committed (engineering Groups 02/03). Candidate HTTP acceptance and actual session pinning remain under implementation; K-008 genuine seed review still gates full completion. See [canonical engineering evidence](../docs/03_features/problem_catalogue/specifications/engineering/eng_design.md#group-03--observed-review-and-publication-acceptance).
 
 ### K-008 — Create one reviewed seed Problem Pack
 - Milestone: M1 · Priority: P0 · Depends on: K-007

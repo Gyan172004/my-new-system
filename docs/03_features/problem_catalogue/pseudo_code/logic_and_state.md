@@ -107,6 +107,8 @@ function validateBundle(source, signal):
     if errors.notEmpty: return invalid(errors)
     requireSupported(pack.schemaVersion, errors)
     requireIdByteBounds(pack.problemId, pack.version, errors)
+    requireNoC0OrDel(pack.problemId, pack.version, errors)
+    rejectExactUrlDotSegments(pack.problemId, errors) // versions keep ordinary labels
     requireValidSlugAndDifficulty(pack, errors)
     requireUsableExamplesApproachesHintsAndTests(pack, errors)
     requireReasonForAllowedEmptySections(pack, errors) // human accepts it during review
@@ -417,7 +419,7 @@ function decodeBoundedCursor(encoded):
     decoded = strictDecodeBase64UrlJson(encoded)
     requireExactKeys(decoded, ["formatVersion", "lastProblemId"])
     requireEqual(decoded.formatVersion, 1)
-    requireIdByteBounds(decoded.lastProblemId)
+    requireIdByteBoundsAndNoControls(decoded.lastProblemId)
     return decoded
 ```
 
@@ -429,7 +431,7 @@ the starting point; it cannot bypass published/eligibility filters.
 ```text
 function getProblem(httpRequest, problemId, signal):
     caller = identity.authenticate(httpRequest, signal)
-    requireIdByteBounds(problemId)
+    requireIdByteBoundsAndNoControls(problemId)
     release = catalogueRepository.readCurrentEligibleCandidate(problemId, signal)
     if release absent: return canonicalNotFound()
     requireStoredCandidateShapeAndBounds(release)

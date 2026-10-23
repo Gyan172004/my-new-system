@@ -172,12 +172,12 @@ Issue mirrors requested by the owner derive from these tasks, retain canonical K
 **Traceability:** K-009; P-09/10; FR-05/06/08/09/10/11; SC-03/05.  
 **Dependencies / independent acceptance:** Depends on T104 and T112 integration; pure projection tests may run alongside group 03 after schema/storage stability. Independent acceptance: actual authenticated HTTP returns bounded candidate-only current data and canonical failures.
 
-- [ ] T113 [P] [US3] RED: add tests/unit/problem-catalogue/projections.test.ts and tests/integration/problem-catalogue/reads.test.ts for exact candidate allowlist, private canaries, same-release metadata, empty listing, unavailable detail, exact withdrawn-version reads, stable ID pages, sparse eligibility and current-pointer updates; observe failures, then capture real PostgreSQL EXPLAIN evidence with sparse/inactive catalogue fixtures to verify indexed pagination and document inspected-row costs without an unsupported O(L) claim.
-- [ ] T114 [US3] Implement src/modules/problem-catalogue/application/{projections.ts,read.ts,resolve.ts} and narrow public DTOs; no generic conversational full-pack getter, no source fetch/execution, cursor bounded/versioned/last-ID only, "1–100, default 20", limit+1 and no snapshot promise across membership changes; run read/projection tests GREEN.
-- [ ] T115 [US3] RED: add tests/contract/problem-catalogue.test.ts and actual HTTP tests/integration/problem-catalogue/http.test.ts for list/detail schemas, malformed cursor/limit/ID 400, 401/403/429 Retry-After/503/404, storage failure distinct from empty and private-field/log canaries; preserve tests/contract/identity-errors.test.ts coverage; observe failures.
-- [ ] T116 [US3] Implement src/app/api/v1/problems/route.ts and src/app/api/v1/problems/[problemId]/route.ts using existing identity, lifecycle/cancellation and safe error/telemetry adapters; reconcile contracts/api/v1_openapi.yaml only where approved canonical changes require; run HTTP/contract tests GREEN against running application.
-- [ ] T117 [US3] Dedicated review agent applies mastering-typescript, vitest and relevant Next.js runtime skill prerequisites to actual route/runtime/security evidence; root fixes/reviews, reruns actual HTTP, contracts and architecture checks; record evidence in docs/03_features/problem_catalogue/specifications/engineering/eng_design.md.
-- [ ] T118 [US3] Root verifies scoped diff then commits group 04 using the title below; no new UI or session HTTP route is introduced in src/app/api/v1/problems/.
+- [x] T113 [P] [US3] RED: add tests/unit/problem-catalogue/projections.test.ts and tests/integration/problem-catalogue/reads.test.ts for exact candidate allowlist, private canaries, same-release metadata, empty listing, unavailable detail, exact withdrawn-version reads, stable ID pages, sparse eligibility and current-pointer updates; observe failures, then capture real PostgreSQL EXPLAIN evidence with sparse/inactive catalogue fixtures to verify indexed pagination and document inspected-row costs without an unsupported O(L) claim.
+- [x] T114 [US3] Implement src/modules/problem-catalogue/application/{projections.ts,read.ts,resolve.ts} and narrow public DTOs; no generic conversational full-pack getter, no source fetch/execution, cursor bounded/versioned/last-ID only, "1–100, default 20", limit+1 and no snapshot promise across membership changes; run read/projection tests GREEN.
+- [x] T115 [US3] RED: add tests/contract/problem-catalogue.test.ts and actual HTTP tests/integration/problem-catalogue/http.test.ts for list/detail schemas, malformed cursor/limit/ID 400, 401/403/429 Retry-After/503/404, storage failure distinct from empty and private-field/log canaries; preserve tests/contract/identity-errors.test.ts coverage; observe failures.
+- [x] T116 [US3] Implement src/app/api/v1/problems/route.ts and src/app/api/v1/problems/[problemId]/route.ts using existing identity, lifecycle/cancellation and safe error/telemetry adapters; reconcile contracts/api/v1_openapi.yaml only where approved canonical changes require; run HTTP/contract tests GREEN against running application.
+- [x] T117 [US3] Dedicated review agent applies mastering-typescript, vitest and relevant Next.js runtime skill prerequisites to actual route/runtime/security evidence; root fixes/reviews, reruns actual HTTP, contracts and architecture checks; record evidence in docs/03_features/problem_catalogue/specifications/engineering/eng_design.md.
+- [x] T118 [US3] Root verifies scoped diff then commits group 04 using the title below; no new UI or session HTTP route is introduced in src/app/api/v1/problems/.
 
 **Commit title:** `<US=US3, ID=T118, K=K-009, GROUP=04> feat(catalogue): serve authenticated candidate catalogue`
 
@@ -555,3 +555,49 @@ reason/audit on retry and clears current selection without fallback. New
 publication checks the reviewer's current grant; historical retry checks current
 publisher authority and recorded approval without reselecting or re-enabling.
 Commands and safe recovery are documented in the operations runbook.
+
+### Group 04 — candidate catalogue verification
+
+Candidate summary/detail reads select only candidate material and construct
+frozen allowlisted DTOs. Current detail and its metadata come from one selected
+eligible release; exact historical candidate reads ignore later withdrawal.
+Keyset cursors are bounded, versioned, canonical base64url and carry only the
+last stable ID. Limits remain 1–100, default 20. A real sparse PostgreSQL fixture
+with 1,200 inactive records and three eligible matches inspected eight release
+and availability records, made six indexed current-pointer probes, sorted three
+matches and used 15 shared-hit blocks / zero disk reads (one local execution:
+0.344 ms). This is fixture evidence, not a capacity target or O(page-size) bound;
+query cost depends on inspected eligibility/current-pointer records.
+
+Review found URL dot-segment problem IDs and control-bearing problem/version
+labels could validate but fail retrieval. Failing tests drove narrowly scoped
+admission guards: reject C0/DEL for stable problem IDs and pack versions, and
+exact `.`/`..` only for problem IDs. Unicode IDs and ordinary version labels
+remain supported. Root observed four version-control failures before the fix,
+then passed all 104 schema/validation/checksum/seed tests; the reviewer separately
+passed the final 46 validation cases.
+
+Actual Next HTTP tests cover candidate-only list/detail, malformed input,
+authentication/disabled users, throttling/Retry-After, storage failure versus
+empty data, recovery and log canaries. Review exposed malformed percent/UTF-8
+pathnames rejected by Next before the handler as HTML, then a cross-bundle error
+class mismatch in the first fix. The final transport maps only malformed encoded
+GET detail paths to a valid encoded invalid-ID path and delegates the original
+Next handler. This preserves its identity graph, headers, source context and
+cancellation while returning canonical API errors. No structural exception
+matching was relaxed.
+
+The production process fixture now copies test fixtures needed by the new
+publication helper. Both implementation and independent review observed all five
+privacy/shutdown tests passing after the original build failure; the helper
+correction was included in Group 03 because that helper introduced the dependency.
+Root's latest full unit command passed 26 files / 337 tests and typecheck passed.
+
+A separate owned Next 16.4.2 Turbopack fixture exposed both catalogue routes;
+MCP `get_compilation_issues` returned no issues. A real agent-browser session
+asserted list/detail 200, exact candidate fields and coherent versions,
+unauthenticated 401 and invalid limit 400. Its browser was closed and the fixture
+disposed. MCP `get_errors` reported no connected browser session despite the
+active browser; no zero-runtime-error claim is based on that unavailable probe.
+The independent final HTTP/transport rerun passed seven tests in 44 seconds;
+T117 is accepted with no remaining blocking findings.
