@@ -154,7 +154,7 @@ export function createSafeLogger(
           'outputSchemaVersion',
         ])
           label(key, ['1']);
-        label('evaluationVersion', ['synthetic-probe-v1']);
+        label('evaluationVersion', ['synthetic-probe-v1', 'interview-turn-v1']);
         label('operationId', ['synthetic-probe-v1']);
         for (const key of ['callId', 'operationId', 'sessionId'])
           if (

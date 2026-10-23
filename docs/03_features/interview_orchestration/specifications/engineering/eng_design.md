@@ -315,5 +315,48 @@ typecheck/eslint/prettier clean, diff still scoped to the same five files.
 Committed as
 `<US=US1, ID=T192, K=K-018, GROUP=01> feat(orchestration): generalize gateway operation dispatch`.
 
-Groups 02–07 (remaining implementation) follow; this section will be
+### Group 02 — IO-01: register `interview_turn` in the Model Gateway registry
+
+RED: baseline 387/387 confirmed. Four new contract-test cases observed
+failing against the still-disabled `interview_turn` stub (resolve success
+with the pinned schema/limits; incomplete-declaration rejection; wrong-shaped
+limits rejection; `stage_classification`/`intent_classification` unchanged).
+
+GREEN: `interview_turn` enabled in `canonicalOperations` with the exact
+input/output Zod schemas pinned in `tech_design.md` §2 (added to
+`validation.ts`, reusing the existing `reference` schema for
+`matchedReferenceApproachId` rather than redefining it), `limits` identical
+to `probe.limits`, and a `prompt.body` that is strictly generic/stage-
+agnostic (operation contract, untrusted-data boundary, structured-output
+requirement — zero stage-specific content, verified by the reviewer reading
+the actual registered string). 391/391 passing, scope held to
+`operations.ts`/`validation.ts`/two test files; a pre-existing test
+assertion that expected `interview_turn` to stay `operation_disabled` was
+correctly updated (the other six disabled-operation cases in that same test
+loop were left intact — reviewer confirmed no coverage was quietly dropped).
+
+The dedicated reviewer found two issues: (1) **blocking** — `types.ts`'s
+`OperationInput['interview_turn']`/`OperationOutput['interview_turn']` were
+left as the `Record<string, unknown>` placeholders from Group 01, even
+though Group 01's own comment explicitly deferred their real typing to this
+group; callers got zero compile-time shape checking despite `IO-01` claiming
+completion. (2) non-blocking follow-up — `src/server/logger.ts`'s
+`model_call_completed` field-redaction allowlist only permitted
+`gateway_probe`'s `evaluationVersion` value (`'synthetic-probe-v1'`), so any
+real `interview_turn` call's true `evaluationVersion`
+(`'interview-turn-v1'`) would silently log as redacted/null — a genuine
+observability gap newly exposed by enabling this operation, found by the
+reviewer's explicit hunt for other code assuming `interview_turn` stays
+permanently disabled. Root fixed both directly: `types.ts` now derives
+`OperationInput`/`OperationOutput`'s `interview_turn` entries via
+`z.infer<typeof interviewTurnInputSchema/interviewTurnOutputSchema>` instead
+of a placeholder; `logger.ts`'s `evaluationVersion` allowlist now includes
+`'interview-turn-v1'`. Reran the full suite after both fixes: **20 files,
+393 tests passing** (391 + 2 — `tests/unit/logger.test.ts` included in this
+run), `tsc --noEmit`/eslint/prettier all clean.
+
+Committed as
+`<US=US1, ID=T196, K=K-018, GROUP=02> feat(orchestration): register interview_turn operation`.
+
+Groups 03–07 (remaining implementation) follow; this section will be
 extended as each group's RED/GREEN/review/commit evidence is observed.

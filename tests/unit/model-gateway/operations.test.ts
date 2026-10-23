@@ -12,11 +12,16 @@ import {
 import { probeContext } from '../../fixtures/model-gateway/probe';
 
 describe('operation registration', () => {
-  it('resolves only the complete text probe and keeps canonical business/audio mappings disabled', () => {
+  it('resolves the complete text probe and interview_turn operations and keeps the remaining canonical business/audio mappings disabled', () => {
     const registry = createOperationRegistry();
     expect(registry.resolve('gateway_probe')).toMatchObject({ ok: true });
+    // interview_turn was enabled by IO-01 (K-018 Group 02) — it is no longer a disabled stub.
+    expect(registry.resolve('interview_turn')).toMatchObject({ ok: true });
+    expect(
+      canonicalOperations.find((d) => d.name === 'interview_turn')?.models
+        .openai,
+    ).toBe('gpt-6.1-sol');
     for (const [name, model] of [
-      ['interview_turn', 'gpt-6.1-sol'],
       ['approach_assessment', 'gpt-6.1-sol'],
       ['hint_support', 'gpt-6.1-sol'],
       ['feedback', 'gpt-6.1-sol'],
