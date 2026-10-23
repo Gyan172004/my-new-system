@@ -41,7 +41,11 @@ it('returns only an exact typed proposal and finalized safe versions/correlation
       evaluationVersion: 'synthetic-probe-v1',
       attempts: 1,
       outcome: 'success',
-      usage: null,
+      usage: {
+        completeness: 'unknown',
+        unknownAttempts: 1,
+        totals: { inputTokens: null, outputTokens: null, totalTokens: null },
+      },
       estimatedCostUsd: null,
       actualCharge: 'unknown',
     },

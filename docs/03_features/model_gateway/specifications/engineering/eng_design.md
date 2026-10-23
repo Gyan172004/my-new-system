@@ -119,16 +119,16 @@ results and generated checkboxes do not prove feature implementation.
 
 **Dependencies / independent acceptance:** T144; deterministic clocks/owned HTTP fixtures prove bounded failure, resource recovery and exactly one finalized safe summary on every exit.
 
-- [ ] T145 [US2] RED: add tests/unit/model-gateway/budgets.test.ts for "2" in-flight calls/no waiting queue, "15 seconds" total deadline, "6 seconds" clipped attempt timeout, "2" total attempts and production estimated-cost admission; include safe upper-bound/rate-card absence, zero-attempt saturation and reservation release; observe failures.
-- [ ] T146 [US2] Implement src/modules/model-gateway/application/budgets.ts and invoke.ts admission/deadline/cost reservation across both possible attempts; production rejects missing reviewed numeric rates/cap or unsafe token bounds, fixture/Groq unknown costs remain unknown; run T145 GREEN and refactor.
-- [ ] T147 [US2] RED: add tests/integration/model-gateway/transport.test.ts with owned local HTTP server/dummy credentials for "16 KiB" serialized request, "128 KiB" response, missing/false Content-Length, hung/partial reads, redirect denial, abort, late result and reader cancellation; observe failures.
-- [ ] T148 [US2] Implement src/modules/model-gateway/adapters/transport.ts bounded incremental complete-body reading, fixed/allowlisted provider origins, redirect denial and no hidden retries; test-only injected local transport is unavailable to runtime production composition; run T147 GREEN and refactor.
-- [ ] T149 [US2] RED: add tests/unit/model-gateway/retries.test.ts and cleanup.test.ts for same-provider/model retry, cancellation before deadline before late success, attempt timeout versus total timeout, "250–500 ms" jitter and valid delta/date Retry-After with "2 seconds" maximum; preparation/backoff/cleanup/telemetry exceptions, exhausted attempts and release ordering before retry; observe failures.
-- [ ] T150 [US2] Complete src/modules/model-gateway/application/invoke.ts outer finalization and per-attempt abort/reader/listener/timer cleanup before backoff/redispatch; preserve caller logical identity/new attempt identity, honor remaining deadline/output/cost bounds and reject premature Retry-After retry; run T145/T147/T149 GREEN and refactor.
-- [ ] T151 [US2] RED: add tests/unit/model-gateway/metadata.test.ts and logger.test.ts for zero-attempt/failure/success summaries, unknown provider/version fields, untrusted operation label unknown, missing/partial usage, invalid counts, reasoning/cache without double-counting, cost estimate versus unknown actual charge and secret/content canaries; observe failures.
-- [ ] T152 [US2] Implement src/modules/model-gateway/application/metadata.ts and deliberate src/server/logger.ts allowlist extension for model_call_completed; retain per-attempt unknown completeness, versions/correlation/timing/outcome and bounded labels; isolate telemetry/cleanup faults from original outcome; run T151 and cleanup tests GREEN and refactor.
-- [ ] T153 [US2] Dedicated review agent applies TypeScript/Vitest and requesting-code-review to src/modules/model-gateway/application/, adapters/transport.ts and src/server/logger.ts: all exits, bounded reads, retry/cost matrix, cleanup race ordering and privacy; root resolves findings and reruns affected unit/integration checks; record evidence in docs/03_features/model_gateway/specifications/engineering/eng_design.md.
-- [ ] T154 [US2] Root verifies group 02 focused checks and scoped diff, records RED/GREEN/review evidence in docs/03_features/model_gateway/specifications/engineering/eng_design.md, then commits with the exact title below.
+- [x] T145 [US2] RED: add tests/unit/model-gateway/budgets.test.ts for "2" in-flight calls/no waiting queue, "15 seconds" total deadline, "6 seconds" clipped attempt timeout, "2" total attempts and production estimated-cost admission; include safe upper-bound/rate-card absence, zero-attempt saturation and reservation release; observe failures.
+- [x] T146 [US2] Implement src/modules/model-gateway/application/budgets.ts and invoke.ts admission/deadline/cost reservation across both possible attempts; production rejects missing reviewed numeric rates/cap or unsafe token bounds, fixture/Groq unknown costs remain unknown; run T145 GREEN and refactor.
+- [x] T147 [US2] RED: add tests/integration/model-gateway/transport.test.ts with owned local HTTP server/dummy credentials for "16 KiB" serialized request, "128 KiB" response, missing/false Content-Length, hung/partial reads, redirect denial, abort, late result and reader cancellation; observe failures.
+- [x] T148 [US2] Implement src/modules/model-gateway/adapters/transport.ts bounded incremental complete-body reading, fixed/allowlisted provider origins, redirect denial and no hidden retries; test-only injected local transport is unavailable to runtime production composition; run T147 GREEN and refactor.
+- [x] T149 [US2] RED: add tests/unit/model-gateway/retries.test.ts and cleanup.test.ts for same-provider/model retry, cancellation before deadline before late success, attempt timeout versus total timeout, "250–500 ms" jitter and valid delta/date Retry-After with "2 seconds" maximum; preparation/backoff/cleanup/telemetry exceptions, exhausted attempts and release ordering before retry; observe failures.
+- [x] T150 [US2] Complete src/modules/model-gateway/application/invoke.ts outer finalization and per-attempt abort/reader/listener/timer cleanup before backoff/redispatch; preserve caller logical identity/new attempt identity, honor remaining deadline/output/cost bounds and reject premature Retry-After retry; run T145/T147/T149 GREEN and refactor.
+- [x] T151 [US2] RED: add tests/unit/model-gateway/metadata.test.ts and logger.test.ts for zero-attempt/failure/success summaries, unknown provider/version fields, untrusted operation label unknown, missing/partial usage, invalid counts, reasoning/cache without double-counting, cost estimate versus unknown actual charge and secret/content canaries; observe failures.
+- [x] T152 [US2] Implement src/modules/model-gateway/application/metadata.ts and deliberate src/server/logger.ts allowlist extension for model_call_completed; retain per-attempt unknown completeness, versions/correlation/timing/outcome and bounded labels; isolate telemetry/cleanup faults from original outcome; run T151 and cleanup tests GREEN and refactor.
+- [x] T153 [US2] Dedicated review agent applies TypeScript/Vitest and requesting-code-review to src/modules/model-gateway/application/, adapters/transport.ts and src/server/logger.ts: all exits, bounded reads, retry/cost matrix, cleanup race ordering and privacy; root resolves findings and reruns affected unit/integration checks; record evidence in docs/03_features/model_gateway/specifications/engineering/eng_design.md.
+- [x] T154 [US2] Root verifies group 02 focused checks and scoped diff, records RED/GREEN/review evidence in docs/03_features/model_gateway/specifications/engineering/eng_design.md, then commits with the exact title below.
 
 **Commit title:** `<US=US2, ID=T154, K=K-017, GROUP=02> feat(gateway): bound invocation and usage accounting`
 
@@ -437,3 +437,32 @@ listener access before real-transport tests.
 
 The reviewed slice is committed with
 `<US=US1, ID=T144, K=K-017, GROUP=01> feat(gateway): validate registered fake operations`.
+
+### Group 02 — bounded invocation and usage accounting
+
+The implementation agent observed RED/GREEN for admission/deadline/cost (seven
+initial failures), real owned transport (ten initial failures), retry/cleanup
+(14 failures against 11 already-passing cases), usage metadata (12 failures) and
+logger privacy. Final focused command under the pinned runtime:
+`APP_ENV=test npm test -- tests/unit/model-gateway tests/integration/model-gateway/transport.test.ts tests/contract/model-gateway tests/unit/logger.test.ts`
+passed 11 files/143 tests; root independently repeated the same passing command.
+Typecheck, scoped ESLint, owned Prettier and diff checks also passed.
+
+T153's dedicated reviewer found a late-response body leak. The initial fix and
+regression exposed a second microtask handoff window; both arrival-after-abort
+and handoff cancellation now dispose owned bodies. The reviewer also reproduced
+mutable rate-card accounting: an admitted call could change its estimate/version
+when the caller mutated the original object. A private scalar snapshot now pins
+reservation, attempt estimates and recorded version without freezing the caller.
+Each finding received an observed failing regression before its fix; an
+additional setup-listener exception test proved timer cleanup.
+
+Independent re-review reproduced both fixed cases: body cancellation count one;
+reservation .004296, estimated cost .0003 and original reviewed-v1 card version.
+It ran ten gateway files/141 tests and approved with no remaining findings in
+scope. These 141 exclude the additional existing shared logger tests included
+in root's 143-test run. Full gateway/provider/runtime acceptance remains later
+work, not implied by this slice.
+
+Commit title:
+`<US=US2, ID=T154, K=K-017, GROUP=02> feat(gateway): bound invocation and usage accounting`.

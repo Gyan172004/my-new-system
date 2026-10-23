@@ -49,6 +49,20 @@ Success carries `data`; failure carries `code` and a caller-level `retryable`
 flag. That flag does not permit unbounded retries. Only trusted composition code
 constructs the registry and provider adapter; consumer input cannot replace them.
 
+Trusted server composition uses `createModelGateway` with an adapter, optional
+validated registry, actual environment, optional reviewed rate card and safe
+completion callback. A real adapter without an explicit environment is rejected.
+The factory snapshots rate-card scalars; later caller mutations cannot change
+reservation, attempt estimates or recorded version. `close`/`destroy` abort work.
+
+Adapters may prepare a fixed request without billable dispatch, returning a
+nullable conservative input-token bound plus a send closure. Preparation shares
+the total deadline; production/staging reject unknown bounds/cards/caps before
+sending. Transport fixes the provider endpoint and limits complete-body reads;
+owned tests can inject fetch, while runtime composition always uses native fetch.
+Response ownership is retained through fetch/reader handoff, including arrivals
+after cancellation. No new HTTP or event contract is introduced by these seams.
+
 The registry stores input/output validators, JSON Schema, prompt ID/version,
 evaluation-set version, visibility rules, limits, and provider capability needs.
 Generate/reconcile provider JSON Schema with the runtime validator; test both
@@ -194,6 +208,13 @@ with zero attempts; unavailable provider/version fields are null, and untrusted
 operation names use a fixed `unknown` telemetry label. Keep per-attempt usage
 when available, including reasoning/cached token categories without double
 counting; totals must identify partial/unknown attempts.
+
+Usage metadata contains per-attempt IDs, duration, outcome and normalized token
+counts, plus aggregate known totals and explicit unknown/partial-attempt counts.
+Reasoning and cached input remain included subtotals, not additional tokens.
+`reservedCostUsd` is the conservative dispatch reservation; `estimatedCostUsd`
+sums available attempt estimates with a separate completeness flag.
+`modelCallLogFields` produces the flattened allowlisted logger projection.
 
 Record `estimatedCostUsd`, rate-card version and completeness separately from
 actual charge status (`unknown` unless independently established). Free access

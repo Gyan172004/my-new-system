@@ -1,3 +1,4 @@
+import type { Completeness, GatewayUsage } from './metadata';
 import type { EnabledDefinition, OperationRegistry } from './operations';
 
 export type EnabledOperation = 'gateway_probe';
@@ -59,8 +60,11 @@ export type GatewayMetadata = Readonly<{
   attempts: number;
   durationMs: number;
   outcome: 'success' | GatewayErrorCode;
-  usage: unknown;
+  usage: GatewayUsage;
+  rateCardVersion: string | null;
+  costCompleteness: Completeness;
   estimatedCostUsd: number | null;
+  reservedCostUsd: number | null;
   actualCharge: 'unknown';
 }>;
 export type GatewayResult<T> =
@@ -82,30 +86,62 @@ export type AdapterRequest = Readonly<{
   attemptId: string;
   operationId: string;
 }>;
-export type AdapterResult =
-  | Readonly<{
-      status: 'complete';
-      text: string;
-      reportedModel: string | null;
-      usage: unknown;
-    }>
-  | Readonly<{ status: 'refused' | 'truncated' | 'tool_output' }>
-  | Readonly<{
-      status: 'failure';
-      code: GatewayErrorCode;
-      retryable: boolean;
-      internalRetry: boolean;
-      retryAfterMs?: number;
-    }>;
+export type AdapterResult = Readonly<{
+  usage?: unknown;
+  reportedModel?: string | null;
+}> &
+  (
+    | Readonly<{
+        status: 'complete';
+        text: string;
+        reportedModel: string | null;
+        usage: unknown;
+      }>
+    | Readonly<{ status: 'refused' | 'truncated' | 'tool_output' }>
+    | Readonly<{
+        status: 'failure';
+        code: GatewayErrorCode;
+        retryable: boolean;
+        internalRetry: boolean;
+        retryAfterMs?: number;
+        retryAfter?: string;
+      }>
+  );
+export type PreparedAdapterRequest = Readonly<{
+  inputTokenUpperBound: number | null;
+  send(signal: AbortSignal): Promise<AdapterResult>;
+}>;
+export type RateCard = Readonly<{
+  version: string;
+  reviewed: boolean;
+  model: string;
+  inputUsdPerMillion: number;
+  outputUsdPerMillion: number;
+  cachedInputUsdPerMillion?: number;
+}>;
 export type GatewayAdapter = Readonly<{
   provider: GatewayProvider;
   send(request: AdapterRequest, signal: AbortSignal): Promise<AdapterResult>;
+  // Preparation builds a bounded immutable wire request without dispatch or retained IO resources.
+  // Null means the reviewed conservative input-token bound is unavailable.
+  prepare?(
+    request: AdapterRequest,
+    signal: AbortSignal,
+  ): Promise<PreparedAdapterRequest>;
+  close?(): Promise<void>;
+  destroy?(): void;
 }>;
 export type GatewayOptions = Readonly<{
   adapter: GatewayAdapter;
   registry?: OperationRegistry;
+  environment?: 'development' | 'test' | 'staging' | 'production';
+  rateCard?: RateCard;
+  onCompleted?(metadata: GatewayMetadata): void;
+  signal?: AbortSignal;
 }>;
 export type ModelGateway = Readonly<{
+  close(): Promise<void>;
+  destroy(): void;
   invoke<K extends EnabledOperation>(
     request: GatewayRequest<K>,
   ): Promise<GatewayResult<OperationOutput[K]>>;
