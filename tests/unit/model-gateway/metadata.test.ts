@@ -4,6 +4,10 @@ import {
   type AdapterResult,
   type GatewayMetadata,
 } from '../../../src/modules/model-gateway/public';
+import {
+  summarizeUsage,
+  type AttemptMetadata,
+} from '../../../src/modules/model-gateway/application/metadata';
 import { probeContext, probeInput } from '../../fixtures/model-gateway/probe';
 const request = () => ({
   operation: 'gateway_probe' as const,
@@ -315,4 +319,28 @@ it('keeps timed-out attempt usage unknown and ignores late reported usage', asyn
     },
     costCompleteness: 'unknown',
   });
+});
+it('marks aggregate completeness partial, not complete, when individually complete attempts overflow a safe aggregate total', () => {
+  const big = Number.MAX_SAFE_INTEGER - 1;
+  const attempt = (id: string): AttemptMetadata => ({
+    attempt: 1,
+    attemptId: id,
+    durationMs: 1,
+    outcome: 'success',
+    estimatedCostUsd: null,
+    usage: {
+      inputTokens: big,
+      outputTokens: 1,
+      totalTokens: big + 1,
+      reasoningTokens: null,
+      cachedInputTokens: null,
+      completeness: 'complete',
+    },
+  });
+  const usage = summarizeUsage([attempt('a1'), attempt('a2')]);
+  expect(usage.unknownAttempts).toBe(0);
+  expect(usage.partialAttempts).toBe(0);
+  expect(usage.completeness).toBe('partial');
+  expect(usage.totals.inputTokens).toBeNull();
+  expect(usage.totals.outputTokens).toBe(2);
 });

@@ -568,3 +568,100 @@ Groq evidence does not satisfy T184 (separate external OpenAI gate).
 
 T163-T172 are complete; T173 (scoped-diff verification and group commit)
 follows.
+
+### Group 05 — coverage, convergence and reviewable PR
+
+T174 RED/fix: coverage preparation had flagged that two individually complete
+attempts could overflow a safe aggregate total while `summarizeUsage` still
+reported `completeness: 'complete'`. Added
+`tests/unit/model-gateway/metadata.test.ts`'s
+"marks aggregate completeness partial... overflow" case first (observed RED:
+`expected 'complete' to be 'partial'`), then fixed `summarizeUsage` in
+`src/modules/model-gateway/application/metadata.ts` to track a per-key
+overflow flag and downgrade aggregate completeness to `partial` when any
+total could not be represented as a safe integer, without marking individual
+attempts unknown/partial. Reran `tests/unit/model-gateway` and
+`tests/contract/model-gateway`: GREEN (372 tests).
+
+T175: added `vitest.gateway.config.ts` (thresholds: statements/lines/functions
+90%, branches 85%, mirroring `vitest.catalogue.config.ts`'s precedent) and
+`coverage:gateway` in `package.json`, covering
+`src/modules/model-gateway/**/*.ts`, `src/server/model-gateway.ts`,
+`src/server/config.ts`, `src/server/logger.ts`,
+`scripts/check-boundaries.ts` and `scripts/model-gateway-smoke.ts`. First run
+failed the global branch threshold (84.07%). Closed the gap with real tests,
+not exclusions: `createSyntheticProbeRunner` rejecting a disabled adapter and
+`.destroy()` on an idle runner (`tests/unit/model-gateway/runtime.test.ts`),
+an immediate-abort-before-first-iteration case and full `smokeMain` coverage
+(signal registration/cleanup, success, `ConfigurationError` mapping, invalid
+CLI arguments) in `tests/unit/model-gateway/smoke.test.ts`, and a reasoning
+item left in a non-terminal, non-incomplete status in
+`tests/contract/model-gateway/openai.test.ts`. Final pinned run:
+`APP_ENV=test npm run coverage:gateway` exits 0 — Statements 92.88%
+(862/928), Branches 85.09% (748/879), Functions 98.78% (162/164), Lines
+93.82% (790/842). `scripts/check-boundaries.ts`'s own branch coverage stays
+low (37.65%) because most of its defensive/multi-clause branches belong to
+rules exercised across the whole architecture-fixture corpus, not gateway
+work specifically; the global threshold is met without touching that file's
+behavior.
+
+T176 RED: added `gateway-coverage` to the exact expected stage list in
+`tests/ci/negative-controls.test.ts` and a real baseline-pass-then-threshold-
+failure test mirroring the existing `catalogue-coverage` control (an isolated
+fixture project under `gateway-coverage-control/` with its own
+`vitest.gateway.config.ts`, a covered function, then an added uncovered one).
+Both failed as expected (`stages['gateway-coverage']` undefined).
+
+T177: registered `'gateway-coverage': ['run', 'coverage:gateway']` in
+`scripts/verify-ci.ts`'s `stages` map. `.github/workflows/ci.yml` needed no
+change — its single `npm run verify:ci` step already runs every registered
+stage with no arguments. Reran T176's tests: GREEN
+(`tests/ci/negative-controls.test.ts`, 6/6).
+
+T178 full pinned-runtime run (Node 24.22.0/npm 11.19.1 — downloaded directly
+from nodejs.org into a scratch directory after the shell's default Node
+20.20.2 was found to fail `dependency-cruiser`'s engine check):
+`format:check` clean; `lint` clean; `typecheck` clean; `test:unit` 38
+files/521 tests; `APP_ENV=test test:integration` 20 files/129 tests;
+`test:contract` 8 files/194 tests; `verify:architecture` ([] violations, 3
+files/45 tests); `APP_ENV=test test:process` 8 files/22 tests;
+`APP_ENV=test test:ci` 3 files/10 tests (including the new gateway-coverage
+negative control); `APP_ENV=test coverage:gateway` exit 0 (thresholds above);
+`APP_ENV=test npm test` 80 files/921 tests; `npm run build` (Next.js
+production build) succeeded. No ordinary test loaded `.env.local` or
+dispatched a real provider; `npm run build` itself loads `.env.local` for
+Next's own environment handling, unrelated to gateway test execution.
+
+T179 (`$speckit-converge`/`$speckit-analyze`): these Spec-Kit slash commands
+are not available as invocable tools in this execution environment (no Codex
+CLI integration here). In their place, root manually reconciled
+`.specify/work/model_gateway/tasks.md` against the four canonical documents
+and this evidence log; no unresolved contradiction or missing requirement
+coverage was found beyond what groups 00-04 and this section already record.
+This substitutes for, but does not claim to be, an executed
+`$speckit-analyze` pass.
+
+T180: reconciled the four canonical documents and `docs/development.md`
+against group 05's actual changes. The `summarizeUsage` overflow fix
+implements behavior the technical design already specified in §5 ("keep
+those totals null and mark aggregate completeness partial"); no design text
+changed. The `gateway-coverage` CI stage and its vitest config are test/CI
+infrastructure, not a reviewed interface or architectural decision, so no
+ADR or contract update applies. No session/audio scope, K-028/K-026
+deployment gates, or the unrelated catalogue T132 gate were touched.
+
+T181 final review (root, directly, in place of a separately spawned
+background review agent after the T171 stash incident recorded in group 04):
+reviewed the complete group 05 diff — `metadata.ts`'s overflow fix,
+`vitest.gateway.config.ts`, `package.json`'s `coverage:gateway` script, the
+`gateway-coverage` stage registration in `verify-ci.ts`, and the new tests
+in `runtime.test.ts`, `smoke.test.ts`, `openai.test.ts` and
+`negative-controls.test.ts`. The overflow fix computes `totals` once before
+deriving `completeness`, letting the `overflowed` flag participate in the
+same ternary as `unknownAttempts`/`partialAttempts` without double-counting;
+this is minimal and matches the RED test. The new CI stage and coverage
+config follow the existing `catalogue-coverage`/`vitest.catalogue.config.ts`
+precedent exactly. No blocking or material finding. Reran the full scoped
+suite directly afterward:
+`npx vitest run tests/unit/model-gateway tests/contract/model-gateway tests/integration/model-gateway tests/ci/negative-controls.test.ts`
+— 20 files/385 tests passed.

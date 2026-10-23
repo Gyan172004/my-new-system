@@ -118,29 +118,34 @@ export function summarizeUsage(
   const partialAttempts = attempts.filter(
     (a) => a.usage.completeness === 'partial',
   ).length;
+  let overflowed = false;
   const sum = (key: keyof TokenCounts) => {
     const counts = attempts
       .map((a) => a.usage[key])
       .filter((n): n is number => n !== null);
-    return counts.length ? count(counts.reduce((a, b) => a + b, 0)) : null;
+    if (!counts.length) return null;
+    const total = count(counts.reduce((a, b) => a + b, 0));
+    if (total === null) overflowed = true;
+    return total;
   };
+  const totals = Object.freeze({
+    inputTokens: sum('inputTokens'),
+    outputTokens: sum('outputTokens'),
+    totalTokens: sum('totalTokens'),
+    reasoningTokens: sum('reasoningTokens'),
+    cachedInputTokens: sum('cachedInputTokens'),
+  });
   const completeness =
     !attempts.length || unknownAttempts === attempts.length
       ? 'unknown'
-      : unknownAttempts || partialAttempts
+      : unknownAttempts || partialAttempts || overflowed
         ? 'partial'
         : 'complete';
   return Object.freeze({
     completeness,
     unknownAttempts,
     partialAttempts,
-    totals: Object.freeze({
-      inputTokens: sum('inputTokens'),
-      outputTokens: sum('outputTokens'),
-      totalTokens: sum('totalTokens'),
-      reasoningTokens: sum('reasoningTokens'),
-      cachedInputTokens: sum('cachedInputTokens'),
-    }),
+    totals,
     attempts: Object.freeze(attempts.map((a) => Object.freeze({ ...a }))),
   });
 }

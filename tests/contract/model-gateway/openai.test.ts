@@ -249,3 +249,11 @@ it('OpenAI incomplete reasoning cannot masquerade as a completed response', asyn
     await adapter.send(request('openai'), new AbortController().signal),
   ).toMatchObject({ status: 'truncated' });
 });
+it('rejects a reasoning item left in a non-terminal, non-incomplete status', async () => {
+  const body = envelope('openai');
+  (body.output as Record<string, unknown>[])[0]!.status = 'in_progress';
+  const { adapter } = await fixture('openai', body);
+  expect(
+    await adapter.send(request('openai'), new AbortController().signal),
+  ).toMatchObject({ status: 'failure', code: 'invalid_output' });
+});

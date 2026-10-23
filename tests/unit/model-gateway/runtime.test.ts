@@ -105,6 +105,24 @@ it('refuses generic Groq composition and accepts only the fixed fixture runner',
   });
   await runner.close();
 });
+it('rejects a disabled adapter configuration passed directly to the trusted probe runner', () => {
+  expect(() =>
+    createSyntheticProbeRunner(
+      parseModelGatewayConfig(settings('disabled', 'development')),
+      'gateway-probe-v1',
+    ),
+  ).toThrow('MODEL_GATEWAY_ADAPTER');
+});
+it('destroys an idle trusted probe runner', async () => {
+  const runner = createSyntheticProbeRunner(
+    parseModelGatewayConfig(settings()),
+    'gateway-probe-v1',
+  );
+  runner.destroy();
+  expect(await runner.run(new AbortController().signal)).toMatchObject({
+    code: 'cancelled',
+  });
+});
 it.each([
   ['openai', 'test'],
   ['groq', 'test'],

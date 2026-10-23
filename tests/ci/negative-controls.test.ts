@@ -27,6 +27,7 @@ it('exposes every required CI stage without silently omitting service or scanner
     'integration',
     'identity-coverage',
     'catalogue-coverage',
+    'gateway-coverage',
     'contract',
     'architecture',
     'build',
@@ -136,6 +137,53 @@ it('propagates an actual catalogue coverage threshold failure after a passing re
     expect(await project.deadline(failure.done, 30000)).not.toBe(0);
     expect(failure.output()).toContain('does not meet');
     expect(failure.output()).toContain('ci_stage_failed:catalogue-coverage');
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+}, 65000);
+
+it('propagates an actual gateway coverage threshold failure after a passing real stage baseline', async () => {
+  const root = join(project.root, 'gateway-coverage-control');
+  await mkdir(join(root, 'src/modules/model-gateway'), { recursive: true });
+  await mkdir(join(root, 'tests/unit'), { recursive: true });
+  for (const name of ['package.json', 'vitest.gateway.config.ts'])
+    await cp(resolve(name), join(root, name));
+  await symlink(
+    join(project.root, 'node_modules'),
+    join(root, 'node_modules'),
+    'dir',
+  );
+  const source = join(root, 'src/modules/model-gateway/control.ts');
+  const covered = 'export function visible() { return 1; }\n';
+  await writeFile(source, covered);
+  await writeFile(
+    join(root, 'tests/unit/control.test.ts'),
+    "import {it,expect} from 'vitest';import {visible} from '../../src/modules/model-gateway/control';it('executes production code',()=>expect(visible()).toBe(1));\n",
+  );
+  const stage = () =>
+    project.run(
+      [
+        '--import',
+        'tsx',
+        '--eval',
+        "import {runStage} from './scripts/verify-ci.ts';await runStage('gateway-coverage','./gateway-coverage-control');",
+      ],
+      { APP_ENV: 'test' },
+    );
+  try {
+    const baseline = stage();
+    expect(
+      await project.deadline(baseline.done, 30000),
+      baseline.output(),
+    ).toBe(0);
+    await writeFile(
+      source,
+      covered + 'export function missed() { return 2; }\n',
+    );
+    const failure = stage();
+    expect(await project.deadline(failure.done, 30000)).not.toBe(0);
+    expect(failure.output()).toContain('does not meet');
+    expect(failure.output()).toContain('ci_stage_failed:gateway-coverage');
   } finally {
     await rm(root, { recursive: true, force: true });
   }

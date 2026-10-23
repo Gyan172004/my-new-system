@@ -2,6 +2,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 import {
   parseSmokeArguments,
   runSmoke,
+  smokeMain,
 } from '../../../scripts/model-gateway-smoke';
 afterEach(() => vi.restoreAllMocks());
 it('requires explicit supported adapter with a fixed fixture and bounded default', () => {
@@ -144,4 +145,70 @@ it('rejects prohibited provider environments before transport and sanitizes faul
       ),
     ).rejects.toThrow('MODEL_GATEWAY_ADAPTER');
   expect(fetch).not.toHaveBeenCalled();
+});
+it('stops the remaining loop immediately when the signal is already aborted before an iteration starts', async () => {
+  const abort = new AbortController();
+  let calls = 0;
+  vi.spyOn(globalThis, 'fetch').mockImplementation(async () => {
+    calls++;
+    return new Promise(() => {});
+  });
+  const lines: string[] = [];
+  abort.abort('CANARY_CANCEL');
+  const result = runSmoke(
+    ['--adapter', 'groq', '--count', '2'],
+    { APP_ENV: 'development', GROQ_API_KEY: 'dummy' },
+    { signal: abort.signal, write: (line) => lines.push(line) },
+  );
+  expect(await result).toBe(1);
+  expect(calls).toBe(0);
+  expect(lines).toHaveLength(0);
+});
+it('smokeMain registers and clears signal handlers, writes success output and maps each failure shape', async () => {
+  const sinint = process.listenerCount('SIGINT');
+  const sigterm = process.listenerCount('SIGTERM');
+  const write = vi.spyOn(process.stdout, 'write').mockReturnValue(true);
+  vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+    Response.json({
+      object: 'chat.completion',
+      model: 'openai/gpt-oss-120b',
+      choices: [
+        {
+          index: 0,
+          finish_reason: 'stop',
+          message: {
+            role: 'assistant',
+            content: '{"schemaVersion":1,"acknowledged":true}',
+          },
+        },
+      ],
+    }),
+  );
+  await expect(
+    smokeMain(['--adapter', 'groq', '--count', '1'], {
+      APP_ENV: 'development',
+      GROQ_API_KEY: 'dummy',
+    }),
+  ).resolves.toBe(0);
+  expect(write).toHaveBeenCalled();
+  expect(process.listenerCount('SIGINT')).toBe(sinint);
+  expect(process.listenerCount('SIGTERM')).toBe(sigterm);
+});
+it('smokeMain maps a configuration failure to its stable error code and clears signal handlers', async () => {
+  const sinint = process.listenerCount('SIGINT');
+  const sigterm = process.listenerCount('SIGTERM');
+  const error = vi.spyOn(process.stderr, 'write').mockReturnValue(true);
+  await expect(
+    smokeMain(['--adapter', 'groq'], { APP_ENV: 'production' }),
+  ).resolves.toBe(1);
+  expect(error).toHaveBeenCalledWith(
+    'invalid_configuration: MODEL_GATEWAY_ADAPTER\n',
+  );
+  expect(process.listenerCount('SIGINT')).toBe(sinint);
+  expect(process.listenerCount('SIGTERM')).toBe(sigterm);
+});
+it('smokeMain maps invalid CLI arguments to its stable error code', async () => {
+  const error = vi.spyOn(process.stderr, 'write').mockReturnValue(true);
+  await expect(smokeMain([], {})).resolves.toBe(1);
+  expect(error).toHaveBeenCalledWith('invalid_smoke_arguments\n');
 });
