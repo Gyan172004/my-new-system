@@ -509,5 +509,153 @@ gateway module still untouched.
 Committed as
 `<US=shared, ID=T208, K=K-018, GROUP=05> feat(orchestration): wire proposeTurn with bounded repair`.
 
-Groups 06–07 (remaining implementation) follow; this section will be
-extended as each group's RED/GREEN/review/commit evidence is observed.
+### Group 06 — IO-05/IO-06: regression fixtures, telemetry, guarded-commit boundary (fixture-only)
+
+**Part A — IO-05 (`T209`/`T210`).**
+
+RED: `tests/fixtures/interview-orchestration/regression-fixtures.ts` and
+`tests/contract/interview-orchestration/regression-fixtures.test.ts` were
+authored first, exercising the not-yet-existing `onCallRecorded` request
+field. Confirmed RED by temporarily stashing the `propose-turn.ts`/
+`public.ts` production changes and running the new test file alone: all 13
+cases failed with `expected [] to have a length of 1 but got +0` (the
+telemetry callback was never invoked because the field did not exist and
+was silently ignored as an unknown object key) — not a crash, the honest
+failure mode for an additive optional field that the implementation does
+not yet read.
+
+GREEN: restored the production changes. `propose-turn.ts` gained:
+- `TelemetryRecord` (new exported type): `sessionId`, `turnId`,
+  `currentStage`, `outcome: 'proposal' | FallbackReason`, optional
+  `failedStep?: PolicyFailedStep` (present only when `outcome ===
+  'policy_rejected'`), and `callMetadata: GatewayCallMetadata | null` — no
+  new gateway-side fields invented; `callMetadata` is exactly what
+  `GatewayMetadata` already exposes (operation/provider/model/prompt/schema
+  versions, `callId`/`operationId`/`requestId` correlation).
+- `ProposeTurnRequest.onCallRecorded?: (record: TelemetryRecord) => void`
+  — purely additive (optional, ignored if absent); invoked exactly once per
+  `proposeTurn` call, at each of its three return points (gateway failure,
+  policy rejection, accepted proposal), never once per internal repair
+  attempt.
+- This closes the Group 05 reviewer's follow-up: `applyPolicy`'s rejected
+  `decision.failedStep` is now surfaced via the telemetry side-channel
+  (`TelemetryRecord.failedStep`) rather than widening
+  `ProposeTurnResult`'s own shape, exactly as the follow-up anticipated.
+
+The eight FR-011 fixture categories, each as data entries in
+`regression-fixtures.ts` (plain objects, no adapter mocks in the fixture
+file itself) consumed by a parameterized `it.each` contract test:
+ambiguous candidate input, out-of-scope/off-topic input, prompt-injection
+attempts, invalid reference ID (outside the pinned pack), hint-skip attempt
+(reusing `policy.test.ts`'s own `allowedHintIndex: -1` boundary technique),
+abstention (no `matchedReferenceApproachId`, accepted as a normal
+proposal), and each of the three FR-008 repairable codes
+(`invalid_output`/`refused`/`output_limit`) individually in both directions
+(repair succeeds / repair recurs to fallback). The gateway-timeout category
+is a dedicated non-parameterized test reusing Group 05's established
+fake-timer + hung-`prepare()` technique, since it cannot be expressed as a
+canned `adapterResults` list.
+
+Every fixture's exercising test asserts: the correct `ProposeTurnResult`
+outcome; `onCallRecorded` fired exactly once; the recorded
+`TelemetryRecord`'s `sessionId`/`turnId`/`currentStage`/`outcome`/
+`failedStep` (where applicable); and — the FR-010 privacy requirement —
+that the record's JSON serialization contains neither the fixture's own
+candidate text nor its canary private-field value, and that the record has
+no `responseText`/`candidateInput` property at all. `test:contract`:
+220/220 (10 files) project-wide after this group (was 207/207 before);
+`test:unit` unaffected at 644/644 (43 files).
+
+**Part B — IO-06 (fixture-only, per `eng_design.md` §1's explicit scoping and this group's `T211`/`T212`).**
+
+`tests/integration/interview-orchestration/guarded-commit.test.ts` does
+**not** import, construct, or touch anything under
+`src/modules/interview-session/` — confirmed by re-reading that module's
+`public.ts` (still only `createSessionService`) immediately before writing
+this file. `project_management/kanban_board.md` confirmed again on
+2026-10-24: K-014 and K-016 remain under `## Backlog`. The test is
+explicitly commented as a fixture-only design proof, not live integration.
+
+It constructs, entirely in the test file: a minimal test-local
+`TRANSITION_TABLE` (keyed by `InterviewStage`, each entry a `resolve`
+guard — a deliberately partial stand-in for
+`session_state_machine.md`'s §4 full table, enough rows to exercise the
+boundary) and a test-local `applyGuardedCommit(session, proposalResult)`
+handler. Four tests prove the intended invariant structurally, not
+tautologically:
+
+1. `suggestedTransitionSignal`'s three values (`'ready_to_advance'`,
+   `'needs_clarification'`, `'none'`) are asserted, by direct membership
+   check against the real `InterviewStage` domain (built from the
+   orchestration module's own exported `PROMPT_BEARING_STAGES` constant
+   plus `'created'`/`'completed'`), to be disjoint from every valid stage
+   name. This is the structural fact that makes "simplify the handler to
+   `currentStage = proposal.suggestedTransitionSignal`" a failing change,
+   not a style nitpick: the right-hand side would never be a legal stage
+   value in the first place.
+2. A `{kind: 'proposal'}` result (produced by actually calling the real
+   `proposeTurn` against a fake adapter, not a hand-typed
+   `GatewayMetadata` literal, to stay honest against the real
+   `callMetadata` shape) is passed through `applyGuardedCommit`; the
+   resulting `currentStage` is asserted to be a real stage returned by
+   `TRANSITION_TABLE[...].resolve(...)` AND explicitly asserted `not.toBe`
+   the raw signal string.
+3. A second case at the same `from` stage with a different signal
+   (`'ready_to_advance'`) resolves to a different, also-real destination
+   stage via the same table — proving the table's guard, not the signal
+   value, picks the destination.
+4. A `{kind: 'fallback'}` result (a real `policy_rejected` fallback,
+   produced the same way) leaves `currentStage`/`version` completely
+   unchanged.
+
+`tests/integration/interview-orchestration/guarded-commit.test.ts`: 4/4
+passing. Real end-to-end integration against K-014/K-016's actual
+guarded-commit mutation path remains explicitly pending those cards'
+observed Kanban acceptance; nothing in this group claims that integration
+has happened.
+
+**Verification.** `npx tsc --noEmit`: clean. `eslint` (scoped to the
+touched orchestration src/test/fixture paths, `--max-warnings 0`): clean.
+`prettier --check` on every touched/added file: clean after one
+`--write` pass. Scoped run
+(`tests/unit/interview-orchestration tests/contract/interview-orchestration
+tests/unit/model-gateway tests/contract/model-gateway
+tests/integration/model-gateway tests/unit/logger.test.ts`): **27 files,
+530 tests passing** (Group 05 baseline was 26 files/517 tests; +1 file/+13
+tests, the new `regression-fixtures.test.ts` — `guarded-commit.test.ts`
+lives under `tests/integration/interview-orchestration`, outside this
+scoped run's path list). Project-wide `test:unit`: 43 files/644 tests,
+unchanged from Group 05's baseline. Project-wide `test:contract`: 10
+files/220 tests (was 9 files/207 before this group's `+13`). Group 05's
+original 9 `propose-turn.test.ts` tests re-ran unchanged and still pass:
+`onCallRecorded` is optional and those tests never pass it, confirming the
+signature extension is genuinely additive. `test:integration` was also
+run project-wide: 19 pre-existing failures across
+`database.test.ts`/`migrations.test.ts`/`readiness.test.ts`/
+`problem-catalogue/*`/`identity-*`/`test-isolation.test.ts`, all failing at
+`allocateTestDatabase` (no reachable test database in this environment) —
+none under `tests/integration/interview-orchestration`, none caused by
+this group; `guarded-commit.test.ts` itself passed 4/4 in that same run.
+
+The dedicated reviewer (`mastering-typescript`/`vitest`/
+`requesting-code-review`) independently reproduced the leakage check with
+their own adversarial markers (a distinctive candidate string and a
+distinctive model-response string, captured via `onCallRecorded` and
+`JSON.stringify`'d) and found neither leaked — confirmed at both the type
+level (`GatewayMetadata` has no content-bearing field) and by live repro.
+They confirmed `failedStep` is populated from the real `applyPolicy`
+rejection value, not a placeholder; confirmed all 8 FR-011 categories are
+genuinely distinct (6 separate fixtures for the three FR-008 codes
+individually, not one generic case); and specifically scrutinized the
+guarded-commit test for tautology, confirming the disjoint-value-domain
+assertion is a real structural proof, not a trivially-true comparison — one
+informational note: the "commit" logic it drives is necessarily a
+test-local stand-in, since no real session-commit code exists yet, which
+the test's own comments and this section already disclose rather than
+overstate. **Verdict: APPROVE**, no changes required.
+
+Committed as
+`<US=shared, ID=T214, K=K-018, GROUP=06> test(orchestration): verify regression fixtures and guarded-commit boundary`.
+
+Group 07 (coverage/CI convergence, final PR) follows; this section will be
+extended as its RED/GREEN/review/commit evidence is observed.

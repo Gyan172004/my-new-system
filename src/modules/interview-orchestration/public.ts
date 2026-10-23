@@ -45,4 +45,5 @@ export type {
   GatewayCallMetadata,
   ProposeTurnRequest,
   ProposeTurnResult,
+  TelemetryRecord,
 } from './application/propose-turn';

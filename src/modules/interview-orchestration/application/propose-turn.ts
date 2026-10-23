@@ -12,7 +12,11 @@ import {
   type InterviewStage,
 } from './allowlisted-context';
 import { STAGE_PROMPT } from './stage-prompt';
-import { applyPolicy, type TurnProposal } from './policy';
+import {
+  applyPolicy,
+  type PolicyFailedStep,
+  type TurnProposal,
+} from './policy';
 import type {
   GatewayErrorCode,
   GatewayMetadata,
@@ -61,6 +65,27 @@ function mapGatewayFailure(code: GatewayErrorCode): FallbackReason {
   }
 }
 
+/**
+ * FR-010 allowlisted telemetry record. Deliberately identifiers/enums/
+ * metadata ONLY: no `responseText`, no raw `candidateInput`, nothing from
+ * the gateway's output payload beyond what `GatewayCallMetadata` already
+ * exposes (operation/provider/model/prompt/schema versions, correlation
+ * IDs). `failedStep` is present only when `outcome` is `'policy_rejected'`
+ * — this is the Group 05 follow-up's resolution: `applyPolicy`'s rejected
+ * `failedStep` previously had no path out of `proposeTurn`; this is that
+ * path, as an additive telemetry side-channel rather than a
+ * `ProposeTurnResult` shape change (tech_design.md §2's result type is
+ * left untouched).
+ */
+export interface TelemetryRecord {
+  readonly sessionId: string;
+  readonly turnId: string;
+  readonly currentStage: InterviewStage;
+  readonly outcome: 'proposal' | FallbackReason;
+  readonly failedStep?: PolicyFailedStep;
+  readonly callMetadata: GatewayCallMetadata | null;
+}
+
 export interface ProposeTurnRequest {
   /** Existing request correlation, forwarded to the gateway. */
   readonly requestId: string;
@@ -86,6 +111,13 @@ export interface ProposeTurnRequest {
   readonly signal: AbortSignal;
   /** Caller-constructed gateway instance; proposeTurn never constructs its own. */
   readonly gateway: ModelGateway;
+  /**
+   * Optional FR-010 telemetry side-channel (IO-05). When supplied, invoked
+   * exactly once per `proposeTurn` call with a `TelemetryRecord` — additive
+   * only: omitting it changes no existing behavior (Group 05's 9 contract
+   * tests pass unchanged).
+   */
+  readonly onCallRecorded?: (record: TelemetryRecord) => void;
 }
 
 export type ProposeTurnResult =
@@ -154,9 +186,17 @@ export async function proposeTurn(
   }
 
   if (!result.ok) {
+    const reason = mapGatewayFailure(result.code);
+    request.onCallRecorded?.({
+      sessionId: request.sessionId,
+      turnId: request.turnId,
+      currentStage: request.currentStage,
+      outcome: reason,
+      callMetadata: result.metadata,
+    });
     return {
       kind: 'fallback',
-      reason: mapGatewayFailure(result.code),
+      reason,
       callMetadata: result.metadata,
     };
   }
@@ -174,12 +214,28 @@ export async function proposeTurn(
   );
 
   if (decision.kind === 'rejected') {
+    request.onCallRecorded?.({
+      sessionId: request.sessionId,
+      turnId: request.turnId,
+      currentStage: request.currentStage,
+      outcome: 'policy_rejected',
+      failedStep: decision.failedStep,
+      callMetadata: result.metadata,
+    });
     return {
       kind: 'fallback',
       reason: 'policy_rejected',
       callMetadata: result.metadata,
     };
   }
+
+  request.onCallRecorded?.({
+    sessionId: request.sessionId,
+    turnId: request.turnId,
+    currentStage: request.currentStage,
+    outcome: 'proposal',
+    callMetadata: result.metadata,
+  });
 
   return {
     kind: 'proposal',
