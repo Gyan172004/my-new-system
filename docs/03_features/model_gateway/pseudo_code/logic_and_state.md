@@ -105,6 +105,8 @@ recordAttemptUsage(rawUsage):
     estimate from configured versioned rate card when possible
     actual provider charge remains unknown
     aggregate only known counts; preserve unknown attempt count
+    if aggregate totals overflow: keep affected totals null, completeness partial
+    preserve individual attempt completeness/counters independently
 ```
 
 The cost reservation controls estimated dispatch spend; it cannot guarantee the

@@ -27,3 +27,5 @@ export type {
   GatewayOptions,
   ModelGateway,
 } from './application/types';
+export { createGroqAdapter } from './adapters/groq';
+export { createOpenAIAdapter } from './adapters/openai';

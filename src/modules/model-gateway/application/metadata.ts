@@ -62,6 +62,10 @@ export function normalizeUsage(raw: unknown): AttemptUsage {
   }
   const completeness =
     !inconsistent &&
+    // Re-normalizing a safe adapter envelope cannot erase evidence that an
+    // invalid included subtotal was discarded. A claimed complete flag never
+    // upgrades invalid numeric counts.
+    source.completeness !== 'partial' &&
     inputTokens !== null &&
     outputTokens !== null &&
     totalTokens !== null

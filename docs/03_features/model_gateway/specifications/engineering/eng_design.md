@@ -138,14 +138,14 @@ results and generated checkboxes do not prove feature implementation.
 
 **Dependencies / independent acceptance:** T154; same adapter success/error corpus passes using owned local servers and dummy credentials; no external account or runtime real-provider dispatch.
 
-- [ ] T155 [US3] RED: define tests/contract/model-gateway/adapter-contract.test.ts and tests/fixtures/model-gateway/ shared scenarios for canonical technical §4 full error/retryability matrix: 3xx, 400/413/422/context limit, 401/403, 404, 408, recognized transient/quota/unknown 429, other 4xx/5xx, connection/attempt timeout, invalid content/envelope/JSON and refused/truncated/tool output; observe failures before mapping implementation.
-- [ ] T156 [US3] Implement shared safe classification/adapter types within src/modules/model-gateway/adapters/transport.ts and application/validation.ts as needed; recognized machine codes only, no free-text matching/body/header leakage; quota_exhausted/provider_rejected terminal; run applicable T155 fixture cases GREEN and refactor without assuming identical provider envelopes.
-- [ ] T157 [P] [US3] RED: add tests/contract/model-gateway/groq.test.ts and tests/integration/model-gateway/groq.test.ts for Chat Completions origin/wire shape, strict schema, approved openai/gpt-oss-120b model, completion limit "1,024" including reasoning where counted, bounded usage/error extraction and shared corpus; observe failures.
-- [ ] T158 [US3] Implement src/modules/model-gateway/adapters/groq.ts against injected owned-fixture transport and canonical schema; reject refusal/truncation/tools before success validation, retain unknown usage, no OpenAI-response-shape assumptions; run T157/shared contract GREEN and refactor.
-- [ ] T159 [P] [US3] RED: add tests/contract/model-gateway/openai.test.ts and tests/integration/model-gateway/openai.test.ts for Responses origin/wire shape, store:false, gpt-6.1-sol probe, refusal/incomplete/tool/malformed envelopes, usage/model extraction and every shared matrix scenario; observe failures.
-- [ ] T160 [US3] Implement src/modules/model-gateway/adapters/openai.ts with Responses-specific complete extraction/validation, safe errors and bounded limits; preserve canonical disabled business/audio/Astra map, no automatic substitution; run T159/shared corpus GREEN and refactor.
-- [ ] T161 [US3] Dedicated review agent uses TypeScript/Vitest and requesting-code-review plus current official provider documentation where verification is needed to review src/modules/model-gateway/adapters/ wire formats, capability/schema/error matrix and test-only transport isolation; root resolves findings, reruns affected checks and records evidence in docs/03_features/model_gateway/specifications/engineering/eng_design.md.
-- [ ] T162 [US3] Root verifies group 03 contract/integration checks and scoped diff, records evidence in docs/03_features/model_gateway/specifications/engineering/eng_design.md, then commits with the exact title below.
+- [x] T155 [US3] RED: define tests/contract/model-gateway/adapter-contract.test.ts and tests/fixtures/model-gateway/ shared scenarios for canonical technical §4 full error/retryability matrix: 3xx, 400/413/422/context limit, 401/403, 404, 408, recognized transient/quota/unknown 429, other 4xx/5xx, connection/attempt timeout, invalid content/envelope/JSON and refused/truncated/tool output; observe failures before mapping implementation.
+- [x] T156 [US3] Implement shared safe classification/adapter types within src/modules/model-gateway/adapters/transport.ts and application/validation.ts as needed; recognized machine codes only, no free-text matching/body/header leakage; quota_exhausted/provider_rejected terminal; run applicable T155 fixture cases GREEN and refactor without assuming identical provider envelopes.
+- [x] T157 [P] [US3] RED: add tests/contract/model-gateway/groq.test.ts and tests/integration/model-gateway/groq.test.ts for Chat Completions origin/wire shape, strict schema, approved openai/gpt-oss-120b model, completion limit "1,024" including reasoning where counted, bounded usage/error extraction and shared corpus; observe failures.
+- [x] T158 [US3] Implement src/modules/model-gateway/adapters/groq.ts against injected owned-fixture transport and canonical schema; reject refusal/truncation/tools before success validation, retain unknown usage, no OpenAI-response-shape assumptions; run T157/shared contract GREEN and refactor.
+- [x] T159 [P] [US3] RED: add tests/contract/model-gateway/openai.test.ts and tests/integration/model-gateway/openai.test.ts for Responses origin/wire shape, store:false, gpt-6.1-sol probe, refusal/incomplete/tool/malformed envelopes, usage/model extraction and every shared matrix scenario; observe failures.
+- [x] T160 [US3] Implement src/modules/model-gateway/adapters/openai.ts with Responses-specific complete extraction/validation, safe errors and bounded limits; preserve canonical disabled business/audio/Astra map, no automatic substitution; run T159/shared corpus GREEN and refactor.
+- [x] T161 [US3] Dedicated review agent uses TypeScript/Vitest and requesting-code-review plus current official provider documentation where verification is needed to review src/modules/model-gateway/adapters/ wire formats, capability/schema/error matrix and test-only transport isolation; root resolves findings, reruns affected checks and records evidence in docs/03_features/model_gateway/specifications/engineering/eng_design.md.
+- [x] T162 [US3] Root verifies group 03 contract/integration checks and scoped diff, records evidence in docs/03_features/model_gateway/specifications/engineering/eng_design.md, then commits with the exact title below.
 
 **Commit title:** `<US=US3, ID=T162, K=K-017, GROUP=03> feat(gateway): isolate provider text adapters`
 
@@ -466,3 +466,33 @@ work, not implied by this slice.
 
 Commit title:
 `<US=US2, ID=T154, K=K-017, GROUP=02> feat(gateway): bound invocation and usage accounting`.
+
+### Coverage preparation handoff
+
+Read-only coverage preparation reproduced safe-integer aggregation overflow:
+two individually complete attempts could produce null aggregate input/total
+counts while the summary still claimed complete. Technical §5 and pseudocode
+now clarify aggregate completeness as partial in that case, without inventing
+unknown/partial individual attempts. T174's newly exposed behavior tests must
+observe this failure before the accounting correction; it is not yet a passed
+implementation check. The runtime group will expose an import-safe boundary
+scanner to measure touched architecture behavior without excluding subprocess
+CLI behavior or relying on inaccurate TSX subprocess coverage remapping.
+
+### Group 03 — provider text adapters
+
+The implementation agent observed shared classifier 51 RED assertions, Groq 47
+and OpenAI 59 before their implementations passed. Additional failing regressions
+covered prepared request aliasing, incomplete reasoning, malformed machine codes,
+Groq error-bearing success envelopes and loss of partial usage on normalization.
+Provider factories are exported through public.ts; preparation performs no IO and
+returns an unknown input-token bound, preserving production admission rejection.
+
+T161 independent review approved with no unresolved material findings. Root and
+reviewer separately ran pinned `APP_ENV=test npm test -- tests/unit/model-gateway tests/contract/model-gateway tests/integration/model-gateway`:
+15 files, 317 tests passed. Typecheck and scoped lint/format checks passed.
+No real provider calls or credentials were used. Runtime restrictions and live
+synthetic evidence remain group 04; aggregate overflow remains T174 above.
+
+Commit title:
+`<US=US3, ID=T162, K=K-017, GROUP=03> feat(gateway): isolate provider text adapters`.

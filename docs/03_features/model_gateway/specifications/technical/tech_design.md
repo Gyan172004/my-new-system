@@ -212,6 +212,9 @@ counting; totals must identify partial/unknown attempts.
 Usage metadata contains per-attempt IDs, duration, outcome and normalized token
 counts, plus aggregate known totals and explicit unknown/partial-attempt counts.
 Reasoning and cached input remain included subtotals, not additional tokens.
+If required aggregate totals cannot be represented as safe integers, keep those
+totals null and mark aggregate completeness partial, even if each attempt is
+complete. Per-attempt unknown/partial counters still describe the actual attempts.
 `reservedCostUsd` is the conservative dispatch reservation; `estimatedCostUsd`
 sums available attempt estimates with a separate completeness flag.
 `modelCallLogFields` produces the flattened allowlisted logger projection.
