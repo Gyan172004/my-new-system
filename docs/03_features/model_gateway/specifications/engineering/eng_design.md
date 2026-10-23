@@ -104,12 +104,12 @@ results and generated checkboxes do not prove feature implementation.
 
 **Dependencies / independent acceptance:** T138; exact typed synthetic fake result and zero dispatch on unknown, disabled or invalid input. No runtime provider composition yet.
 
-- [ ] T139 [US1] RED: add tests/unit/model-gateway/operations.test.ts and tests/contract/model-gateway/registry.test.ts plus tests/fixtures/model-gateway/ versioned synthetic fixtures; reject unknown/disabled operations and incomplete schema/prompt/evaluation/context/model/budget definitions, invalid IDs and extra fields; observe failures.
-- [ ] T140 [US1] Implement src/modules/model-gateway/public.ts and application/{operations,validation}.ts with the canonical model map; gateway_probe accepts exactly {text:string}, "1–512 UTF-8 bytes", and outputs exactly {schemaVersion:1,acknowledged:true}; business/audio/Astra operations stay disabled; schema/JSON Schema use the same fixtures; run T139 GREEN and refactor.
-- [ ] T141 [US1] RED: add tests/unit/model-gateway/invoke.test.ts and fake.test.ts for strict typed success, preflight zero dispatch, empty/malformed/refused/truncated/tool/unknown-field output rejection and caller-owned proposal semantics; observe failures.
-- [ ] T142 [US1] Implement the fake vertical slice in src/modules/model-gateway/application/invoke.ts and adapters/fake.ts through public.ts; no database/session/score/hint mutations, provider fallback or repair; return discriminated results and safe metadata; run T139/T141 GREEN and refactor.
-- [ ] T143 [US1] Dedicated review agent uses mastering-typescript, vitest and requesting-code-review to review src/modules/model-gateway/ schema, registry, fake/public boundary and RED/GREEN evidence; root resolves findings technically, reruns focused unit/contract checks and reconciles accepted changes in docs/03_features/model_gateway/.
-- [ ] T144 [US1] Root verifies focused checks and scoped diff, records evidence in docs/03_features/model_gateway/specifications/engineering/eng_design.md, then commits group 01 with the exact title below.
+- [x] T139 [US1] RED: add tests/unit/model-gateway/operations.test.ts and tests/contract/model-gateway/registry.test.ts plus tests/fixtures/model-gateway/ versioned synthetic fixtures; reject unknown/disabled operations and incomplete schema/prompt/evaluation/context/model/budget definitions, invalid IDs and extra fields; observe failures.
+- [x] T140 [US1] Implement src/modules/model-gateway/public.ts and application/{operations,validation}.ts with the canonical model map; gateway_probe accepts exactly {text:string}, "1–512 UTF-8 bytes", and outputs exactly {schemaVersion:1,acknowledged:true}; business/audio/Astra operations stay disabled; schema/JSON Schema use the same fixtures; run T139 GREEN and refactor.
+- [x] T141 [US1] RED: add tests/unit/model-gateway/invoke.test.ts and fake.test.ts for strict typed success, preflight zero dispatch, empty/malformed/refused/truncated/tool/unknown-field output rejection and caller-owned proposal semantics; observe failures.
+- [x] T142 [US1] Implement the fake vertical slice in src/modules/model-gateway/application/invoke.ts and adapters/fake.ts through public.ts; no database/session/score/hint mutations, provider fallback or repair; return discriminated results and safe metadata; run T139/T141 GREEN and refactor.
+- [x] T143 [US1] Dedicated review agent uses mastering-typescript, vitest and requesting-code-review to review src/modules/model-gateway/ schema, registry, fake/public boundary and RED/GREEN evidence; root resolves findings technically, reruns focused unit/contract checks and reconciles accepted changes in docs/03_features/model_gateway/.
+- [x] T144 [US1] Root verifies focused checks and scoped diff, records evidence in docs/03_features/model_gateway/specifications/engineering/eng_design.md, then commits group 01 with the exact title below.
 
 **Commit title:** `<US=US1, ID=T144, K=K-017, GROUP=01> feat(gateway): validate registered fake operations`
 
@@ -408,3 +408,32 @@ warning; formatting was corrected and rechecked before commit.
 | T182           | [#186](https://github.com/Gyan172004/my-new-system/issues/186) |
 | T183           | [#187](https://github.com/Gyan172004/my-new-system/issues/187) |
 | T184           | [#188](https://github.com/Gyan172004/my-new-system/issues/188) |
+
+### Group 01 — registered validated fake call
+
+T139/T140: the implementation agent observed 37 failing registry assertions
+against a compilable neutral skeleton, then 42 passing registry/contract cases.
+T141/T142: 25 invocation/fake assertions failed before implementation, then the
+complete focused slice passed four files/67 tests. This records supplied agent
+RED evidence, not an independently reconstructed chronology.
+
+Root and the dedicated T143 reviewer each independently ran pinned
+`APP_ENV=test npm test -- tests/unit/model-gateway tests/contract/model-gateway`:
+four files/67 passed. The implementation agent also observed passing typecheck,
+lint, owned-file formatting and `npm run verify:architecture` (boundary output
+`[]`, 34 architecture tests). The reviewer found no critical, important or minor
+issue in this slice; transport/deadlines/usage/runtime remain later groups.
+
+The executor's attempted full `npm test` was interrupted with exit 130 after
+existing subprocess/socket/database suites failed or skipped. A minimal Node
+loopback listener in that executor independently failed with `EPERM` on `listen`:
+it retained the earlier restricted execution context. The failure log is
+`/tmp/model-gateway-group01-full-test.log`; no full-suite pass is claimed.
+Root's current unrestricted context bound the same loopback listener and reran
+configuration CLI/representative architecture cases (six passed, 19 filtered
+out) and real HTTP/node-adapter cases (five passed) without source changes.
+Final whole-suite acceptance remains group 05; subsequent executors must verify
+listener access before real-transport tests.
+
+The reviewed slice is committed with
+`<US=US1, ID=T144, K=K-017, GROUP=01> feat(gateway): validate registered fake operations`.
