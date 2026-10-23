@@ -1,4 +1,5 @@
 import { expect, expectTypeOf, it } from 'vitest';
+import { z } from 'zod';
 import {
   createModelGateway,
   createFakeAdapter,
@@ -6,7 +7,10 @@ import {
   type GatewayRequest,
   type AdapterResult,
 } from '../../../src/modules/model-gateway/public';
-import { createOperationRegistry } from '../../../src/modules/model-gateway/application/operations';
+import {
+  canonicalOperations,
+  createOperationRegistry,
+} from '../../../src/modules/model-gateway/application/operations';
 import {
   probeInput,
   probeOutput,
@@ -199,6 +203,63 @@ it('does not expose unexpected adapter errors or turn them into candidate assess
     metadata: { attempts: 1 },
   });
   expect(JSON.stringify(result)).not.toContain('CANARY');
+});
+it("dispatches a second, fully-declared operation using its own schema, not gateway_probe's (IO-00)", async () => {
+  const interviewTurnInputSchema = z.strictObject({
+    turnText: z.string().min(1),
+  });
+  const interviewTurnOutputSchema = z.strictObject({
+    turnId: z.string().min(1),
+  });
+  const probeLike = canonicalOperations[0]! as unknown as { limits: object };
+  const interviewTurnDefinition = Object.freeze({
+    name: 'interview_turn',
+    enabled: true,
+    inputSchema: interviewTurnInputSchema,
+    outputSchema: interviewTurnOutputSchema,
+    outputJsonSchema: Object.freeze(z.toJSONSchema(interviewTurnOutputSchema)),
+    inputSchemaVersion: '1',
+    outputSchemaVersion: '1',
+    prompt: Object.freeze({
+      id: 'interview-turn-test',
+      version: '1',
+      body: 'Synthetic interview turn test prompt.',
+    }),
+    evaluationVersion: 'synthetic-interview-turn-v1',
+    allowedContext: Object.freeze(['text']),
+    models: Object.freeze({
+      openai: 'gpt-6.1-sol',
+      groq: 'openai/gpt-oss-120b',
+    }),
+    capabilities: Object.freeze(['structured_text']),
+    limits: Object.freeze({ ...probeLike.limits }),
+  });
+  let receivedOperation: string | undefined;
+  const adapter: GatewayAdapter = {
+    provider: 'fake',
+    async send(adapterRequest) {
+      receivedOperation = adapterRequest.operation;
+      return {
+        status: 'complete',
+        text: JSON.stringify({ turnId: 'synthetic-turn-1' }),
+        reportedModel: 'fake-probe-v1',
+        usage: null,
+      };
+    },
+  };
+  const registry = createOperationRegistry([interviewTurnDefinition]);
+  const result = await createModelGateway({ adapter, registry }).invoke({
+    operation: 'interview_turn',
+    input: { turnText: 'hello' },
+    context: probeContext,
+    signal: new AbortController().signal,
+  } as unknown as GatewayRequest<'gateway_probe'>);
+  expect(result).toMatchObject({
+    ok: true,
+    data: { turnId: 'synthetic-turn-1' },
+    metadata: { operation: 'interview_turn', outcome: 'success' },
+  });
+  expect(receivedOperation).toBe('interview_turn');
 });
 it('honors an already cancelled caller without dispatch', async () => {
   const abort = new AbortController();

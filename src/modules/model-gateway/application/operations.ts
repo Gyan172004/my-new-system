@@ -16,8 +16,14 @@ const version = z
   .min(1)
   .max(128)
   .regex(/^[A-Za-z0-9][A-Za-z0-9_.:-]*$/);
+// Must stay in sync with the EnabledOperation union in ./types.ts — extend both together when enabling a new operation.
 const definitionSchema = z.strictObject({
-  name: z.literal('gateway_probe'),
+  name: z.enum([
+    'gateway_probe',
+    'interview_turn',
+    'stage_classification',
+    'intent_classification',
+  ]),
   enabled: z.literal(true),
   inputSchema: z.custom<z.ZodType>((schema) => schema instanceof z.ZodType),
   outputSchema: z.custom<z.ZodType>((schema) => schema instanceof z.ZodType),
@@ -119,18 +125,17 @@ export function createOperationRegistry(
     (d): d is Record<string, unknown> =>
       typeof d === 'object' &&
       d !== null &&
-      'name' in d &&
-      d.name === 'gateway_probe',
+      'enabled' in d &&
+      d.enabled === true,
   );
-  // Ambiguous/incomplete registrations fail closed; Stage 4 cannot enable business operations.
-  if (candidates.length === 1) {
-    const parsed = definitionSchema.safeParse(candidates[0]);
+  // Incomplete or internally inconsistent registrations fail closed, per-candidate.
+  const validated: EnabledDefinition[] = [];
+  for (const candidate of candidates) {
+    const parsed = definitionSchema.safeParse(candidate);
     if (
       parsed.success &&
-      parsed.data.inputSchema === probeInputSchema &&
-      parsed.data.outputSchema === probeOutputSchema &&
       JSON.stringify(parsed.data.outputJsonSchema) ===
-        JSON.stringify(z.toJSONSchema(probeOutputSchema))
+        JSON.stringify(z.toJSONSchema(parsed.data.outputSchema))
     ) {
       const definition = parsed.data;
       freezeJson(definition.outputJsonSchema);
@@ -139,9 +144,17 @@ export function createOperationRegistry(
       Object.freeze(definition.allowedContext);
       Object.freeze(definition.capabilities);
       Object.freeze(definition.limits);
-      registered.set('gateway_probe', Object.freeze(definition));
+      validated.push(Object.freeze(definition));
     }
   }
+  // Ambiguous/duplicate name matches among otherwise-valid candidates fail closed: a name backed
+  // by more than one validated candidate registers nothing, rather than letting the last one win.
+  const nameCounts = new Map<string, number>();
+  for (const definition of validated)
+    nameCounts.set(definition.name, (nameCounts.get(definition.name) ?? 0) + 1);
+  for (const definition of validated)
+    if (nameCounts.get(definition.name) === 1)
+      registered.set(definition.name, definition);
   return Object.freeze({
     resolve(operation: string): OperationResolution {
       if (!canonicalOperations.some((d) => d.name === operation))

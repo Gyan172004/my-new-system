@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
+import { z } from 'zod';
 import {
   canonicalOperations,
   createOperationRegistry,
 } from '../../../src/modules/model-gateway/application/operations';
 import {
   probeInputSchema,
+  probeOutputSchema,
   requestContextSchema,
 } from '../../../src/modules/model-gateway/application/validation';
 import { probeContext } from '../../fixtures/model-gateway/probe';
@@ -79,6 +81,139 @@ describe('operation registration', () => {
       ok: true,
       definition: { limits: { maxAttempts: 2 } },
     });
+  });
+});
+
+describe('generalized candidate selection (IO-00)', () => {
+  const interviewTurnInputSchema = z.strictObject({
+    turnText: z.string().min(1),
+  });
+  const interviewTurnOutputSchema = z.strictObject({
+    turnId: z.string().min(1),
+  });
+  const probeLike = canonicalOperations[0]!;
+  const interviewTurnDefinition = Object.freeze({
+    name: 'interview_turn',
+    enabled: true,
+    inputSchema: interviewTurnInputSchema,
+    outputSchema: interviewTurnOutputSchema,
+    outputJsonSchema: Object.freeze(z.toJSONSchema(interviewTurnOutputSchema)),
+    inputSchemaVersion: '1',
+    outputSchemaVersion: '1',
+    prompt: Object.freeze({
+      id: 'interview-turn-test',
+      version: '1',
+      body: 'Synthetic interview turn test prompt.',
+    }),
+    evaluationVersion: 'synthetic-interview-turn-v1',
+    allowedContext: Object.freeze(['text']),
+    models: Object.freeze({
+      openai: 'gpt-6.1-sol',
+      groq: 'openai/gpt-oss-120b',
+    }),
+    capabilities: Object.freeze(['structured_text']),
+    limits: Object.freeze({ ...(probeLike as { limits: object }).limits }),
+  });
+
+  it('resolves a second, fully-declared operation alongside gateway_probe, each with its own schema', () => {
+    const registry = createOperationRegistry([
+      probeLike,
+      interviewTurnDefinition,
+    ]);
+    expect(registry.resolve('gateway_probe')).toMatchObject({
+      ok: true,
+      definition: { name: 'gateway_probe', outputSchema: probeOutputSchema },
+    });
+    const resolved = registry.resolve('interview_turn');
+    expect(resolved).toMatchObject({
+      ok: true,
+      definition: { name: 'interview_turn' },
+    });
+    if (resolved.ok) {
+      expect(resolved.definition.outputSchema).toBe(interviewTurnOutputSchema);
+      expect(resolved.definition.outputSchema).not.toBe(probeOutputSchema);
+      expect(resolved.definition.inputSchema).toBe(interviewTurnInputSchema);
+    }
+  });
+
+  it('keeps a still-disabled, schema-less stub resolving to operation_disabled without throwing on a missing schema field', () => {
+    const registry = createOperationRegistry(canonicalOperations);
+    expect(() => registry.resolve('transcription')).not.toThrow();
+    expect(registry.resolve('transcription')).toEqual({
+      ok: false,
+      code: 'operation_disabled',
+    });
+  });
+
+  it('fails closed when two validated candidates share the same name, registering neither (no last-write-wins)', () => {
+    const first = Object.freeze({
+      ...interviewTurnDefinition,
+      prompt: Object.freeze({
+        id: 'interview-turn-test-a',
+        version: '1',
+        body: 'First conflicting interview turn definition.',
+      }),
+    });
+    const second = Object.freeze({
+      ...interviewTurnDefinition,
+      prompt: Object.freeze({
+        id: 'interview-turn-test-b',
+        version: '1',
+        body: 'Second conflicting interview turn definition.',
+      }),
+    });
+    const registry = createOperationRegistry([first, second]);
+    expect(registry.resolve('interview_turn')).toEqual({
+      ok: false,
+      code: 'operation_disabled',
+    });
+  });
+
+  it('still registers legitimately distinct operations that each appear exactly once', () => {
+    const registry = createOperationRegistry([
+      probeLike,
+      interviewTurnDefinition,
+    ]);
+    expect(registry.resolve('gateway_probe')).toMatchObject({ ok: true });
+    expect(registry.resolve('interview_turn')).toMatchObject({ ok: true });
+  });
+});
+
+describe('widened closed operation-name set (T190)', () => {
+  it('still resolves the two deferred classification names to operation_disabled, unchanged in behavior', () => {
+    const registry = createOperationRegistry();
+    for (const name of ['stage_classification', 'intent_classification']) {
+      expect(registry.resolve(name)).toEqual({
+        ok: false,
+        code: 'operation_disabled',
+      });
+    }
+  });
+
+  it('closes the definition name enum over exactly the four widened names, accepting each as a well-formed candidate', () => {
+    const probeLike = canonicalOperations[0]!;
+    for (const name of [
+      'gateway_probe',
+      'interview_turn',
+      'stage_classification',
+      'intent_classification',
+    ]) {
+      // A fully-formed candidate (otherwise identical to the valid probe definition) must be
+      // accepted by definitionSchema's name enum regardless of which of the four names it carries —
+      // this only exercises the enum's closed set, not canonicalOperations' enabled flag.
+      const definition = { ...probeLike, name };
+      expect(createOperationRegistry([definition]).resolve(name)).toMatchObject(
+        { ok: true },
+      );
+    }
+  });
+
+  it('still rejects a name outside the widened four-name set as unsupported', () => {
+    const probeLike = canonicalOperations[0]!;
+    const rejected = { ...probeLike, name: 'not_a_real_operation' };
+    expect(
+      createOperationRegistry([rejected]).resolve('not_a_real_operation'),
+    ).toEqual({ ok: false, code: 'unsupported_operation' });
   });
 });
 

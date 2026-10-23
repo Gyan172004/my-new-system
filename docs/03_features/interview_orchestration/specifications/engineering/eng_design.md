@@ -269,5 +269,51 @@ Kanban/CSV as the status authority.
 | T193  | #198  | T203  | #208  | T213  | #218  |       |       |
 | T194  | #199  | T204  | #209  | T214  | #219  |       |       |
 
-Groups 01–07 (implementation) follow; this section will be extended as each
-group's RED/GREEN/review/commit evidence is observed.
+### Group 01 — IO-00: generalize gateway operation dispatch
+
+RED: baseline `tests/unit/model-gateway`+`tests/contract/model-gateway`+
+`tests/integration/model-gateway` run confirmed 379/379 passing before any
+change. Three new tests (second-operation dispatch, disabled-stub safety)
+observed failing against the unmodified `gateway_probe`-only dispatch.
+
+GREEN: widened `EnabledOperation`/`OperationInput`/`OperationOutput`
+(`types.ts`) and `definitionSchema`'s `name` field (`operations.ts`) to a
+closed set; generalized `createOperationRegistry`'s candidate selection to
+any `enabled === true` item (previously hardcoded to `gateway_probe` only)
+with a generic self-consistency check in place of the old probe-specific
+object-identity check; replaced `invoke.ts`'s three hardcoded
+`probeInputSchema`/`probeOutputSchema`/`'gateway_probe' as const` call sites
+with the resolved definition's own schemas and the actual requested
+operation, widening `invoke`'s signature to be generic over `K extends
+EnabledOperation`. 382/382 passing (379 baseline + 3 new), typecheck/lint/
+format clean, diff scoped to exactly `types.ts`/`operations.ts`/`invoke.ts`
+plus their two test files — no adapter/transport/budget/metadata file
+touched.
+
+A dedicated independent reviewer (loading `mastering-typescript`, `vitest`,
+`requesting-code-review`) found two **blocking** findings, each independently
+reproduced before being reported: (1) the generalized registration loop
+dropped the old single-operation code's implicit "ambiguous match registers
+nothing" fail-closed property — two differently-configured candidates
+sharing one name would silently last-write-win instead of both failing
+closed (reviewer constructed and ran the exact colliding-name case to prove
+it); (2) `EnabledOperation`/`definitionSchema`'s widened set omitted
+`stage_classification`/`intent_classification`, which both this document's
+§1 and `tasks.md` T190 explicitly required to be included (disabled). Root
+resolved both: restored a generic fail-closed duplicate-name guard (count
+validated candidates per name; register only names with exactly one
+validated candidate) with its own RED/GREEN regression test, and widened the
+type/enum to the full four-name set with a regression test confirming
+`stage_classification`/`intent_classification` still resolve to
+`operation_disabled` (behavior unchanged, only the type surface widened) and
+that a fifth/unknown name is still rejected. Root independently reran the
+full suite after both fixes: **19 files, 387 tests passing** (382 + 5 new),
+typecheck/eslint/prettier clean, diff still scoped to the same five files.
+`canonicalOperations`'s real `interview_turn` entry remains the disabled stub
+— `IO-01` (Group 02) enables it next.
+
+Committed as
+`<US=US1, ID=T192, K=K-018, GROUP=01> feat(orchestration): generalize gateway operation dispatch`.
+
+Groups 02–07 (remaining implementation) follow; this section will be
+extended as each group's RED/GREEN/review/commit evidence is observed.
