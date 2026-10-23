@@ -206,8 +206,8 @@ Issue mirrors requested by the owner derive from these tasks, retain canonical K
 - [x] T127 Run installed $speckit-converge against .specify/work/problem_catalogue/; reconcile actual gaps into docs/03_features/problem_catalogue/specifications/engineering/eng_design.md as new unique T tasks with K mappings; iterate implementation/TDD/review/coverage/analyze/converge until no unresolved code acceptance gaps.
 - [x] T128 Reconcile all four docs in docs/03_features/problem_catalogue/, ADR register and canonical contracts where accepted design changed; finish docs/runbooks/problem-catalogue.md with empty catalogue, safe staff config, author/reviewer review, publish/retry/withdraw/recovery and deployment least-privilege gates; preserve original content/problem-packs/two-sum/source/ bytes.
 - [x] T129 Dedicated final review agent applies requesting-code-review, verification-before-completion and relevant TypeScript/PostgreSQL/Vitest/Next.js skills to full requirement/test/privacy/ownership/error/logging coverage; root resolves findings technically, reruns affected checks and repeats convergence when changes warrant; record review evidence in docs/03_features/problem_catalogue/specifications/engineering/eng_design.md.
-- [ ] T130 Update project_management/kanban_board.md and kanban_tasks.csv together only for demonstrated completion; preserve genuine seed gates, deferred K-028 cloud and deployment acceptance, record derived issue/PR links in canonical engineering design and concise handoff only where useful in docs/project_notes/.
-- [ ] T131 Root verifies final scoped diff and observed test evidence, commits group 06 with the title below, pushes feature/problem-catalogue-immutable-packs and opens new linked PR against confirmed dependency branch/base; include tests and pending seed/release gates in PR and docs/03_features/problem_catalogue/specifications/engineering/eng_design.md.
+- [x] T130 Update project_management/kanban_board.md and kanban_tasks.csv together only for demonstrated completion; preserve genuine seed gates, deferred K-028 cloud and deployment acceptance, record derived issue/PR links in canonical engineering design and concise handoff only where useful in docs/project_notes/.
+- [x] T131 Root verifies final scoped diff and observed test evidence, commits group 06 with the title below, pushes feature/problem-catalogue-immutable-packs and opens new linked PR against confirmed dependency branch/base; include tests and pending seed/release gates in PR and docs/03_features/problem_catalogue/specifications/engineering/eng_design.md.
 - [ ] T132 EXTERNAL CONTENT GATE: obtain genuine verified author, distinct authorized human reviewer, source-rights evidence and exact finalized checksum approval for content/problem-packs/two-sum/; configure actual reviewed staff assignments outside committed secrets, then authorized review/publish and real-seed acceptance. Until supplied keep this task pending, seed unpublished and K-008/K-009 incomplete; synthetic code work and draft PR are independently reviewable.
 
 **Commit title:** `<US=shared, ID=T131, K=K-007|K-008|K-009, GROUP=06> test(catalogue): verify catalogue acceptance and coverage`
@@ -692,3 +692,20 @@ Vitest and five-test Playwright evidence, verified retained coverage denominator
 and reviewed the fixture readiness correction without weakening privacy checks.
 Human seed acceptance, unavailable MCP browser-error introspection and external
 production/deployment gates remain explicitly excluded from that acceptance.
+
+### PR and remaining acceptance gate
+
+[Draft PR #136](https://github.com/Gyan172004/my-new-system/pull/136) targets
+`feature/identity-candidate-access` (stacked on identity PR #89). All implemented
+code groups passed their independent reviews, final local tests and code-scope
+convergence. Required hosted checks for the final head are tracked on that PR;
+local evidence above does not substitute for those remote results.
+
+T087–T131 implementation/planning/review/handoff work is complete. The existing
+[T132 / #135](https://github.com/Gyan172004/my-new-system/issues/135) remains the
+only feature task awaiting external content evidence: verified author assignment,
+distinct authorized human technical/source-rights review and exact final checksum
+approval. The real Two Sum seed remains unpublished. Kanban/CSV retain K-007 Done
+and K-008/K-009 In Progress; deployment/cloud/provider/execution release gates
+remain with their existing owners. Unrelated owner skill/setup changes were
+preserved outside the feature commits.
