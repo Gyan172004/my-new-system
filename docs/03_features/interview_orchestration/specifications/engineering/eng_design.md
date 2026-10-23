@@ -455,5 +455,59 @@ coarse backstop for).
 Committed as
 `<US=US2, ID=T204, K=K-018, GROUP=04> feat(orchestration): enforce policy layer and deterministic fallback`.
 
-Groups 05–07 (remaining implementation) follow; this section will be
+### Group 05 — IO-04: `proposeTurn` wiring and bounded repair
+
+RED: `application/propose-turn.ts` did not exist; all 9 new contract tests
+failed (`proposeTurn is not a function`). Baseline before this group:
+`test:contract` 198/198 (8 files), `test:unit` 644/644 (43 files).
+
+GREEN: implemented `proposeTurn` exactly per `logic_and_state.md` §2 —
+`operationId = "interview_turn:" + turnId + ":" + attempt` (literal, unique
+per attempt); repair triggers only on `invalid_output`/`refused`/
+`output_limit` and only on attempt 1; any other code, or a repeat of those
+three on attempt 2, goes straight to fallback; a successful gateway result
+is never re-validated at this layer. `STAGE_PROMPT` was moved from
+`public.ts` to a new `application/stage-prompt.ts` (a pure, byte-identical
+relocation, to avoid a `public.ts` ↔ `application/` circular import) —
+`test:contract` 207/207 (+9, zero regressions).
+
+The timeout test case required a documented, verified deviation: hanging
+inside the adapter's `send()` cannot deterministically produce the real
+`timeout` code with zero `send()` calls, because the gateway's own internal
+retry loop (confirmed by reading `invoke.ts` directly) dispatches `send()`
+a second time before the 15s total deadline elapses. Hanging inside
+`prepare()` instead produces the real `attempts:0`/`outcome:'timeout'`
+deterministically; the test asserts `proposeTurn` issued exactly one
+logical gateway call (`timeout` is not in `REPAIRABLE_GATEWAY_CODES`),
+which is the actual FR-008 property under test, not a weaker substitute —
+the dedicated reviewer independently re-read `invoke.ts`'s retry condition
+to confirm this claim rather than taking it on faith, and confirmed
+`propose-turn.ts` has no branch sensitive to *where* inside the gateway a
+timeout originates, so no real gap is left untested.
+
+The dedicated reviewer specifically hunted for a `refused`/`invalid_output`
+mapping swap (tech_design.md §2: `output_limit`/`invalid_output` both map to
+`gateway_invalid_output`, but `refused` has its own distinct
+`gateway_refused` value) — confirmed correct, no swap. Also verified: the
+`applyPolicy` call matches Group 04's real signature (no structural-
+coincidence typing), context fields thread correctly on every attempt
+(only `operationId` varies), and the `STAGE_PROMPT` move changed nothing
+behaviorally (Groups 03/04's own tests all still pass unchanged). Returned
+**APPROVE WITH FOLLOW-UPS**: (1) `applyPolicy`'s rejected `failedStep` has
+no path out of `proposeTurn` today, since `tech_design.md` §2's return type
+has no field for it — correctly out of this group's scope (FR-010
+telemetry is `IO-05`'s job), but `IO-05` needs either a telemetry side-
+channel or a signature addition to actually capture it; (2) a cheap type-
+tightening nit (`mapGatewayFailure`'s parameter was bare `string` instead of
+the closed `GatewayErrorCode` union, losing compiler-enforced exhaustiveness
+against future gateway codes). Root applied (2) directly (now
+`GatewayErrorCode`-typed, `REPAIRABLE_GATEWAY_CODES` too); (1) is carried
+forward as a Group 06 dependency note. Reran the full suite after the type
+fix: **26 files, 517 tests passing**, typecheck/eslint/prettier clean,
+gateway module still untouched.
+
+Committed as
+`<US=shared, ID=T208, K=K-018, GROUP=05> feat(orchestration): wire proposeTurn with bounded repair`.
+
+Groups 06–07 (remaining implementation) follow; this section will be
 extended as each group's RED/GREEN/review/commit evidence is observed.
