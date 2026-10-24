@@ -41,6 +41,7 @@
     "content:pack": "node --env-file-if-exists=.env.local --import tsx scripts/content-pack.ts",
     "coverage:catalogue": "APP_ENV=test vitest run --config vitest.catalogue.config.ts",
     "coverage:gateway": "APP_ENV=test vitest run --config vitest.gateway.config.ts",
+    "coverage:orchestration": "APP_ENV=test vitest run --config vitest.orchestration.config.ts",
     "model-gateway:smoke": "node --env-file-if-exists=.env.local --import tsx scripts/model-gateway-smoke.ts"
   },
   "dependencies": {

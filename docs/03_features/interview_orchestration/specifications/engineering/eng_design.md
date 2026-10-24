@@ -714,5 +714,96 @@ command's explicit path list for the first time), `tsc --noEmit`/eslint/
 prettier all clean. No file outside the six already-reviewed groups' own
 modules/tests was touched by this pass.
 
-Group 07 (coverage/CI convergence, final PR) follows; this section will be
-extended as its RED/GREEN/review/commit evidence is observed.
+### Group 07 — coverage, convergence, and reviewable PR
+
+**T215-T218 (coverage config + CI stage):** `vitest.orchestration.config.ts`
+added, mirroring `vitest.gateway.config.ts` exactly (same thresholds
+90/90/90/85, same `autoAttachSubprocess: false` rationale), covering every
+`src/modules/interview-orchestration/**/*.ts` file plus the `IO-00`-touched
+gateway files (`types.ts`/`operations.ts`/`invoke.ts`) per this document's
+own §4 instruction. `coverage:orchestration` script and an
+`orchestration-coverage` CI stage registered in `scripts/verify-ci.ts`
+(`.github/workflows/ci.yml` needed no change — its single step already runs
+every registered stage with no arguments). `tests/ci/negative-controls.test.ts`
+extended with `orchestration-coverage` in the expected stage list and a real
+baseline-pass-then-deliberately-lowered-coverage control test, mirroring
+`gateway-coverage`'s mechanics exactly — confirmed RED (stage not registered)
+before the registration, GREEN after.
+
+First coverage run (before adding tests) was below threshold on branches
+(63.80%); a genuinely new test file,
+`tests/unit/interview-orchestration/gateway-dispatch-boundary.test.ts` (27
+real-behavior tests covering retry/budget/saturation/registry-dedup paths
+that this feature's own `IO-00`-touched gateway files exercise but the
+narrower `test.include` list otherwise left unexercised), closed the gap.
+Final measured coverage (recorded by the implementing agent, using a pinned
+Node 24.22.0 binary — this sandbox's default Node 20.20.2 cannot run
+`dependency-cruiser`, the same documented limitation the K-017 precedent
+hit): Statements 96.82% (336/347), Branches 92.85% (195/210), Functions
+96.1% (74/77), Lines 98.11% (312/318) — all above threshold.
+
+**Root's independent re-verification (Node 20.20.2, this sandbox's default
+shell — no pinned Node 24 binary was available in this session to rerun the
+coverage command itself, so coverage percentages were not independently
+re-measured, only everything else below):**
+
+- `npx tsc --noEmit`: clean.
+- `npm run format:check` / `npm run lint`: both clean, whole repo.
+- `npm run build`: succeeds; the printed route list is unchanged from before
+  this feature (`/`, `/_not-found`, the existing health/problems/sign-in
+  routes only) — confirms FR-012/SC-008's "no new route" claim directly,
+  not just by contract-file diff.
+- `git diff b375f18..HEAD -- contracts/api/v1_openapi.yaml contracts/events/async_schemas.json`:
+  **zero lines** — confirms FR-012/SC-008's "no new event schema" claim with
+  an actual diff against the pre-K-017 baseline, not a generic suite pass.
+- `APP_ENV=test npx vitest run tests/ci/negative-controls.test.ts`: the new
+  `orchestration-coverage` control test passes
+  ("propagates an actual orchestration coverage threshold failure after a
+  passing real stage baseline"). 4 *other*, pre-existing tests in this same
+  file fail in this sandbox (`exposes every required CI stage...`,
+  `runs the real lint stage...`, `fails unknown stages...`,
+  `rejects a real source boundary violation...`) — confirmed these are
+  **pre-existing and unrelated** two ways: (a) `git show 7bc128e` (the
+  commit immediately before this group) shows all four already existed
+  before Group 07 touched anything; (b) rerunning the already-accepted
+  `vitest.gateway.config.ts` directly in this same sandbox independently
+  reproduces the identical failure pattern (44 failed tests, all
+  `architecture-analysis-unavailable`), proving this is the sandbox's
+  Node-20-cannot-run-dependency-cruiser limitation affecting every
+  architecture-dependent suite equally, not something `vitest.orchestration.config.ts`
+  introduced.
+- `npx vitest run tests/unit/interview-orchestration tests/contract/interview-orchestration tests/unit/model-gateway tests/contract/model-gateway tests/integration/model-gateway tests/integration/interview-orchestration tests/unit/logger.test.ts`:
+  **29 files, 567 tests passing**, zero regressions.
+- `APP_ENV=test npm run test:unit`: 44 files, 676 tests passing (project-wide).
+- `APP_ENV=test npm run test:contract`: 10 files, 221 tests passing (project-wide).
+- Ordinary tests never loaded `.env.local` or dispatched a real provider;
+  `npm run build` itself loads `.env.local` for Next's own environment
+  handling, unrelated to gateway/orchestration test execution (same caveat
+  the K-017 precedent recorded).
+
+**T220 (dedicated final review, full `b375f18..HEAD` range):** applying
+`requesting-code-review`/`verification-before-completion`/
+`mastering-typescript`/`vitest`, the reviewer traced the complete
+end-to-end data flow by hand (`buildAllowlistedContext` → stage prompt
+`render()` → gateway `invoke()` → `interviewTurnInputSchema`/
+`interviewTurnOutputSchema` → `applyPolicy` → the guarded-commit fixture)
+and confirmed every seam type-matches at the actual production call sites,
+not just plausibly. Confirmed all 14 prompt modules route exclusively
+through the shared `renderContextFields`/`renderRecentTurns`/
+`renderUntrustedBlock` helpers — no fourth untrusted-interpolation site
+exists beyond the three already fixed. Independently re-verified `tsc`/
+lint/format/build/the full scoped and project-wide test counts (all
+matching this document's claims exactly) and spot-checked three specific
+prior claims against current HEAD (the `mapGatewayFailure` mapping, the
+`logger.ts` `evaluationVersion` allowlist, `IO-00`'s fail-closed
+duplicate-name guard) — all still true, no regression. Zero Critical or
+Important findings. **Verdict: Ready to merge.**
+
+Committed as
+`<US=shared, ID=T221, K=K-018, GROUP=07> test(orchestration): verify coverage and convergence gates`.
+
+**T221:** `project_management/kanban_board.md`/`kanban_tasks.csv` updated —
+K-018 moved to In Progress with the full groups-00-07 evidence summary,
+explicitly retaining its dependency on K-017's own pending T184 external
+gate, `IO-06`'s fixture-only status pending K-014/K-016, and `IO-07`'s
+deferred/unscheduled status. No M2/production completion claimed.

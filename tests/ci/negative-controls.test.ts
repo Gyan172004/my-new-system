@@ -28,6 +28,7 @@ it('exposes every required CI stage without silently omitting service or scanner
     'identity-coverage',
     'catalogue-coverage',
     'gateway-coverage',
+    'orchestration-coverage',
     'contract',
     'architecture',
     'build',
@@ -137,6 +138,60 @@ it('propagates an actual catalogue coverage threshold failure after a passing re
     expect(await project.deadline(failure.done, 30000)).not.toBe(0);
     expect(failure.output()).toContain('does not meet');
     expect(failure.output()).toContain('ci_stage_failed:catalogue-coverage');
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+}, 65000);
+
+it('propagates an actual orchestration coverage threshold failure after a passing real stage baseline', async () => {
+  const root = join(project.root, 'orchestration-coverage-control');
+  await mkdir(join(root, 'src/modules/interview-orchestration'), {
+    recursive: true,
+  });
+  await mkdir(join(root, 'tests/unit'), { recursive: true });
+  for (const name of ['package.json', 'vitest.orchestration.config.ts'])
+    await cp(resolve(name), join(root, name));
+  await symlink(
+    join(project.root, 'node_modules'),
+    join(root, 'node_modules'),
+    'dir',
+  );
+  const source = join(root, 'src/modules/interview-orchestration/control.ts');
+  const covered = 'export function visible() { return 1; }\n';
+  await writeFile(source, covered);
+  await mkdir(join(root, 'tests/unit/interview-orchestration'), {
+    recursive: true,
+  });
+  await writeFile(
+    join(root, 'tests/unit/interview-orchestration/control.test.ts'),
+    "import {it,expect} from 'vitest';import {visible} from '../../../src/modules/interview-orchestration/control';it('executes production code',()=>expect(visible()).toBe(1));\n",
+  );
+  const stage = () =>
+    project.run(
+      [
+        '--import',
+        'tsx',
+        '--eval',
+        "import {runStage} from './scripts/verify-ci.ts';await runStage('orchestration-coverage','./orchestration-coverage-control');",
+      ],
+      { APP_ENV: 'test' },
+    );
+  try {
+    const baseline = stage();
+    expect(
+      await project.deadline(baseline.done, 30000),
+      baseline.output(),
+    ).toBe(0);
+    await writeFile(
+      source,
+      covered + 'export function missed() { return 2; }\n',
+    );
+    const failure = stage();
+    expect(await project.deadline(failure.done, 30000)).not.toBe(0);
+    expect(failure.output()).toContain('does not meet');
+    expect(failure.output()).toContain(
+      'ci_stage_failed:orchestration-coverage',
+    );
   } finally {
     await rm(root, { recursive: true, force: true });
   }
