@@ -25,3 +25,4 @@ export {
 } from './domain/hint-routing';
 export type { HintRouting, RoutingCatalogue } from './domain/hint-routing';
 export { createHintRoutingService } from './application/hint-routing';
+export { createReviewerAuthorization } from './application/reviewer';

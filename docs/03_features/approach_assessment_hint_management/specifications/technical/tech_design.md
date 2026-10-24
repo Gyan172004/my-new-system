@@ -133,7 +133,10 @@ private IDs/text in candidate DTOs. Revisions cannot alter a session's locked
 selection; retain and load its original immutable routing revision/hash. See ADR-026 for the approved selection/lock semantics.
 
 Evidence references resolve to canonical session turn IDs, optionally with
-Unicode-code-point ranges `[start,end)` and an exact bounded excerpt. Validate
+Unicode-code-point ranges `[start,end)` and an exact bounded excerpt.
+The strict Gateway wire shape always includes `span`, using null when no range
+is supplied; this preserves optional evidence-range semantics while meeting
+provider structured-output requirements. Validate
 session, speaker=candidate, allowed stage, revision, range and excerpt equality.
 The current command may use a reserved candidate turn ID in its operation; it
 becomes a committed turn only in the successful finalization transaction. Model

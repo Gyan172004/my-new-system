@@ -30,3 +30,8 @@ export type {
 export { createGroqAdapter } from './adapters/groq';
 export { createOpenAIAdapter } from './adapters/openai';
 export { syntheticProbeFixture } from './application/probe-fixture';
+export {
+  approachAssessmentInputSchema,
+  approachAssessmentOutputSchema,
+  assessmentEvidenceSchema,
+} from './application/validation';
