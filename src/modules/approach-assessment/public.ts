@@ -18,5 +18,6 @@ export type {
 } from './domain/classify';
 export { createFixtureEvaluator } from './application/evaluate';
 export { createAssessmentStore } from './application/store';
+export type { StoredAssessmentOutcome } from './application/store';
 export { createAssessmentPreparer } from './application/service';
 export type { AssessmentPreparationWork,AssessmentRuntimeProfile } from './application/service';

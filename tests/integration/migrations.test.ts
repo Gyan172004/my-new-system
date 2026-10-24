@@ -115,6 +115,7 @@ it(
         'content_publications',
         'content_reviews',
         'conversation_turns',
+        'hint_exposures',
         'interview_sessions',
         'pgmigrations',
         'session_command_operations',

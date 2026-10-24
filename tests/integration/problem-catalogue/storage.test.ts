@@ -310,7 +310,7 @@ it('applies after identity data already exists and retains arbitrary fixture ses
         environment: 'test',
         migrationDatabaseUrl: oldLease.connectionString,
       }),
-    ).toEqual({ applied: 3 });
+    ).toEqual({ applied: 4 });
     expect(
       (
         await c.query(

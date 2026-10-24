@@ -6,4 +6,5 @@ export const acceptedMigrations = [
   '1792713600000_problem_catalogue',
   '1792800000000_hint_routing',
   '1792800000001_assessment_commands',
+  '1792800000002_hint_exposures',
 ] as const;
