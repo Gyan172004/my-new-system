@@ -69,6 +69,11 @@ export function createAssessmentContextReader(db: TransactionDatabase) {
       })),
     });
   return Object.freeze({
+    async resolveAssessmentPin(problemId:string,packVersion:string,scope:TransactionScope):Promise<AssessmentPin> {
+      const row=(await repositoryClient(scope,db).query<{checksum:string}>('SELECT content_checksum AS checksum FROM catalogue_releases WHERE problem_id=$1 AND version=$2 AND sealed',[problemId,packVersion])).rows[0];
+      if(!row) return fail();
+      return Object.freeze({problemId,packVersion,packChecksum:row.checksum});
+    },
     async readPinnedAssessmentContext(pin: AssessmentPin) {
       const { interview } = await load(pin);
       return freezeContent({

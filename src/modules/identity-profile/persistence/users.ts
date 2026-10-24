@@ -16,7 +16,7 @@ export function createUserRepository(
     ) {
       const query = async (client: import('pg').PoolClient) => {
         const result = await client.query<{ id: string }>(
-          "SELECT id FROM users WHERE id=$1 AND account_status='active'",
+          "SELECT id FROM users WHERE id=$1 AND account_status='active'" + (scope ? ' FOR SHARE' : ''),
           [userId],
         );
         return result.rows[0]
