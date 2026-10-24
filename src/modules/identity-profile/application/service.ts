@@ -1,3 +1,4 @@
+import { createActiveUserLookup } from './active-user';
 import { getRuntime, type RuntimeRegistry } from '../../../server/runtime';
 import { runtimeDatabase } from '../../../server/database';
 import { createClerkVerifier } from '../adapters/clerk-verifier';
@@ -31,6 +32,7 @@ export function runtimeIdentity(runtime: RuntimeRegistry = getRuntime()) {
         admission,
         resolveUser: users.resolve,
       }),
+      lookupActiveUser: createActiveUserLookup(runtimeDatabase(runtime)),
       close: admission.close,
       destroy: admission.destroy,
     };

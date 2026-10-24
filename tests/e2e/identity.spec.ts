@@ -55,8 +55,26 @@ test('entry works at narrow widths and links to embedded sign-in', async ({
 test('account boundary clears private UI and aborts a late response on switch and sign-out', async ({
   page,
 }) => {
-  await page.goto('/identity-fixture');
-  await page.getByRole('button', { name: 'Load private response' }).click();
+  // Make the hydration gap deterministic: SSR controls must wait for the client
+  // and its live account signal before Playwright can dispatch an action.
+  let releaseHydration!: () => void;
+  const hydration = new Promise<void>((resolve) => {
+    releaseHydration = resolve;
+  });
+  await page.route('**/_next/**/*.js', async (route) => {
+    await hydration;
+    await route.continue();
+  });
+  const load = page.getByRole('button', { name: 'Load private response' });
+  try {
+    await page.goto('/identity-fixture', { waitUntil: 'commit' });
+    await expect(load).toBeVisible();
+    await expect(load).toBeDisabled();
+  } finally {
+    releaseHydration();
+  }
+  await expect(load).toBeEnabled();
+  await load.click();
   await expect(page.getByTestId('private')).toHaveText('private:alice');
   await page.getByRole('button', { name: 'Load private response' }).click();
   await page.getByRole('button', { name: 'Switch account' }).click();

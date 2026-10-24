@@ -41,6 +41,15 @@ When a decision changes, update this record and all affected contracts/designs i
 | ADR-020 | Use author + independent technical review for Problem Pack publication | Accepted V1 content process |
 | ADR-021 | Use TypeScript + Next.js for the trusted application | Accepted owner choice, 2026-10-17 |
 | ADR-022 | Develop locally with explicit provider and cloud verification gates | Accepted owner choice, 2026-10-18 |
+| ADR-023 | Use verified operator identity plus configuration allowlists for initial content permissions | Accepted owner choice, 2026-10-23 |
+| ADR-025 | Owner self-review exception for the V1 Two Sum seed Problem Pack only | Accepted owner choice, 2026-10-24 |
+
+ADR-024 is reserved on the `feature/model-gateway` branch (the "allow Groq for
+explicit local Model Gateway development" exception) and is intentionally
+absent here — this is a stacked branch (`feature/problem-catalogue-immutable-packs`
+is the base of the stack that `feature/model-gateway` and
+`feature/interview-orchestration` build on). ADR-025 is numbered to match the
+intended final sequence once the stack merges, not this branch's own count.
 
 ## 3. Decisions
 
@@ -503,6 +512,134 @@ This is documentation policy, not executed emulator/provider evidence.
 **Revisit when:** A provider-specific limitation blocks a vertical slice or
 measured staging behavior differs from local assumptions.
 
+### ADR-023 — Use configuration allowlists for initial content staff permissions
+
+**Status:** Accepted owner choice, 2026-10-23; implementation remains planned.
+
+**Context:** Feature 3 needs independent human review and authorized seed
+publication before the full K-024 administration workflow. Candidate identity
+already exists, but a signed-in candidate must not automatically become staff.
+The owner accepted the recommended small-team configuration allowlist after
+reviewing it against database-managed role records.
+
+**Decision:** Verify the operator through the existing identity boundary and map
+to an active internal user ID. Content publishing checks a strict, reviewed,
+versioned server-configuration allowlist for `review_content`, `publish_content`
+and `withdraw_content`. Default grants are empty; unknown permissions or malformed
+entries fail configuration validation. Permission changes require reviewed
+configuration replacement/restart. This adds no database role manager, provider
+role setup or admin UI.
+
+**Consequences:**
+
+- Operator commands read ephemeral credentials from standard input; do not put
+  credentials in command-line values, logs or committed configuration. The
+  allowlist contains only non-secret internal IDs and permission names.
+- An operation uses one immutable configuration revision. Review/publication/audit
+  evidence records its revision and digest. Process replacement follows the
+  existing drain/lifecycle rules; it is not instantaneous in-flight revocation.
+- ADR-020's different-author/reviewer rule is unchanged. New publication requires
+  current reviewer and publisher grants; removing a reviewer blocks unpublished
+  approvals. Exact retries of an already-committed release require current
+  publisher permission and matching immutable content/review evidence, and do
+  not reselect/re-enable a release or generate another approval.
+- Actual author/reviewer/publisher assignments, independent content/source-rights
+  approval and configured-environment verification remain acceptance gates. No
+  actual staff grant or provider mutation is authorized by this decision.
+- Clerk/test-adapter environment restrictions and privacy rules remain binding.
+  A submitted review file, email/name or CLI flag is not proof of authority.
+
+**Alternatives:** Database role records support changes without restart, but
+need audited grant/revoke operations and more authorization tests. A full admin
+interface remains later work. Unsigned identity/approval flags would bypass the
+required authority checks and are rejected.
+
+**Impact:** Reconcile Feature 3's four canonical documents and operator test plan.
+Identity's verified-caller contract, candidate API payloads, event wire schemas
+and provider boundaries remain unchanged. Catalogue `400` declarations are a
+separate API-compatibility correction, covered by contract-consumer checks.
+
+### ADR-025 — Owner self-review exception for the V1 Two Sum seed Problem Pack only
+
+**Status:** Accepted owner choice, 2026-10-24; a narrow, single-pack exception,
+not a change to ADR-020's standing content-governance rule.
+
+**Context:** ADR-020 requires an author and a *different* technical reviewer
+before a Problem Pack publishes; ADR-023 reaffirms this "different
+author/reviewer" rule. K-008's seed Two Sum pack has passed all implemented
+structural/schema/data validation (`content/problem-packs/two-sum/draft-validation.json`:
+all `checksPassed` items, 37/37 cases independently checked) and an agent
+correctness review found no important actionable defect — but it has no
+verified author and no second independent human reviewer, and GitHub issue
+#135 (canonical task T132) explicitly states a synthetic/agent review "does
+not satisfy this gate" and that human approval must never be invented. No
+second reviewer is available for this V1 bootstrap pack. The owner reviewed
+`content/problem-packs/two-sum/pack-preview.md` directly and decided to
+proceed rather than wait for a second person to become available.
+
+**Decision:** For this one seed pack only, the project owner (Gyandeep
+Katiyar) is recorded as both author and approving reviewer, performed as two
+distinct, deliberate actions (authoring the draft; a separate correctness and
+source-rights review pass of the final content), rather than as a single
+self-approval. The owner has reviewed the retained `source/two-sum_tests_leetcode_paste.txt`
+material and the 37 cases derived from it and confirmed no source-rights
+concern: the published content is a reworded adaptation (see
+`normalization-notes.md`'s mapping table), and the problem's functional
+test input/output pairs are not independently copyrightable narrative
+content. This exception applies **only** to this specific pack's initial
+publication. It does not relax ADR-020/ADR-023's different-author/reviewer
+requirement for any other pack, including future corrected versions of this
+one.
+
+**Consequences:** `content/problem-packs/two-sum/`'s metadata records the
+owner as `authorId` and as the reviewer of record for this exception, with
+the rationale linked back to this ADR. The exact finalized content checksum
+and reviewer-evidence record are produced by the real `scripts/content-pack.ts
+review`/`publish` commands against a live database when that operational
+step runs (deferred from this documentation change — it requires a reachable
+Postgres instance, a real authenticated operator credential, and the
+owner's internal ID present in the `contentStaff` configuration allowlist
+with `review_content`/`publish_content` grants per ADR-023); this ADR
+authorizes that step, it does not perform it. K-008/K-009 remain incomplete
+until that command actually runs and the pack is actually published.
+
+**Operational evidence (2026-10-24):** The initial seed was published to the
+local development database, using the supported test identity adapter. The
+owner's author role is mapped to internal UUID
+`db6b8fbf-27a3-415c-bcd7-bec97c63dc1f`; reviewer/publisher role to
+`7343749e-3600-4d71-ba72-a2ef8ef02682`. These are two development identities
+for one human under this exception, not independent human reviewers or
+production Clerk evidence. Runtime self-review checks were not changed.
+Review `137c74ee-a713-459a-b1b4-1e9422c69195` approved checksum
+`a57cb531f10a561f58402599a5fde21efe2eba0fdb0e42bb4b7609355957b666`;
+publication at `2026-10-24T08:46:20.156Z` created sealed release
+`912219bb-6bd0-406d-9905-04e2e38b85a0` with all 37 cases. Catalogue list,
+detail and pinned reads were verified. This evidence applies only to that local
+database; production identities, permissions and deployment remain separate
+gates. See the catalogue engineering design for acceptance/status evidence.
+
+**Alternatives:** Waiting indefinitely for a second human reviewer blocks
+the entire V1 catalogue and every downstream feature that depends on a
+published seed (K-009, K-019, K-022, K-023). Having an AI agent "approve"
+the content on the owner's behalf was rejected outright — issue #135
+explicitly forbids inventing human approval, and an agent cannot bear
+source-rights or correctness accountability the way a human reviewer does.
+
+**Impact:** `project_management/kanban_board.md`/`kanban_tasks.csv`'s K-008
+entry and the open-decisions table in this register's §4 ("Problem Pack
+roles") are updated to reflect this accepted exception rather than an
+unresolved gap. `docs/03_features/problem_catalogue/` documents are
+unaffected — the pack schema/validation contract itself did not change,
+only who is permitted to approve this one pack's V1 publication.
+
+**Revisit when:** A second qualified reviewer becomes available for any
+future pack, or this seed pack needs a corrected version — at which point
+ADR-020's standard author/independent-reviewer process applies without
+exception.
+
+**Revisit when:** Staff count or permission-change frequency justifies a reviewed
+database-backed role workflow under the content-administration feature.
+
 ## 4. Remaining implementation decisions and validation gates
 
 Major V1 provider/scope choices have been made. The following details remain implementation-level decisions or mandatory verification gates; do not silently invent them where they affect security, cost, or service behavior.
@@ -515,10 +652,11 @@ Major V1 provider/scope choices have been made. The following details remain imp
 | Model budgets | OpenAI model map in ADR-012 | Per-operation timeouts, token budgets, per-user limits, Astra escalation trigger and budget; prove quality on reviewed eval set | Production Model Gateway |
 | Voice UX | Turn-based voice, transcript visible, TTS output, text fallback | Supported audio mime-types/duration/size, UI consent wording/version, retry UX and latency thresholds | Voice feature implementation |
 | Data privacy | 365d transcript/history, 90d source, 30d execution output, 90d audit logs, no durable raw audio, 7d RDS backup | Privacy/legal review, OpenAI account data controls/residency, deletion SLA and backup expiry verification | Production launch |
-| Problem Pack roles | Author + independent technical reviewer; no self-approval | Assign actual people/role holders and escalation process for disputed/defective content | First published catalogue |
+| Problem Pack roles | Author + independent technical reviewer; ADR-023 configuration permission allowlists; no self-approval; ADR-025 grants a one-time owner self-review exception for the V1 Two Sum seed only | Initial seed locally published under ADR-025 on 2026-10-24; production operator/environment evidence remains separate; assign a genuine second reviewer before any pack beyond this one V1 seed; reviewed escalation process for disputed/defective content | First published catalogue (V1 seed) / any pack beyond it |
 | Capacity/SLOs | 1,000 users, 100 interviews, 10 concurrent executions; initial targets remain provisional | Load-test headroom, autoscaling thresholds, final RPO/RTO and alert thresholds | Release approval |
 
-The following choices are resolved and must not be listed as open: Clerk authentication, turn-based voice in V1, Python/C++/Java, OpenAI-only model provider, AWS ECS/Fargate + RDS PostgreSQL + SQS Standard, E2B-managed sandbox default, the retention defaults above, and author/reviewer content governance.
+The following choices are resolved and must not be listed as open: Clerk authentication, turn-based voice in V1, Python/C++/Java, OpenAI-only model provider, AWS ECS/Fargate + RDS PostgreSQL + SQS Standard, E2B-managed sandbox default, the retention defaults above, and author/reviewer
+content governance with ADR-025's one-time V1-seed-only exception.
 
 ## 5. Vendor documentation checked for the selected baseline
 

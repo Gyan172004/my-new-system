@@ -103,6 +103,13 @@ it(
           )
         ).rows.map((row) => row.tablename),
       ).toEqual([
+        'catalogue_problems',
+        'catalogue_release_availability',
+        'catalogue_releases',
+        'catalogue_test_cases',
+        'content_publication_audit',
+        'content_publications',
+        'content_reviews',
         'interview_sessions',
         'pgmigrations',
         'session_events',

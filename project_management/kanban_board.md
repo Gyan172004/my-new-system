@@ -40,17 +40,6 @@ _None._
 
 ## Backlog
 
-### K-007 — Define minimal Problem Pack schema and validation rules
-- Milestone: M1 · Priority: P0 · Depends on: K-002
-- Acceptance: schema covers candidate-visible statement/examples, version metadata, reference approaches, hint metadata, and private test references with visibility separation.
-
-### K-008 — Create one reviewed seed Problem Pack
-- Milestone: M1 · Priority: P0 · Depends on: K-007
-- Acceptance: pack passes structural validation and human correctness review; provenance is recorded.
-
-### K-009 — Implement published Problem Pack retrieval and version pinning
-- Milestone: M1 · Priority: P0 · Depends on: K-005, K-007, K-008
-- Acceptance: sessions pin an immutable published version; candidate API excludes private fields.
 
 ### K-010 — Implement session state transition guards
 - Milestone: M1 · Priority: P0 · Depends on: K-002 and `session_state_machine.md`
@@ -134,6 +123,21 @@ _None._
 _None._
 
 ## Done
+
+### K-008 — Create one reviewed seed Problem Pack
+- Milestone: M1 · Priority: P0 · Depends on: K-007
+- Acceptance: pack passes structural validation and human correctness review; provenance is recorded.
+- Completion evidence: initial Two Sum version `1` published to the local development database on 2026-10-24 under ADR-025's owner-review exception. Exact-checksum approved review, sealed current release, all 37 stored cases and catalogue list/detail/pinned readback verified; 207 focused unit/integration/contract tests passed. Development test identities represent one owner in two roles, not independent humans or production Clerk acceptance. See [local seed evidence](../docs/03_features/problem_catalogue/specifications/engineering/eng_design.md#local-seed-publication--2026-10-24).
+
+### K-009 — Implement published Problem Pack retrieval and version pinning
+- Milestone: M1 · Priority: P0 · Depends on: K-005, K-007, K-008
+- Acceptance: sessions pin an immutable published version; candidate API excludes private fields.
+- Completion evidence: reviewed catalogue/retrieval/atomic pin implementation and earlier browser/coverage acceptance now have the locally published K-008 seed. Fresh catalogue checks passed 22 files/207 tests, including real PostgreSQL integration and contract tests; list/detail/pinned version `1` readback verified. The broader full-suite attempt was interrupted (exit 130), not a pass. K-014/K-016 consumer journeys, hosted checks for this follow-up and production identity/deployment/execution gates remain separate. See [canonical engineering evidence](../docs/03_features/problem_catalogue/specifications/engineering/eng_design.md#local-seed-publication--2026-10-24).
+
+### K-007 — Define minimal Problem Pack schema and validation rules
+- Milestone: M1 · Priority: P0 · Depends on: K-002
+- Acceptance: schema covers candidate-visible statement/examples, version metadata, reference approaches, hint metadata, and private test references with visibility separation.
+- Completion evidence: strict schema, bounded diagnostic generation, reference/input profile validation and canonical checksums passed 93 focused tests within 295 passing unit tests. Architecture, TypeScript, scoped lint and independent review passed. Original seed bytes are preserved; human seed approval remains K-008. See the [engineering evidence](../docs/03_features/problem_catalogue/specifications/engineering/eng_design.md#group-01--observed-validation-acceptance).
 
 ### K-006 — Add CI checks and automated test stages
 - Milestone: M0 · Priority: P0 · Depends on: K-001, K-002

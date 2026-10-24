@@ -19,6 +19,37 @@ const protectedOperations = [
   ['post', '/interview-sessions/{sessionId}/turns/{turnId}/speech'],
 ] as const;
 
+it.each(['/problems', '/problems/{problemId}'])(
+  'lets catalogue consumers handle malformed input from GET %s as a safe 400',
+  (path) => {
+    const response = contract.paths[path].get.responses['400'];
+    expect(
+      response,
+      `GET ${path} must declare malformed-input behavior`,
+    ).toBeDefined();
+    expect(response.$ref).toBe('#/components/responses/BadRequest');
+    const errorSchema =
+      contract.components.responses.BadRequest.content['application/json']
+        .schema;
+    expect(errorSchema).toEqual({ $ref: '#/components/schemas/ApiError' });
+    expect(
+      validateError({
+        code: 'invalid_request',
+        message: 'Check the request parameters.',
+        requestId: 'catalogue-request',
+        retryable: false,
+      }),
+    ).toBe(true);
+    expect(
+      validateError({
+        code: 'invalid_request',
+        message: 'Check the request parameters.',
+        requestId: 123,
+      }),
+    ).toBe(false);
+  },
+);
+
 // These are contract-consumer checks. Product handlers remain unimplemented.
 it.each(protectedOperations)(
   '%s %s declares authentication, disabled-account, throttling and outage errors',

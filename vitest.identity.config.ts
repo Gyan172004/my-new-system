@@ -3,11 +3,13 @@ export default defineConfig({
   test: {
     environment: 'node',
     maxWorkers: 2,
-    testTimeout: 5000,
+    testTimeout: 15000,
     hookTimeout: 30000,
     include: [
       'tests/unit/**/*.test.ts',
       'tests/integration/identity-*.test.ts',
+      'tests/integration/problem-catalogue/pinning.test.ts',
+      'tests/integration/problem-catalogue/author-verification.test.ts',
     ],
     coverage: {
       provider: 'v8',

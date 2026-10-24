@@ -11,10 +11,16 @@ const methods = new Set([
   'DELETE',
   'OPTIONS',
 ]);
-const routes = new Set(['/api/v1/health/live', '/api/v1/health/ready']);
+const routes = new Set([
+  '/api/v1/health/live',
+  '/api/v1/health/ready',
+  '/api/v1/problems',
+  '/api/v1/problems/{problemId}',
+]);
 const events = new Set([
   'http_completed',
   'identity_denied',
+  'catalogue_read',
   'http_failed',
   'database_error',
   'application_started',
@@ -31,6 +37,10 @@ const codes = new Set([
   'forbidden',
   'rate_limited',
   'identity_unavailable',
+  'invalid_request',
+  'not_found',
+  'catalogue_unavailable',
+  'ok',
 ]);
 export function createSafeLogger(
   config: RuntimeConfig,

@@ -1,10 +1,33 @@
 import { randomUUID } from 'node:crypto';
 import type { createDatabase } from '../../../server/database';
+import {
+  repositoryClient,
+  type TransactionScope,
+} from '../../../server/transaction';
 import type { StoredIdentity, VerifiedIdentity } from '../application/types';
 export function createUserRepository(
   db: Pick<ReturnType<typeof createDatabase>, 'withClient'>,
 ) {
   return {
+    async lookupActive(
+      userId: string,
+      scope?: TransactionScope,
+      signal?: AbortSignal,
+    ) {
+      const query = async (client: import('pg').PoolClient) => {
+        const result = await client.query<{ id: string }>(
+          "SELECT id FROM users WHERE id=$1 AND account_status='active'",
+          [userId],
+        );
+        return result.rows[0]
+          ? Object.freeze({ userId: result.rows[0].id })
+          : null;
+      };
+      if (signal?.aborted) throw Error('database_unavailable');
+      return scope
+        ? query(repositoryClient(scope, db))
+        : db.withClient(query, signal);
+    },
     async resolve(
       identity: VerifiedIdentity,
       signal?: AbortSignal,

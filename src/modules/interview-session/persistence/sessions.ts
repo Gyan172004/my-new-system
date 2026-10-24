@@ -1,6 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import type { PoolClient } from 'pg';
 import type { createDatabase } from '../../../server/database';
+import {
+  repositoryClient,
+  type TransactionScope,
+} from '../../../server/transaction';
 export interface Snapshot {
   readonly sessionId: string;
   readonly problemId: string;
@@ -71,23 +75,31 @@ export function createSessionRepository(
       ],
     );
   };
+  const insert = async (c: PoolClient, owner: string, input: PinnedInput) => {
+    const result = await c.query<Snapshot>(
+      `INSERT INTO interview_sessions (id,owner_id,problem_id,problem_pack_version,current_stage,status,version,context) VALUES ($1,$2,$3,$4,'created','created',0,$5) RETURNING ${columns}`,
+      [
+        randomUUID(),
+        owner,
+        input.problemId,
+        input.problemPackVersion,
+        input.clientContext ?? {},
+      ],
+    );
+    const snapshot = result.rows[0]!;
+    await event(c, owner, snapshot, 'created');
+    return Object.freeze(snapshot);
+  };
   return {
+    async createInScope(
+      scope: TransactionScope,
+      owner: string,
+      input: PinnedInput,
+    ) {
+      return insert(repositoryClient(scope, db), owner, input);
+    },
     async create(owner: string, input: PinnedInput, signal?: AbortSignal) {
-      return transaction(async (c) => {
-        const result = await c.query<Snapshot>(
-          `INSERT INTO interview_sessions (id,owner_id,problem_id,problem_pack_version,current_stage,status,version,context) VALUES ($1,$2,$3,$4,'created','created',0,$5) RETURNING ${columns}`,
-          [
-            randomUUID(),
-            owner,
-            input.problemId,
-            input.problemPackVersion,
-            input.clientContext ?? {},
-          ],
-        );
-        const snapshot = result.rows[0]!;
-        await event(c, owner, snapshot, 'created');
-        return Object.freeze(snapshot);
-      }, signal);
+      return transaction((c) => insert(c, owner, input), signal);
     },
     async read(owner: string, id: string, signal?: AbortSignal) {
       try {

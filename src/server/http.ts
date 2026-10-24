@@ -6,9 +6,15 @@ import type { createRequestScope } from './request-context';
 import type { createSafeLogger } from './logger';
 export function routeTemplate(url: string | undefined): string {
   const path = (url ?? '').split('?', 1)[0];
-  return path === '/api/v1/health/live' || path === '/api/v1/health/ready'
-    ? path
-    : 'unmatched';
+  if (
+    path === '/api/v1/health/live' ||
+    path === '/api/v1/health/ready' ||
+    path === '/api/v1/problems'
+  )
+    return path;
+  if (/^\/api\/v1\/problems\/[^/]+$/.test(path ?? ''))
+    return '/api/v1/problems/{problemId}';
+  return 'unmatched';
 }
 export function createHttpHandler(
   handle: (req: IncomingMessage, res: ServerResponse) => Promise<void>,
@@ -55,14 +61,17 @@ export function createHttpHandler(
               res.destroy();
               return;
             }
-            const status = draining || route !== 'unmatched' ? 503 : 500;
+            const health =
+              route === '/api/v1/health/live' ||
+              route === '/api/v1/health/ready';
+            const status = draining || health ? 503 : 500;
             res.writeHead(status, {
               'Content-Type': 'application/json',
               'Cache-Control': 'no-store',
             });
             res.end(
               JSON.stringify(
-                route !== 'unmatched'
+                health
                   ? {
                       status: 'unavailable',
                       timestamp: new Date().toISOString(),
@@ -83,7 +92,29 @@ export function createHttpHandler(
             else
               await Promise.race([
                 Promise.resolve()
-                  .then(() => handle(req, res))
+                  .then(async () => {
+                    if (
+                      req.method === 'GET' &&
+                      route === '/api/v1/problems/{problemId}'
+                    ) {
+                      const encodedId = (req.url ?? '')
+                        .split('?', 1)[0]!
+                        .slice('/api/v1/problems/'.length);
+                      let malformed = false;
+                      try {
+                        decodeURIComponent(encodedId);
+                      } catch {
+                        malformed = true;
+                      }
+                      if (malformed) {
+                        // Next rejects invalid URL bytes before route admission. A
+                        // valid encoded NUL reaches our normal handler, which rejects
+                        // the ID after identity checks in the same module graph.
+                        req.url = '/api/v1/problems/%00';
+                      }
+                    }
+                    return handle(req, res);
+                  })
                   .catch(() => {
                     if (!completed) {
                       options.logger.write('http_failed', {

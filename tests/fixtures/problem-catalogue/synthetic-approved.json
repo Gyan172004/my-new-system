@@ -1,0 +1,350 @@
+{
+  "problemId": "fixture-pair-finder",
+  "slug": "fixture-pair-finder",
+  "version": "1",
+  "schemaVersion": 1,
+  "authorId": "11111111-1111-4111-8111-111111111111",
+  "candidate": {
+    "title": "Synthetic Pair Finder Fixture",
+    "difficulty": "easy",
+    "topicTags": ["array", "hash-table"],
+    "statement": "Find the two different positions in an integer array whose values total the requested target. Return their zero-based indices; either index order is accepted. Each valid input has exactly one unordered answer pair.",
+    "constraints": [
+      "2 <= nums.length <= 10000",
+      "-1000000000 <= nums[i] <= 1000000000",
+      "-1000000000 <= target <= 1000000000",
+      "Exactly one valid unordered pair of distinct indices exists."
+    ],
+    "examples": [
+      {
+        "input": "{\"nums\":[2,7,11,15],\"target\":9}",
+        "output": "[0, 1]",
+        "explanation": "The values at positions 0 and 1 total 9."
+      }
+    ]
+  },
+  "interview": {
+    "clarifications": [
+      {
+        "id": "distinct-indices",
+        "question": "May one position be reused?",
+        "answer": "No. Equal values at different positions may be used."
+      },
+      {
+        "id": "duplicates",
+        "question": "Can input values repeat?",
+        "answer": "Yes. Distinct positions, not distinct values, are required."
+      },
+      {
+        "id": "unique-answer",
+        "question": "Can no answer or multiple answers occur?",
+        "answer": "The base contract promises exactly one valid unordered index pair. Changed guarantees belong to variants."
+      },
+      {
+        "id": "order",
+        "question": "Does result order matter?",
+        "answer": "Either ordering of the two valid zero-based indices is accepted."
+      },
+      {
+        "id": "unsorted",
+        "question": "Is input sorted?",
+        "answer": "No. Preserve original positions if sorting internally."
+      },
+      {
+        "id": "negative-values",
+        "question": "Can numbers or target be negative or zero?",
+        "answer": "Yes, within the declared bounds."
+      },
+      {
+        "id": "mutation",
+        "question": "May input be modified?",
+        "answer": "No additional immutability requirement is imposed here; original-index semantics must still be preserved."
+      },
+      {
+        "id": "numeric-range",
+        "question": "Can these sums/complements overflow signed 32-bit integers?",
+        "answer": "No. With values/target within \u00b11,000,000,000, both sum and complement stay within \u00b12,000,000,000; this fits signed 32-bit arithmetic."
+      }
+    ],
+    "invariants": [
+      "Returned indices refer to the original input and must differ.",
+      "The base unique-answer guarantee does not authorize no-answer/multiple-answer tests.",
+      "Correct unfamiliar approaches are not rejected merely for lacking a reference ID.",
+      "Hidden tests, expected hidden outputs and private review notes stay out of conversational context."
+    ],
+    "approaches": [
+      {
+        "id": "brute-force",
+        "name": "Distinct-pair scan",
+        "summary": "Compare each unordered pair.",
+        "steps": [
+          "For i in 0..n-1, visit j in i+1..n-1.",
+          "Return [i,j] when nums[i]+nums[j] equals target."
+        ],
+        "preconditions": [
+          "Base problem constraints and distinct original indices."
+        ],
+        "correctness": "Every pair of distinct positions appears once, so the promised unique answer is visited.",
+        "complexity": {
+          "time": "O(n^2)",
+          "extraSpace": "O(1)"
+        },
+        "tradeoffs": [
+          "Simple baseline; does not meet the subquadratic follow-up."
+        ],
+        "matchingFeatures": ["nested loops", "check every pair"],
+        "requiredKnowledge": ["Array indices", "Complement target - value"]
+      }
+    ],
+    "mistakes": [
+      {
+        "id": "insert-before-check",
+        "summary": "Insert before complement lookup",
+        "whyIncorrect": "The current element can match itself.",
+        "testCaseIds": ["ex1"],
+        "approachIds": ["brute-force"]
+      }
+    ],
+    "hintLadders": [
+      {
+        "id": "hash-hints",
+        "approachId": "brute-force",
+        "hints": [
+          {
+            "id": "hash-hints-1",
+            "ordinal": 1,
+            "text": "What work is repeated when you compare every pair?",
+            "intendedConcept": "Repeated partner search",
+            "eligibilityRule": {
+              "ruleId": "accepted_hint_request",
+              "stages": ["hints"]
+            },
+            "paraphraseAllowed": false
+          },
+          {
+            "id": "hash-hints-2",
+            "ordinal": 2,
+            "text": "For a fixed x, what exact partner value would reach target?",
+            "intendedConcept": "Complement transformation",
+            "eligibilityRule": {
+              "ruleId": "accepted_hint_request",
+              "stages": ["hints"]
+            },
+            "paraphraseAllowed": false
+          },
+          {
+            "id": "hash-hints-3",
+            "ordinal": 3,
+            "text": "How could you remember earlier values together with their positions for quick lookup?",
+            "intendedConcept": "Value-to-index lookup",
+            "eligibilityRule": {
+              "ruleId": "accepted_hint_request",
+              "stages": ["hints"]
+            },
+            "paraphraseAllowed": false
+          },
+          {
+            "id": "hash-hints-4",
+            "ordinal": 4,
+            "text": "Look for target-x among earlier entries before recording the current value and index. Why does this prevent using the same position twice?",
+            "intendedConcept": "Lookup-before-insert invariant",
+            "eligibilityRule": {
+              "ruleId": "accepted_hint_request",
+              "stages": ["hints"]
+            },
+            "paraphraseAllowed": false
+          }
+        ]
+      }
+    ],
+    "followups": [
+      {
+        "id": "subquadratic",
+        "question": "How can you improve on comparing every pair?",
+        "skill": "Time-space trade-off",
+        "expectedAnswerPoints": [
+          "Explain complement lookup.",
+          "Expected O(n) hashing with O(n) memory, or O(n log n) indexed sorting."
+        ],
+        "evaluationGuidance": "Assess the stated reasoning and assumptions; unfamiliar but valid approaches may be accepted. No unsupported impossibility or speedup claims.",
+        "approachIds": ["brute-force"],
+        "eligibilityRule": {
+          "ruleId": "approved_followup_selection",
+          "stages": ["variants_and_followups"]
+        },
+        "sourceReferences": ["owner-package"],
+        "authorshipNote": "Adapted and corrected from owner package.",
+        "reviewStatus": "approved"
+      }
+    ],
+    "variants": [
+      {
+        "id": "sorted-input",
+        "changedContract": "Sorted input; define zero- or one-based output before use.",
+        "skill": "Exploiting order",
+        "approachIds": ["brute-force"],
+        "complexityGuidance": "O(n) time / O(1) extra space",
+        "executable": false,
+        "reasoningOnlyReason": "Draft follow-up content; full input/output contract, checker and reviewed dedicated test suite are not supplied.",
+        "reviewStatus": "approved"
+      }
+    ],
+    "rubric": {
+      "version": "1",
+      "dimensions": [
+        {
+          "id": "understanding",
+          "strong": [
+            "Explains distinct positions, original indexing, duplicates and uniqueness."
+          ],
+          "partial": ["Clarifies ambiguities after prompting."],
+          "incorrect": ["Returns values or reuses one index."]
+        },
+        {
+          "id": "reasoning",
+          "strong": ["States a valid invariant and correctness argument."],
+          "partial": ["Knows a pattern but cannot yet justify ordering."],
+          "incorrect": [
+            "Uses unsupported pruning or two pointers on unsorted values."
+          ]
+        },
+        {
+          "id": "complexity",
+          "strong": [
+            "Accounts for memory, sorting, slicing and expected hash behavior."
+          ],
+          "partial": ["Gives the headline bound without assumptions."],
+          "incorrect": [
+            "Treats list insertion as logarithmic or asserts nonexistent overflow."
+          ]
+        },
+        {
+          "id": "transfer",
+          "strong": [
+            "Adapts to explicitly changed contracts with clear assumptions."
+          ],
+          "partial": ["Needs guidance to identify changed guarantees."],
+          "incorrect": [
+            "Applies the base algorithm despite incompatible requirements."
+          ]
+        }
+      ],
+      "scoringPolicy": "Evidence-linked qualitative guidance only; no new numeric score weights. Unassessed dimensions remain unassessed."
+    },
+    "exposureRules": {
+      "candidateFields": [
+        "title",
+        "difficulty",
+        "topicTags",
+        "statement",
+        "constraints",
+        "examples"
+      ],
+      "hints": "Only one eligible committed hint per accepted action; separate approach ladders.",
+      "followups": "Backend-approved set only; draft entries require independent review before publication.",
+      "assessment": "Selected approach/mistake guidance only; full pack is not conversational context."
+    }
+  },
+  "evaluation": {
+    "manifest": {
+      "suiteId": "two-sum-base",
+      "version": "1",
+      "checkerId": "distinct-index-pair-unordered",
+      "inputShape": "Object containing integer array nums and integer target under base constraints.",
+      "outputShape": "Array of exactly two integer zero-based distinct in-range indices; either order.",
+      "comparisonRule": "Reject non-integer/bool indices, wrong length, duplicate/out-of-range indices; compare unordered pair to the independently verified expected pair.",
+      "caseIds": ["ex1", "n_unsorted"],
+      "checkerImplementationStatus": "proposed-not-implemented-or-qualified",
+      "inputProfileId": "two-sum-base-v1"
+    },
+    "cases": [
+      {
+        "id": "ex1",
+        "category": "example",
+        "visibility": "public",
+        "input": {
+          "nums": [2, 7, 11, 15],
+          "target": 9
+        },
+        "expectedOutput": [0, 1],
+        "rationale": "Example 1: answer is the first two elements",
+        "validationEvidence": {
+          "dataCheck": "independent-unique-index-pair-count-v1",
+          "checkedOn": "2026-10-23",
+          "sourceReferences": ["owner-tests"],
+          "humanReviewStatus": "approved"
+        }
+      },
+      {
+        "id": "n_unsorted",
+        "category": "normal",
+        "visibility": "hidden",
+        "input": {
+          "nums": [1, 5, 9, 13, 4],
+          "target": 17
+        },
+        "expectedOutput": [3, 4],
+        "rationale": "Unsorted, answer near the end",
+        "validationEvidence": {
+          "dataCheck": "independent-unique-index-pair-count-v1",
+          "checkedOn": "2026-10-23",
+          "sourceReferences": ["owner-tests"],
+          "humanReviewStatus": "approved"
+        }
+      }
+    ]
+  },
+  "provenance": {
+    "sources": [
+      {
+        "id": "owner-approaches",
+        "sourceType": "owner_supplied_local_file",
+        "name": "approaches.py",
+        "receivedOn": "2026-10-23",
+        "sha256": "92c9ae7dcffd26ed4764ad2f5e0a8d703e943088682df4716c1fafa3e4d45a8d"
+      },
+      {
+        "id": "owner-runner",
+        "sourceType": "owner_supplied_local_file",
+        "name": "run_tests.py",
+        "receivedOn": "2026-10-23",
+        "sha256": "b05c38a4a6998f7d543dc2475666d128494322e3d6779910d4dae0b398d77be5"
+      },
+      {
+        "id": "owner-paste",
+        "sourceType": "owner_supplied_local_file",
+        "name": "two-sum_tests_leetcode_paste.txt",
+        "receivedOn": "2026-10-23",
+        "sha256": "fbdbf5761b25d23c49adfcdef6bb5a3e79000706b3c1c2c9608cc90766462835"
+      },
+      {
+        "id": "owner-tests",
+        "sourceType": "owner_supplied_local_file",
+        "name": "two-sum_tests.json",
+        "receivedOn": "2026-10-23",
+        "sha256": "7fba60c1eb5934c4a6235fe2a81577fe1a9f22641c3ff1ef13a7a395e129a72a"
+      },
+      {
+        "id": "owner-package",
+        "sourceType": "owner_supplied_local_file",
+        "name": "two-sum_package.md",
+        "receivedOn": "2026-10-23",
+        "sha256": "795e245e4488fe2d875b5697d6da593b80db12c9701627aad0e95379a71c1e57"
+      }
+    ],
+    "externalReferences": [
+      {
+        "url": "https://leetcode.com/problems/two-sum/description/",
+        "relationship": "Problem reference named by owner; community counts and raw collection corpus not verified here."
+      }
+    ],
+    "transformationNotes": [
+      "Synthetic test data only, no production authorization."
+    ],
+    "rightsReview": {
+      "status": "approved",
+      "evidence": "SYNTHETIC TEST FIXTURE ONLY. No genuine human approval or source-rights assertion."
+    },
+    "sourceCoverageStatus": "Owner-supplied summary only; underlying community crawl/export not supplied."
+  }
+}
