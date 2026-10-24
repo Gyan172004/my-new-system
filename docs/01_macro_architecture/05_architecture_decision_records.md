@@ -44,6 +44,7 @@ When a decision changes, update this record and all affected contracts/designs i
 | ADR-023 | Use verified operator identity plus configuration allowlists for initial content permissions | Accepted owner choice, 2026-10-23 |
 | ADR-024 | Allow Groq for explicit local Model Gateway development | Accepted owner choice, 2026-10-23 |
 | ADR-025 | Owner self-review exception for the V1 Two Sum seed Problem Pack only | Accepted owner choice, 2026-10-24 |
+| ADR-026 | Use reviewed checksum-bound default hint routing and lock ladder at first committed exposure | Accepted owner choice, 2026-10-24 |
 
 ## 3. Decisions
 
@@ -670,6 +671,36 @@ while preserving their staging/production baseline.
 **Revisit when:** OpenAI funding is available or measured development needs
 justify a different provider arrangement.
 
+
+### ADR-026 — Reviewed default hint routing and first-exposure ladder lock
+
+**Status:** Accepted owner choice, 2026-10-24.
+
+**Context:** Published schema v1 contains approach-associated hint ladders. A
+candidate may remain unmatched or match an approach without a ladder. Selecting
+an arbitrary ladder or restarting after a new match would disclose inconsistent
+help and lose assistance provenance.
+
+**Decision:** Backend selection uses an immutable reviewed routing artifact keyed
+by exact pack version/checksum, naming a default ladder and explicit deterministic
+choices for approaches with ladders. An unmatched assessment or matched approach
+without a ladder uses the reviewed default. Fail closed when routing/default is
+missing or invalid. At the first committed exposure atomically persist selected
+ladder ID/routing hash; every later hint uses that ladder's local next ordinal.
+Never reset, switch or erase assistance history after reassessment.
+
+**Consequences:** Keep routing approval/provenance under ADR-020/023 independent
+content review; ADR-025 does not automatically authorize self-review of a new
+routing artifact. No private approach/ladder metadata reaches candidate output.
+Selection and exposure lock join the existing atomic session command transaction.
+Keep pack schema unchanged and expose only one committed canonical hint at a time.
+
+**Alternatives:** Always require a successful match would block unmatched
+candidates; arbitrary first-ladder selection lacks review; switching ladders on
+reassessment can repeat or strengthen help and is rejected by owner choice.
+
+**Revisit when:** The owner deliberately changes progressive-help policy; retain
+old session locks/history and version any new reviewed content routing.
 
 ## 4. Remaining implementation decisions and validation gates
 

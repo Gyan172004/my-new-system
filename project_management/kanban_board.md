@@ -65,9 +65,6 @@ _None._
 - Milestone: M1 · Priority: P0 · Depends on: K-014, K-015
 - Acceptance: candidate opens problem, starts session, responds, advances, refreshes/reopens, and sees persisted state; invalid transitions and retries are tested.
 
-### K-019 — Implement approach assessment and ordered hint policy
-- Milestone: M2 · Priority: P1 · Depends on: K-008, K-018; follows the reviewed Problem Pack schema/content contract
-- Acceptance: low-confidence matches abstain/clarify; one approved hint per accepted action; exposure is recorded.
 
 ### K-020 — Threat-model and prototype isolated execution worker
 - Milestone: M1 · Priority: P0 · Depends on: K-002
@@ -102,6 +99,12 @@ _None._
 - Acceptance: explicit versioned consent/revocation; bounded audio validation; OpenAI `gpt-transcribe` runs through the Model Gateway; transcript enters the same state machine as text; interviewer text is displayed and `gpt-4o-mini-tts` speech is streamed on demand; raw audio/speech is not durably stored by the application; provider failures do not advance state; text fallback, rate limits, log redaction and retention tests pass.
 
 ## In Progress
+
+### K-019 — Implement approach assessment and ordered hint policy
+- Milestone: M2 · Priority: P1 · Depends on: K-008, K-018; follows the reviewed Problem Pack schema/content contract
+- Acceptance: low-confidence matches abstain/clarify; one approved hint per accepted action; exposure is recorded.
+- Progress: Stage 6 independent K-019 slices and minimum owning-session transaction seams are owner-authorized on `feature/approach-assessment-hints`; planning reconciles the six audit fixes and ADR-026 reviewed default routing/first-exposure lock. T230–T271 map to the [canonical engineering design](../docs/03_features/approach_assessment_hint_management/specifications/engineering/eng_design.md#10-accepted-task-decomposition-k-019). Full K-010/K-011/K-013/K-014/K-016 journey, K-017 OpenAI T184, K-018 integration, reviewed label qualification, voice and release gates remain open; no feature completion claimed.
+
 
 ### K-018 — Implement LLM interaction policy and regression fixtures
 - Milestone: M2 · Priority: P1 · Depends on: K-017
