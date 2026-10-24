@@ -467,6 +467,55 @@ work, not implied by this slice.
 Commit title:
 `<US=US2, ID=T154, K=K-017, GROUP=02> feat(gateway): bound invocation and usage accounting`.
 
+### Post-merge fix: `operationId` silently nulled from `model_call_completed` logs (2026-10-24)
+
+A fresh second-opinion review of this group (conducted after proper
+`mastering-typescript`/`vitest`/`requesting-code-review` skill symlinks
+were installed, re-reviewing already-merged code with genuinely-loadable
+skill content that wasn't available during the original review) found a
+real defect in `src/server/logger.ts`'s `model_call_completed` field
+allowlist: `operationId` was only accepted if it matched a UUID shape or
+the literal fixture string `'synthetic-probe-v1'`. `context.operationId`
+is validated upstream only against the generic `reference` schema
+(`^[A-Za-z0-9][A-Za-z0-9_.:-]*$`, up to 128 chars) — it is explicitly
+documented (tech design §2) as "a stable caller logical-operation
+identifier," never a UUID. Once K-018's `interview_turn` orchestration
+began constructing real composite IDs
+(`"interview_turn:" + turnId + ":" + attempt`), every such value matched
+neither allowed shape and was silently logged as `null`, defeating the
+field's entire purpose: correlating repair attempts/turns back to a
+logical call in production observability.
+
+Root fixed this directly in `src/server/logger.ts`: rather than widening
+the check to the full generic `reference` shape (which would have
+regressed the existing privacy-canary test — a broad shape match would
+also admit an arbitrary uppercase/underscore string like
+`'SECRET_CANARY'`, defeating the "no secret ever leaks through this
+logger" guarantee), the allowlist now recognizes the known legitimate
+shapes explicitly: the fixed `'gateway-probe-v1'` operator fixture, and
+the real `interview_turn:<turnId>:<attempt>` composite pattern. Added a
+regression test (`tests/unit/model-gateway/logger.test.ts`) asserting a
+realistic composite operationId survives, the fixture value survives, and
+an invalid shape still nulls; confirmed RED (old code: composite ID comes
+back `null`) before the fix via `git stash`, GREEN after. Reran the full
+scoped suite (`tests/unit/interview-orchestration
+tests/contract/interview-orchestration tests/unit/model-gateway
+tests/contract/model-gateway tests/integration/model-gateway
+tests/integration/interview-orchestration tests/unit/logger.test.ts`):
+**29 files, 568 tests passing**, zero regressions; `tsc --noEmit`/eslint/
+prettier clean.
+
+This fix was first committed on `feature/interview-orchestration` (stacked
+on `feature/model-gateway`), then cherry-picked directly onto
+`feature/model-gateway` (this branch) per the owner's request, since the
+defect is in K-017's own code and predates K-018's branch point. The
+cherry-pick resolved two expected conflicts: `interview_turn`'s
+`evaluationVersion: 'interview-turn-v1'` allowlist entry and its own test
+case are K-018-specific (that operation is not registered on this branch)
+and were correctly dropped; only the `operationId` fix and its regression
+test carried over. Reran the full gateway suite after resolving: **20
+files, 382 tests passing**, `tsc --noEmit`/eslint/prettier clean.
+
 ### Coverage preparation handoff
 
 Read-only coverage preparation reproduced safe-integer aggregation overflow:

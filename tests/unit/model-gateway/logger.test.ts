@@ -77,3 +77,44 @@ it('allowlists a bounded model-call summary and strips content, secrets and unkn
   });
   expect(output).not.toContain('CANARY');
 });
+it('survives a realistic composite operationId (not just the probe fixture or a UUID), and still nulls an invalid one', () => {
+  let output = '';
+  const logger = createSafeLogger(
+    parseRuntimeConfig({
+      APP_ENV: 'test',
+      DATABASE_URL: 'postgresql://unreachable.invalid/app',
+    }),
+    new Writable({
+      write(chunk, _encoding, callback) {
+        output += String(chunk);
+        callback();
+      },
+    }),
+  );
+  // Real interview_turn operationId format (tech_design.md §2): matches
+  // neither the literal 'synthetic-probe-v1' fixture nor a UUID — this is
+  // exactly the case that used to be silently nulled.
+  logger.write('model_call_completed', {
+    operationId: 'interview_turn:turn-001:1',
+  });
+  expect(JSON.parse(output)).toMatchObject({
+    operationId: 'interview_turn:turn-001:1',
+  });
+
+  output = '';
+  logger.write('model_call_completed', {
+    operationId: 'gateway-probe-v1',
+  });
+  expect(JSON.parse(output)).toMatchObject({
+    operationId: 'gateway-probe-v1',
+  });
+
+  output = '';
+  logger.write('model_call_completed', {
+    // Leading '-' is outside the bounded reference shape — still rejected.
+    operationId: '-not-a-valid-reference',
+  });
+  expect(JSON.parse(output)).toMatchObject({
+    operationId: null,
+  });
+});
