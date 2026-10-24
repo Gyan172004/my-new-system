@@ -370,3 +370,52 @@ milestone, run a separately authorized real smoke check; if unavailable, keep
 that provider acceptance open and continue only independent work. Near deployment,
 actual AWS staging must pass T034/K-028 and the K-026 operational/release checks.
 See the [release schedule](02_build_sequencing/v1_scope_and_release_plan.md#41-local-development-and-external-verification-schedule).
+
+## Model Gateway operator probe
+
+`MODEL_GATEWAY_ADAPTER` defaults to `disabled`. Development accepts `disabled`,
+`fake`, `groq`, or `openai`; test accepts only `disabled`/`fake`;
+staging/production accept only `disabled`/`openai`. Only the selected real
+adapter requires its server-side key (`GROQ_API_KEY` or `OPENAI_API_KEY`). Runtime
+and build validation reject public aliases, including `NEXT_PUBLIC_GROQ_API_KEY`.
+Keep local credentials in ignored `.env.local`; never copy values into evidence.
+
+Ordinary gateway tests require no credentials and never load `.env.local`.
+Run this deterministic probe directly without an environment file or database:
+
+```bash
+APP_ENV=test node --import tsx scripts/model-gateway-smoke.ts --adapter fake
+```
+
+Only an explicitly authorized operator run may load the selected provider key:
+
+```bash
+APP_ENV=development npm run model-gateway:smoke -- --adapter groq --fixture gateway-probe-v1 --count 1
+```
+
+The CLI requires an explicit adapter. Its only other options are the fixed
+`gateway-probe-v1` fixture and `--count` (default one, maximum five). It accepts no
+text, file, URL, model, endpoint, or key arguments. The versioned frozen fixture
+lives in `src/modules/model-gateway/application/probe-fixture.ts`; the test
+fixture reexports it. No production source imports the test tree. The trusted
+runner exposes `run(signal)` with no input/context parameter. General runtime
+composition refuses Groq, so public/session callers cannot acquire that
+invocation capability or claim provenance with a `synthetic` flag. Low-level
+adapter/gateway constructors remain trusted test/composition seams, guarded by
+module boundaries; real providers are also rejected in test mode by the core.
+
+A smoke run has one active logical call, at most five calls/ten provider attempts,
+and no database requirement. SIGINT/SIGTERM cancels work and prevents another
+call. Each output line contains only fixture/config/model/schema versions and
+allowlisted outcome/timing/usage metadata. Missing usage/cost remains unknown;
+provider messages, bodies, prompts, keys, and candidate content are never evidence.
+Nonzero exit means invalid configuration, cancellation, or a failed probe.
+Staging/production OpenAI dispatch still needs reviewed cost admission settings;
+the default probe deliberately fails closed there. Groq evidence does not satisfy
+the separate OpenAI gate T184 or authorize business/audio/session operations.
+
+The runtime registry lazily owns one gateway/limiter across HMR and aborts it
+through existing shutdown resource hooks. Health stays uncached and never calls
+a provider; disabling the optional gateway does not alter unrelated readiness.
+For rollback, select `MODEL_GATEWAY_ADAPTER=disabled` and restart the process.
+Release gates K-028/T034, K-026 and real OpenAI acceptance remain separate.

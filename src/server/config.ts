@@ -8,6 +8,7 @@ const timer = (fallback: number) =>
 const publicSecrets = {
   NEXT_PUBLIC_DATABASE_URL: z.never().optional(),
   NEXT_PUBLIC_OPENAI_API_KEY: z.never().optional(),
+  NEXT_PUBLIC_GROQ_API_KEY: z.never().optional(),
   NEXT_PUBLIC_CLERK_SECRET_KEY: z.never().optional(),
 };
 const schema = z
@@ -186,6 +187,39 @@ function clerkConfiguration(
   });
 }
 
+// Independent of storage settings: the operator harness never needs a database target.
+export function parseModelGatewayConfig(raw: Environment) {
+  const result = z
+    .object({
+      APP_ENV: z.enum(['development', 'test', 'staging', 'production']),
+      MODEL_GATEWAY_ADAPTER: z
+        .enum(['disabled', 'fake', 'groq', 'openai'])
+        .default('disabled'),
+      ...publicSecrets,
+    })
+    .safeParse(raw);
+  if (!result.success)
+    throw new ConfigurationError(
+      result.error.issues.map((issue) => String(issue.path[0])),
+    );
+  const { APP_ENV: environment, MODEL_GATEWAY_ADAPTER: adapter } = result.data;
+  const allowed =
+    environment === 'development' ||
+    (environment === 'test'
+      ? ['disabled', 'fake'].includes(adapter)
+      : ['disabled', 'openai'].includes(adapter));
+  if (!allowed) throw new ConfigurationError(['MODEL_GATEWAY_ADAPTER']);
+  let apiKey: string | undefined;
+  if (adapter === 'groq' || adapter === 'openai') {
+    const key = adapter === 'groq' ? 'GROQ_API_KEY' : 'OPENAI_API_KEY';
+    apiKey = raw[key];
+    if (!apiKey || apiKey.length > 4096 || !/^[!-~]+$/.test(apiKey))
+      throw new ConfigurationError([key]);
+  }
+  return Object.freeze({ environment, adapter, apiKey });
+}
+export type ModelGatewayConfig = ReturnType<typeof parseModelGatewayConfig>;
+
 export function parseRuntimeConfig(raw: Environment) {
   const result = schema.safeParse({
     ...raw,
@@ -209,6 +243,7 @@ export function parseRuntimeConfig(raw: Environment) {
   }
   return Object.freeze({
     appEnv: value.APP_ENV,
+    modelGateway: parseModelGatewayConfig(raw),
     contentStaff,
     databaseUrl: value.DATABASE_URL,
     port: value.PORT,
