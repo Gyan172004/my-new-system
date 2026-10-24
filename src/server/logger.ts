@@ -154,9 +154,28 @@ export function createSafeLogger(
           'outputSchemaVersion',
         ])
           label(key, ['1']);
-        label('evaluationVersion', ['synthetic-probe-v1']);
-        label('operationId', ['synthetic-probe-v1']);
-        for (const key of ['callId', 'operationId', 'sessionId'])
+        label('evaluationVersion', ['synthetic-probe-v1', 'interview-turn-v1']);
+        // operationId's known legitimate shapes only — a generic match on
+        // the gateway's full `reference` schema shape
+        // (^[A-Za-z0-9][A-Za-z0-9_.:-]*$) is too permissive here: it would
+        // also match an arbitrary uppercase/underscore string like
+        // 'SECRET_CANARY', defeating the "no secret ever leaks" guarantee
+        // this logger otherwise provides. Recognize the fixed operator
+        // fixture plus the real interview_turn composite format
+        // (tech_design.md §2: "interview_turn:" + turnId + ":" + attempt,
+        // turnId itself reference-shaped) explicitly, so a legitimate
+        // caller-constructed ID survives while anything else — including a
+        // secret-shaped string that happens to pass a looser shape check —
+        // still nulls.
+        safe.operationId =
+          typeof fields.operationId === 'string' &&
+          (fields.operationId === 'gateway-probe-v1' ||
+            /^interview_turn:[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}:[1-9][0-9]*$/.test(
+              fields.operationId,
+            ))
+            ? fields.operationId
+            : null;
+        for (const key of ['callId', 'sessionId'])
           if (
             typeof fields[key] === 'string' &&
             /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(

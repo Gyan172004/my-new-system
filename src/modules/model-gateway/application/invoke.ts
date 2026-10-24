@@ -16,16 +16,14 @@ import {
   type AttemptMetadata,
 } from './metadata';
 import { canonicalOperations, createOperationRegistry } from './operations';
-import {
-  probeInputSchema,
-  probeOutputSchema,
-  requestContextSchema,
-} from './validation';
+import { requestContextSchema } from './validation';
 import type {
   GatewayOptions,
   GatewayMetadata,
   GatewayErrorCode,
   GatewayResult,
+  EnabledOperation,
+  GatewayRequest,
   OperationOutput,
   ModelGateway,
   AdapterResult,
@@ -74,9 +72,9 @@ export function createModelGateway({
       shutdown.abort();
       safely(() => adapter.destroy?.());
     },
-    async invoke(
-      request,
-    ): Promise<GatewayResult<OperationOutput['gateway_probe']>> {
+    async invoke<K extends EnabledOperation>(
+      request: GatewayRequest<K>,
+    ): Promise<GatewayResult<OperationOutput[K]>> {
       const started = performance.now();
       const ledger: {
         -readonly [K in keyof AttemptMetadata]: AttemptMetadata[K];
@@ -196,7 +194,7 @@ export function createModelGateway({
         metadata.outputSchemaVersion = definition.outputSchemaVersion;
         metadata.promptVersion = definition.prompt.version;
         metadata.evaluationVersion = definition.evaluationVersion;
-        const input = probeInputSchema.safeParse(parsed.data.input);
+        const input = definition.inputSchema.safeParse(parsed.data.input);
         if (!input.success) return failure('invalid_request');
         if (
           adapter.provider !== 'fake' &&
@@ -236,7 +234,7 @@ export function createModelGateway({
           const before = interrupted();
           if (before) return before;
           const adapterRequest: AdapterRequest = Object.freeze({
-            operation: 'gateway_probe' as const,
+            operation: operation as EnabledOperation,
             input: Object.freeze(input.data),
             model: metadata.configuredModel,
             prompt: definition.prompt.body,
@@ -378,7 +376,7 @@ export function createModelGateway({
           } catch {
             return attemptFailure('invalid_output');
           }
-          const validated = probeOutputSchema.safeParse(output);
+          const validated = definition.outputSchema.safeParse(output);
           if (!validated.success) return attemptFailure('invalid_output');
           // A provider-controlled label cannot inject arbitrary metadata or log labels.
           metadata.reportedModel =
@@ -390,7 +388,9 @@ export function createModelGateway({
           if (afterValidation) return afterValidation;
           return Object.freeze({
             ok: true,
-            data: Object.freeze(validated.data),
+            // The resolved definition's own outputSchema already validated this operation's
+            // output above; this cast carries that runtime guarantee into the generic result type.
+            data: Object.freeze(validated.data) as OperationOutput[K],
             metadata: finish('success'),
           });
         }

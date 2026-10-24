@@ -10,6 +10,7 @@ export const stages = {
   'identity-coverage': ['run', 'coverage:identity'],
   'catalogue-coverage': ['run', 'coverage:catalogue'],
   'gateway-coverage': ['run', 'coverage:gateway'],
+  'orchestration-coverage': ['run', 'coverage:orchestration'],
   contract: ['run', 'test:contract'],
   architecture: ['run', 'verify:architecture'],
   build: ['run', 'build'],

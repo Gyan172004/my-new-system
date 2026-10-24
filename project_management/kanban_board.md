@@ -65,10 +65,6 @@ _None._
 - Milestone: M1 · Priority: P0 · Depends on: K-014, K-015
 - Acceptance: candidate opens problem, starts session, responds, advances, refreshes/reopens, and sees persisted state; invalid transitions and retries are tested.
 
-### K-018 — Implement LLM interaction policy and regression fixtures
-- Milestone: M2 · Priority: P1 · Depends on: K-017
-- Acceptance: model cannot bypass state policy; fixtures cover ambiguity, abstention, invalid output, and prompt injection.
-
 ### K-019 — Implement approach assessment and ordered hint policy
 - Milestone: M2 · Priority: P1 · Depends on: K-008, K-018; follows the reviewed Problem Pack schema/content contract
 - Acceptance: low-confidence matches abstain/clarify; one approved hint per accepted action; exposure is recorded.
@@ -106,6 +102,11 @@ _None._
 - Acceptance: explicit versioned consent/revocation; bounded audio validation; OpenAI `gpt-transcribe` runs through the Model Gateway; transcript enters the same state machine as text; interviewer text is displayed and `gpt-4o-mini-tts` speech is streamed on demand; raw audio/speech is not durably stored by the application; provider failures do not advance state; text fallback, rate limits, log redaction and retention tests pass.
 
 ## In Progress
+
+### K-018 — Implement LLM interaction policy and regression fixtures
+- Milestone: M2 · Priority: P1 · Depends on: K-017
+- Acceptance: model cannot bypass state policy; fixtures cover ambiguity, abstention, invalid output, and prompt injection.
+- Progress: Stage 5 orchestration is implemented on `feature/interview-orchestration` (stacked on `feature/model-gateway`). Groups 00-07 (planning gate, gateway-dispatch generalization, `interview_turn` registration, allowlisted context/prompts, policy layer/fallback, `proposeTurn` wiring with bounded repair, regression fixtures/telemetry/fixture-only guarded-commit boundary, coverage/CI convergence) are implemented and locally verified: scoped suite 29 files/567 tests passing, project-wide `test:unit` 44 files/676 tests, `test:contract` 10 files/221 tests, `tsc`/lint/format/build clean, zero diff against `v1_openapi.yaml`/`async_schemas.json`. Every group passed a dedicated review, including a fresh second-opinion re-review pass across groups 01-06 after skill symlinks were corrected, which found and fixed one real defect (a delimiter-forgery bypass in candidate-turn/pack-field prompt rendering, closed uniformly across all three untrusted-text interpolation sites) plus several smaller follow-ups; a final end-to-end reviewer confirmed FR-001-FR-013 all trace to real executing code/tests with no regression. Evidence is recorded in the [orchestration engineering design](../docs/03_features/interview_orchestration/specifications/engineering/eng_design.md). K-018 remains In Progress: it depends on K-017, which itself remains gated on the external OpenAI acceptance T184; `IO-06`'s live session-mutation integration half remains fixture-only pending K-014/K-016 (still Backlog); `stage_classification`/`intent_classification` (`IO-07`) remain an explicitly deferred, unscheduled task group. No M2/production completion is claimed.
 
 ### K-017 — Add Model Gateway skeleton and structured-output validation
 - Milestone: M2 · Priority: P1 · Depends on: K-002, K-006

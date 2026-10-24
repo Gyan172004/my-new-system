@@ -1,10 +1,29 @@
+import type { z } from 'zod';
 import type { Completeness, GatewayUsage } from './metadata';
 import type { EnabledDefinition, OperationRegistry } from './operations';
+import type {
+  interviewTurnInputSchema,
+  interviewTurnOutputSchema,
+} from './validation';
 
-export type EnabledOperation = 'gateway_probe';
-export type OperationInput = { gateway_probe: Readonly<{ text: string }> };
+export type EnabledOperation =
+  | 'gateway_probe'
+  | 'interview_turn'
+  | 'stage_classification'
+  | 'intent_classification';
+export type OperationInput = {
+  gateway_probe: Readonly<{ text: string }>;
+  interview_turn: Readonly<z.infer<typeof interviewTurnInputSchema>>;
+  // Deferred classification operations stay disabled stubs; these are minimal placeholders.
+  stage_classification: Readonly<Record<string, unknown>>;
+  intent_classification: Readonly<Record<string, unknown>>;
+};
 export type OperationOutput = {
   gateway_probe: Readonly<{ schemaVersion: 1; acknowledged: true }>;
+  interview_turn: Readonly<z.infer<typeof interviewTurnOutputSchema>>;
+  // Deferred classification operations stay disabled stubs; these are minimal placeholders.
+  stage_classification: Readonly<Record<string, unknown>>;
+  intent_classification: Readonly<Record<string, unknown>>;
 };
 export type GatewayContext = Readonly<{
   requestId: string;

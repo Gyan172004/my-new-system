@@ -15,6 +15,17 @@ const reference = z
   .min(1)
   .max(128)
   .regex(/^[A-Za-z0-9][A-Za-z0-9_.:-]*$/);
+export const interviewTurnInputSchema = z.strictObject({
+  text: z.string().min(1).max(8_192),
+});
+export const interviewTurnOutputSchema = z.strictObject({
+  schemaVersion: z.literal(1),
+  responseText: z.string().min(1).max(4_000),
+  suggestedTransitionSignal: z
+    .enum(['ready_to_advance', 'needs_clarification', 'none'])
+    .optional(),
+  matchedReferenceApproachId: reference.optional(),
+});
 export const requestContextSchema = z.strictObject({
   requestId: reference,
   operationId: reference,
