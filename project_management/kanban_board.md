@@ -119,7 +119,7 @@ _None._
 ### K-008 — Create one reviewed seed Problem Pack
 - Milestone: M1 · Priority: P0 · Depends on: K-007
 - Acceptance: pack passes structural validation and human correctness review; provenance is recorded.
-- Progress: the complete Two Sum draft passes the implemented schema/data checks for all 37 cases. Verified author assignment, independent human correctness/source-rights review and final exact-checksum approval remain [T132 / #135](https://github.com/Gyan172004/my-new-system/issues/135); no seed has been published.
+- Progress: the complete Two Sum draft passes the implemented schema/data checks for all 37 cases. Per [ADR-025](../docs/01_macro_architecture/05_architecture_decision_records.md#adr-025--owner-self-review-exception-for-the-v1-two-sum-seed-problem-pack-only) (2026-10-24), the owner is recorded as both author and approving reviewer for this V1 seed pack only — a one-time exception to ADR-020/ADR-023's different-author/reviewer rule, not a policy change; see `content/problem-packs/two-sum/draft-validation.json`'s `humanReviewApprovalRecord`. [T132 / #135](https://github.com/Gyan172004/my-new-system/issues/135) still gates final completion: the real `scripts/content-pack.ts review`/`publish` commands have not been run against a live database (requires the owner's internal ID in the `contentStaff` allowlist and a real operator credential), so the exact finalized checksum is not yet recorded and no seed has been published.
 
 
 ### K-028 — Establish environment configuration and secret-handling baseline

@@ -22,10 +22,19 @@ design after owner acceptance on 2026-10-23. Runtime schema, input-profile and r
 the implemented Group 01 checks. The checker ID is a descriptor; executable qualification remains later
 execution work. The input profile is `two-sum-base-v1`.
 
-`authorId` is deliberately null because a verified internal author identity has
-not been supplied. No reviewer identity, approval timestamp or publication
-receipt is invented. The draft is therefore intentionally blocked from
-publication. A draft-content checksum is a change detector, not approval.
+**Update, 2026-10-24:** the owner (Gyandeep Katiyar) is recorded as both
+author and approving reviewer under ADR-025's one-time V1-seed-only
+exception (`docs/01_macro_architecture/05_architecture_decision_records.md`),
+having reviewed `pack-preview.md` and the source-rights question around the
+retained `source/two-sum_tests_leetcode_paste.txt` material directly — see
+`draft-validation.json`'s `humanReviewApprovalRecord`. This is a documented
+exception to ADR-020's standing different-author/reviewer rule for this one
+pack only; it does not invent a second reviewer or fabricate approval. The
+`authorId` field in `pack.draft.json` still reads null pending the actual
+`scripts/content-pack.ts review`/`publish` database command, which is what
+assigns the verified internal author/reviewer IDs, computes the exact
+finalized checksum, and actually publishes the pack — that operational step
+has not run yet. No publication receipt is invented.
 
 ## Corrections and additions
 

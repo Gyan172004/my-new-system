@@ -1,6 +1,7 @@
 {
   "checkedOn": "2026-10-23",
-  "status": "production-schema-and-data-checks-passed-not-publishable",
+  "humanReviewApprovedOn": "2026-10-24",
+  "status": "human-review-approved-pending-database-publish-command",
   "draftFile": "pack.draft.json",
   "draftFileSha256": "d0c08d9f40d4f5fc10d8b3d36949a801915b93c9b18202a9b06d975393d4a143",
   "draftBytes": 929089,
@@ -31,12 +32,21 @@
   "productionCheckerImplemented": false,
   "suppliedPythonExecuted": false,
   "solverOrBenchmarkResultsVerified": false,
-  "humanReviewApproved": false,
+  "humanReviewApproved": true,
+  "humanReviewApprovalRecord": {
+    "approvedBy": "Gyandeep Katiyar",
+    "role": "owner, acting as both author and approving reviewer under ADR-025",
+    "approvedOn": "2026-10-24",
+    "authority": "ADR-025 (owner self-review exception for this V1 seed pack only)",
+    "correctnessReviewed": true,
+    "sourceRightsReviewed": true,
+    "sourceRightsNote": "Reviewed retained source/two-sum_tests_leetcode_paste.txt and the 37 derived cases; published content is a reworded adaptation per normalization-notes.md, and functional test input/output pairs are not independently copyrightable narrative content.",
+    "scope": "This record covers only this pack's initial V1 publication; ADR-020's standard author/independent-reviewer process applies to any future pack or corrected version of this one."
+  },
   "publicationAllowed": false,
   "independentAgentReview": "No important actionable defects reported; not a substitute for required independent human approval.",
   "publicationBlockers": [
-    "Verified author and assigned ADR-023 reviewer/publisher grants",
-    "Independent human content and source-rights approval of the final content revision"
+    "Run the real scripts/content-pack.ts review/publish commands against a reachable database, with the owner's internal ID granted review_content/publish_content in the contentStaff configuration allowlist (ADR-023) — this records the exact finalized checksum and reviewer evidence and actually publishes the pack. Author identity and human review/source-rights approval are now recorded above under ADR-025; this is the only remaining blocker."
   ],
   "selectedInputProfile": "two-sum-base-v1",
   "executionGates": [
