@@ -603,6 +603,21 @@ with `review_content`/`publish_content` grants per ADR-023); this ADR
 authorizes that step, it does not perform it. K-008/K-009 remain incomplete
 until that command actually runs and the pack is actually published.
 
+**Operational evidence (2026-10-24):** The initial seed was published to the
+local development database, using the supported test identity adapter. The
+owner's author role is mapped to internal UUID
+`db6b8fbf-27a3-415c-bcd7-bec97c63dc1f`; reviewer/publisher role to
+`7343749e-3600-4d71-ba72-a2ef8ef02682`. These are two development identities
+for one human under this exception, not independent human reviewers or
+production Clerk evidence. Runtime self-review checks were not changed.
+Review `137c74ee-a713-459a-b1b4-1e9422c69195` approved checksum
+`a57cb531f10a561f58402599a5fde21efe2eba0fdb0e42bb4b7609355957b666`;
+publication at `2026-10-24T08:46:20.156Z` created sealed release
+`912219bb-6bd0-406d-9905-04e2e38b85a0` with all 37 cases. Catalogue list,
+detail and pinned reads were verified. This evidence applies only to that local
+database; production identities, permissions and deployment remain separate
+gates. See the catalogue engineering design for acceptance/status evidence.
+
 **Alternatives:** Waiting indefinitely for a second human reviewer blocks
 the entire V1 catalogue and every downstream feature that depends on a
 published seed (K-009, K-019, K-022, K-023). Having an AI agent "approve"
@@ -637,7 +652,7 @@ Major V1 provider/scope choices have been made. The following details remain imp
 | Model budgets | OpenAI model map in ADR-012 | Per-operation timeouts, token budgets, per-user limits, Astra escalation trigger and budget; prove quality on reviewed eval set | Production Model Gateway |
 | Voice UX | Turn-based voice, transcript visible, TTS output, text fallback | Supported audio mime-types/duration/size, UI consent wording/version, retry UX and latency thresholds | Voice feature implementation |
 | Data privacy | 365d transcript/history, 90d source, 30d execution output, 90d audit logs, no durable raw audio, 7d RDS backup | Privacy/legal review, OpenAI account data controls/residency, deletion SLA and backup expiry verification | Production launch |
-| Problem Pack roles | Author + independent technical reviewer; ADR-023 configuration permission allowlists; no self-approval; ADR-025 grants a one-time owner self-review exception for the V1 Two Sum seed only | Run the real `review`/`publish` commands against a reachable database with the owner's `contentStaff` grant to actually complete K-008/K-009; assign a genuine second reviewer before any pack beyond this one V1 seed; reviewed escalation process for disputed/defective content | First published catalogue (V1 seed) / any pack beyond it |
+| Problem Pack roles | Author + independent technical reviewer; ADR-023 configuration permission allowlists; no self-approval; ADR-025 grants a one-time owner self-review exception for the V1 Two Sum seed only | Initial seed locally published under ADR-025 on 2026-10-24; production operator/environment evidence remains separate; assign a genuine second reviewer before any pack beyond this one V1 seed; reviewed escalation process for disputed/defective content | First published catalogue (V1 seed) / any pack beyond it |
 | Capacity/SLOs | 1,000 users, 100 interviews, 10 concurrent executions; initial targets remain provisional | Load-test headroom, autoscaling thresholds, final RPO/RTO and alert thresholds | Release approval |
 
 The following choices are resolved and must not be listed as open: Clerk authentication, turn-based voice in V1, Python/C++/Java, OpenAI-only model provider, AWS ECS/Fargate + RDS PostgreSQL + SQS Standard, E2B-managed sandbox default, the retention defaults above, and author/reviewer

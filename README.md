@@ -41,3 +41,8 @@ Clerk authentication; turn-based voice with visible transcript and speech output
 ## Current next step
 
 K-001–K-006 foundation acceptance is verified, including hosted CI. K-028/T034 remain deferred to deployment readiness under ADR-022. Feature 2 (Identity and Candidate Access, K-012) has passed development acceptance and all 38 feature tasks are complete. Feature 1 retains 47/48 completed tasks; only external-environment evidence T034 remains open. Follow the canonical feature order and dependency evidence for subsequent work; later session consumers and cloud release gates retain their scope. See the [local/real-service matrix](docs/development.md#local-and-real-service-test-matrix) and the [Kanban](project_management/kanban_board.md); its CSV export remains aligned.
+
+On 2026-10-24 the initial Two Sum seed was published locally under ADR-025;
+K-008/K-009 local acceptance is complete (207 focused tests passed). See the
+[catalogue evidence](docs/03_features/problem_catalogue/specifications/engineering/eng_design.md#local-seed-publication--2026-10-24).
+Production identities/deployment and downstream feature gates remain separate.

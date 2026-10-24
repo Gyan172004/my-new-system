@@ -1,6 +1,6 @@
 # Problem Catalogue and Immutable Problem Packs — Engineering Design
 
-**Status:** Reviewed implementation passes local code acceptance; genuine seed and external release gates remain pending.  
+**Status:** Reviewed local code acceptance; initial seed published locally under ADR-025 on 2026-10-24. External release gates remain pending.
 **Feature:** 3. **Kanban:** K-007–K-009. **Date:** 2026-10-22.
 **Reconciled:** 2026-10-23; owner-accepted audit recommendations and ADR-023.  
 **Inputs:** [requirements](../../requirements/feature_req.md),
@@ -13,7 +13,8 @@ Build small, verifiable slices. For each production behavior: write/identify the
 test, run it and observe the intended failure, implement the smallest change,
 run the relevant tests, then refactor. The owner authorized implementation;
 complete the Spec Kit checklist, task review and consistency gates before code.
-Real seed publication still requires the independent human approval below.
+The initial seed's local publication is complete under ADR-025; see local seed
+evidence below. Later content retains the independent human review requirement.
 
 Use the existing lockfile/toolchain: Node 24.22.0, npm 11.19.1, TypeScript,
 Next.js, Zod, `pg`, explicit SQL migrations, Vitest and existing contract tools.
@@ -208,7 +209,7 @@ Issue mirrors requested by the owner derive from these tasks, retain canonical K
 - [x] T129 Dedicated final review agent applies requesting-code-review, verification-before-completion and relevant TypeScript/PostgreSQL/Vitest/Next.js skills to full requirement/test/privacy/ownership/error/logging coverage; root resolves findings technically, reruns affected checks and repeats convergence when changes warrant; record review evidence in docs/03_features/problem_catalogue/specifications/engineering/eng_design.md.
 - [x] T130 Update project_management/kanban_board.md and kanban_tasks.csv together only for demonstrated completion; preserve genuine seed gates, deferred K-028 cloud and deployment acceptance, record derived issue/PR links in canonical engineering design and concise handoff only where useful in docs/project_notes/.
 - [x] T131 Root verifies final scoped diff and observed test evidence, commits group 06 with the title below, pushes feature/problem-catalogue-immutable-packs and opens new linked PR against confirmed dependency branch/base; include tests and pending seed/release gates in PR and docs/03_features/problem_catalogue/specifications/engineering/eng_design.md.
-- [ ] T132 EXTERNAL CONTENT GATE: obtain genuine verified author, distinct authorized human reviewer, source-rights evidence and exact finalized checksum approval for content/problem-packs/two-sum/; configure actual reviewed staff assignments outside committed secrets, then authorized review/publish and real-seed acceptance. Until supplied keep this task pending, seed unpublished and K-008/K-009 incomplete; synthetic code work and draft PR are independently reviewable.
+- [x] T132 Initial seed content gate completed locally on 2026-10-24 under the owner-approved ADR-025 exception: owner correctness/source-rights approval, separate development identities for the same human, exact-checksum approved review and actual sealed publication of all 37 cases. See local seed evidence below. No independent second human, production identity or deployment acceptance is claimed.
 
 **Commit title:** `<US=shared, ID=T131, K=K-007|K-008|K-009, GROUP=06> test(catalogue): verify catalogue acceptance and coverage`
 
@@ -647,9 +648,10 @@ The installed `$speckit-converge` assessed all 12 FRs, six SCs, four journeys,
 12 implementation obligations, five constitution principles and 46 task
 descriptions against source/tests/config. It found no actionable buildable-code
 gap and appended no tasks; the working task file remained byte-identical during
-that assessment. Existing final verification/review/handoff tasks and external
-T132 remain applicable. SC-01's genuine reviewed-seed portion remains unmet;
-code-scope convergence does not establish full K-008/K-009 completion.
+that assessment. At that earlier assessment T132 and SC-01's genuine reviewed-seed
+portion remained unmet; the 2026-10-24 local seed publication evidence below
+supersedes that blocker under ADR-025. Code-scope convergence alone never
+establishes full K-008/K-009 completion.
 
 ### Final local verification — observed results
 
@@ -701,11 +703,67 @@ code groups passed their independent reviews, final local tests and code-scope
 convergence. Required hosted checks for the final head are tracked on that PR;
 local evidence above does not substitute for those remote results.
 
-T087–T131 implementation/planning/review/handoff work is complete. The existing
-[T132 / #135](https://github.com/Gyan172004/my-new-system/issues/135) remains the
-only feature task awaiting external content evidence: verified author assignment,
-distinct authorized human technical/source-rights review and exact final checksum
-approval. The real Two Sum seed remains unpublished. Kanban/CSV retain K-007 Done
-and K-008/K-009 In Progress; deployment/cloud/provider/execution release gates
-remain with their existing owners. Unrelated owner skill/setup changes were
-preserved outside the feature commits.
+T087–T131 implementation/planning/review/handoff work is complete. The prior
+T132 seed blocker was resolved locally on 2026-10-24 under ADR-025, as recorded
+below. Deployment/cloud/provider/execution gates remain with their existing
+owners. Unrelated owner skill/setup changes are preserved outside this work.
+
+### Local seed publication — 2026-10-24
+
+The owner authorized local review/publication in the recovered Claude session
+`4ff4a379-a488-4546-b2f7-863ba1d170ce`. The existing review had already committed;
+it was reused rather than duplicated. ADR-025 accepts one human performing both
+roles for this initial seed. The supported development test adapter represents
+these roles with two internal UUIDs; this is not evidence of independent human
+review or production Clerk authorization. No runtime self-review guard changed.
+
+- Problem/version: `two-sum` / `1`.
+- Final canonical checksum: `a57cb531f10a561f58402599a5fde21efe2eba0fdb0e42bb4b7609355957b666`.
+- Author: `db6b8fbf-27a3-415c-bcd7-bec97c63dc1f`.
+- Reviewer/publisher: `7343749e-3600-4d71-ba72-a2ef8ef02682`.
+- Approved review: `137c74ee-a713-459a-b1b4-1e9422c69195`.
+- Release: `912219bb-6bd0-406d-9905-04e2e38b85a0`, published `2026-10-24T08:46:20.156Z`.
+- Permission revision: `v1-adr025-2026-10-24`.
+
+With Node 24.22.0, `node --env-file-if-exists=.env.local --import tsx
+scripts/content-pack.ts validate content/problem-packs/two-sum/pack.draft.json`
+returned `ok: true`, `publishable: true` and the checksum above. The authorized
+`publish` command using that file and review UUID returned the matching receipt
+and canonical publication event. A fresh read through `createCatalogueReader`
+verified list/detail/pinned version `1`; a read-only SQL join verified the sealed,
+eligible current release and all 37 persisted cases. Only the local development
+database was populated. No secret values are retained in this evidence.
+
+The first focused regression run passed 136/137 tests and exposed a stale seed
+test expecting null author/unapproved content. The test now validates the
+finalized real seed while retaining rejection of an unapproved copy and original
+source-byte integrity checks. Production validation and authorization code did
+not change.
+
+The installed systematic-debugging, test-driven-development, Vitest and
+verification skills were applied to the stale seed assertion. The revised seed
+file passed 4/4 tests, independently repeated by the review agent.
+`node node_modules/typescript/bin/tsc --noEmit` and scoped ESLint passed.
+A full `APP_ENV=test npm test` attempt was interrupted (exit 130) after an
+intermediate seed-test timeout and a database-unavailable diagnostic; it is not
+a full-suite pass. The expensive approved/unapproved validations were split
+into separate tests, retaining all assertions and the existing timeout.
+
+The requesting-code-review agent found no implementation defects and verified
+the publication checksum, raw file SHA256/size and four seed tests. Its bounded
+Spec Kit convergence reassessment covered T132's author, owner exception, rights,
+staff assignment, exact-checksum review, publication and readback obligations;
+no new buildable-code tasks were needed. Reported stale canonical gate text was
+reconciled. The prior full implementation convergence remains the broader code
+assessment; this operational follow-up does not claim to rerun all feature gates.
+
+Fresh focused acceptance after the test split:
+
+- `APP_ENV=test npm test -- tests/unit/problem-catalogue tests/integration/problem-catalogue tests/contract/problem-catalogue.test.ts`: 22 files, **207/207 passed** (48.13 seconds), Node 24.22.0.
+- Independent isolated PostgreSQL readiness query: passed.
+- `APP_ENV=test npm test -- tests/unit/problem-catalogue/seed.test.ts`: **4/4 passed**, independently repeated in review.
+
+K-008/K-009 are Done for this local feature acceptance; Kanban and CSV agree.
+Hosted checks for this follow-up, the interrupted broader suite, production
+identity/least-privilege/deployment and later K-014/K-016 consumers are not
+represented as newly passed. ADR-025 remains limited to the initial seed.

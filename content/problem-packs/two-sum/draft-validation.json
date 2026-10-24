@@ -1,10 +1,10 @@
 {
-  "checkedOn": "2026-10-23",
+  "checkedOn": "2026-10-24",
   "humanReviewApprovedOn": "2026-10-24",
-  "status": "human-review-approved-pending-database-publish-command",
+  "status": "published-local-development-under-ADR-025",
   "draftFile": "pack.draft.json",
-  "draftFileSha256": "d0c08d9f40d4f5fc10d8b3d36949a801915b93c9b18202a9b06d975393d4a143",
-  "draftBytes": 929089,
+  "draftFileSha256": "0589060fb57cba6186513a6f48b3b4ee38a38963e9083ece436d1cc70e17c60c",
+  "draftBytes": 929540,
   "maximumDepth": 8,
   "counts": {
     "approaches": 12,
@@ -18,7 +18,7 @@
     "generatedHiddenCases": 34
   },
   "checksPassed": [
-    "Draft top-level sections, explicit pending author and rights review",
+    "Finalized author and owner-approved rights review under ADR-025",
     "Implemented size/depth/text/test-payload bounds",
     "Unique section IDs and resolved named references",
     "Contiguous independent ladders and selected rule descriptors",
@@ -43,16 +43,30 @@
     "sourceRightsNote": "Reviewed retained source/two-sum_tests_leetcode_paste.txt and the 37 derived cases; published content is a reworded adaptation per normalization-notes.md, and functional test input/output pairs are not independently copyrightable narrative content.",
     "scope": "This record covers only this pack's initial V1 publication; ADR-020's standard author/independent-reviewer process applies to any future pack or corrected version of this one."
   },
-  "publicationAllowed": false,
+  "publicationAllowed": true,
   "independentAgentReview": "No important actionable defects reported; not a substitute for required independent human approval.",
-  "publicationBlockers": [
-    "Run the real scripts/content-pack.ts review/publish commands against a reachable database, with the owner's internal ID granted review_content/publish_content in the contentStaff configuration allowlist (ADR-023) — this records the exact finalized checksum and reviewer evidence and actually publishes the pack. Author identity and human review/source-rights approval are now recorded above under ADR-025; this is the only remaining blocker."
-  ],
+  "publicationBlockers": [],
   "selectedInputProfile": "two-sum-base-v1",
   "executionGates": [
     "Executable checker, sandbox/harness and Python/C++/Java toolchain qualification before submissions are enabled; not a metadata-only publication prerequisite"
   ],
-  "canonicalDraftChecksum": "a7267a548322067f59e648f8818ddb4314a46ca73d1f7c5f5ceed6acde1310f9",
+  "canonicalDraftChecksum": "a57cb531f10a561f58402599a5fde21efe2eba0fdb0e42bb4b7609355957b666",
   "productionValidationEvidence": "Node 24.22.0; Group 01: 93 focused tests, 295 total unit tests, independent code review accepted. Metadata readiness does not grant publication authority.",
-  "authorizedPublicationPathImplemented": true
+  "authorizedPublicationPathImplemented": true,
+  "localPublicationEvidence": {
+    "environment": "local development only",
+    "identityAdapter": "test",
+    "humanRoles": "Owner acts as author and reviewer under ADR-025; two test identities represent these roles, not two independent humans.",
+    "authorId": "db6b8fbf-27a3-415c-bcd7-bec97c63dc1f",
+    "reviewerId": "7343749e-3600-4d71-ba72-a2ef8ef02682",
+    "reviewId": "137c74ee-a713-459a-b1b4-1e9422c69195",
+    "releaseId": "912219bb-6bd0-406d-9905-04e2e38b85a0",
+    "publishedAt": "2026-10-24T08:46:20.156Z",
+    "permissionRevision": "v1-adr025-2026-10-24",
+    "sealed": true,
+    "availability": "eligible",
+    "storedCases": 37,
+    "catalogueListDetailAndPinnedReadVerified": true,
+    "productionAcceptance": false
+  }
 }

@@ -111,16 +111,6 @@ _None._
 
 ## In Progress
 
-### K-009 — Implement published Problem Pack retrieval and version pinning
-- Milestone: M1 · Priority: P0 · Depends on: K-005, K-007, K-008
-- Acceptance: sessions pin an immutable published version; candidate API excludes private fields.
-- Progress: reviewed code now covers immutable publication, candidate HTTP and real atomic session pins. Local acceptance passed 522 Vitest tests, five browser tests and the catalogue/identity coverage gates. Full completion still requires K-008 genuine seed approval ([T132 / #135](https://github.com/Gyan172004/my-new-system/issues/135)); no real seed is published. Code review is [draft PR #136](https://github.com/Gyan172004/my-new-system/pull/136). See [canonical engineering evidence](../docs/03_features/problem_catalogue/specifications/engineering/eng_design.md#group-06--coverage-and-convergence-evidence).
-
-### K-008 — Create one reviewed seed Problem Pack
-- Milestone: M1 · Priority: P0 · Depends on: K-007
-- Acceptance: pack passes structural validation and human correctness review; provenance is recorded.
-- Progress: the complete Two Sum draft passes the implemented schema/data checks for all 37 cases. Per [ADR-025](../docs/01_macro_architecture/05_architecture_decision_records.md#adr-025--owner-self-review-exception-for-the-v1-two-sum-seed-problem-pack-only) (2026-10-24), the owner is recorded as both author and approving reviewer for this V1 seed pack only — a one-time exception to ADR-020/ADR-023's different-author/reviewer rule, not a policy change; see `content/problem-packs/two-sum/draft-validation.json`'s `humanReviewApprovalRecord`. [T132 / #135](https://github.com/Gyan172004/my-new-system/issues/135) still gates final completion: the real `scripts/content-pack.ts review`/`publish` commands have not been run against a live database (requires the owner's internal ID in the `contentStaff` allowlist and a real operator credential), so the exact finalized checksum is not yet recorded and no seed has been published.
-
 
 ### K-028 — Establish environment configuration and secret-handling baseline
 - Milestone: M0 · Priority: P0 · Depends on: K-002
@@ -133,6 +123,16 @@ _None._
 _None._
 
 ## Done
+
+### K-008 — Create one reviewed seed Problem Pack
+- Milestone: M1 · Priority: P0 · Depends on: K-007
+- Acceptance: pack passes structural validation and human correctness review; provenance is recorded.
+- Completion evidence: initial Two Sum version `1` published to the local development database on 2026-10-24 under ADR-025's owner-review exception. Exact-checksum approved review, sealed current release, all 37 stored cases and catalogue list/detail/pinned readback verified; 207 focused unit/integration/contract tests passed. Development test identities represent one owner in two roles, not independent humans or production Clerk acceptance. See [local seed evidence](../docs/03_features/problem_catalogue/specifications/engineering/eng_design.md#local-seed-publication--2026-10-24).
+
+### K-009 — Implement published Problem Pack retrieval and version pinning
+- Milestone: M1 · Priority: P0 · Depends on: K-005, K-007, K-008
+- Acceptance: sessions pin an immutable published version; candidate API excludes private fields.
+- Completion evidence: reviewed catalogue/retrieval/atomic pin implementation and earlier browser/coverage acceptance now have the locally published K-008 seed. Fresh catalogue checks passed 22 files/207 tests, including real PostgreSQL integration and contract tests; list/detail/pinned version `1` readback verified. The broader full-suite attempt was interrupted (exit 130), not a pass. K-014/K-016 consumer journeys, hosted checks for this follow-up and production identity/deployment/execution gates remain separate. See [canonical engineering evidence](../docs/03_features/problem_catalogue/specifications/engineering/eng_design.md#local-seed-publication--2026-10-24).
 
 ### K-007 — Define minimal Problem Pack schema and validation rules
 - Milestone: M1 · Priority: P0 · Depends on: K-002
