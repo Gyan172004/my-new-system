@@ -275,7 +275,7 @@ Protect expensive operations: model calls, code execution, authentication, and c
 - Logs/metrics/alarms: Amazon CloudWatch; structured application logs and correlation IDs.
 - Sandbox: managed E2B isolated execution behind a narrow adapter; requires a threat-model review and production data/security verification.
 - Identity: Clerk-managed auth; server-side token verification and internal user mapping.
-- Model provider: OpenAI only through the Model Gateway.
+- Model provider: OpenAI only in staging/production through the Model Gateway (ADR-024 allows local Groq testing with synthetic inputs only).
 
 Do not introduce EKS/Kubernetes, a service mesh, Kafka, database sharding, multi-region active-active deployment, GPU infrastructure, or a distributed cache cluster without a measured need. Choose the AWS Region, subnet/egress shape, RDS sizing, SQS quotas/visibility settings, and E2B concurrency/cost profile during deployment design and validate against the privacy/security requirements.
 

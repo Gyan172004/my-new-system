@@ -9,6 +9,7 @@ export const stages = {
   integration: ['run', 'test:integration'],
   'identity-coverage': ['run', 'coverage:identity'],
   'catalogue-coverage': ['run', 'coverage:catalogue'],
+  'gateway-coverage': ['run', 'coverage:gateway'],
   contract: ['run', 'test:contract'],
   architecture: ['run', 'verify:architecture'],
   build: ['run', 'build'],

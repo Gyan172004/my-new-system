@@ -207,5 +207,58 @@
     "files": {
       "src/modules/identity-ui/adapters/component.ts": "'use client'; import { SignIn } from '@clerk/nextjs'; export const x = SignIn;"
     }
+  },
+  "native_provider_route": {
+    "rule": "provider-adapter-only",
+    "files": {
+      "src/app/api/probe/route.ts": "export const GET=()=>fetch('https://api.openai.com/v1/responses');"
+    }
+  },
+  "native_provider_other_adapter": {
+    "rule": "provider-adapter-only",
+    "files": {
+      "src/modules/interview/adapters/model.ts": "export const invoke=()=>fetch('https://api.groq.com/openai/v1/chat/completions');"
+    }
+  },
+  "native_dynamic_fetch": {
+    "rule": "provider-adapter-only",
+    "files": {
+      "src/shared/model.ts": "export const invoke=(url:string)=>fetch(url);"
+    }
+  },
+  "native_fetch_alias": {
+    "rule": "provider-adapter-only",
+    "files": {
+      "src/server/model.ts": "const send=globalThis['fetch']; export const call=(url:string)=>send(url);"
+    }
+  },
+  "native_provider_url": {
+    "rule": "provider-adapter-only",
+    "files": {
+      "src/shared/model.ts": "export const endpoint='https://api.openai.com/v1/responses';"
+    }
+  },
+  "client_groq_secret": {
+    "rule": "client-server-boundary",
+    "files": {
+      "src/components/Secret.ts": "'use client'; export const key=process.env.NEXT_PUBLIC_GROQ_API_KEY;"
+    }
+  },
+  "allowed_browser_internal_fetch": {
+    "files": {
+      "src/components/Read.ts": "'use client'; export const load=()=>fetch('/api/v1/problems');"
+    }
+  },
+  "allowed_native_provider_adapter": {
+    "files": {
+      "src/modules/model-gateway/adapters/openai.ts": "export const invoke=()=>fetch('https://api.openai.com/v1/responses');"
+    }
+  },
+  "route_private_gateway": {
+    "rule": "module-public-interface-external",
+    "files": {
+      "src/app/api/probe/route.ts": "export {createGroqAdapter} from '../../../modules/model-gateway/adapters/groq';",
+      "src/modules/model-gateway/adapters/groq.ts": "export const createGroqAdapter=()=>1;"
+    }
   }
 }

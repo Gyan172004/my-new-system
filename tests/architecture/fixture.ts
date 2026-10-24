@@ -2,8 +2,12 @@ import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { checkBoundaries } from '../../scripts/check-boundaries';
 
-export async function checkFixture(files: Record<string, string>) {
+export async function checkFixture(
+  files: Record<string, string>,
+  inProcess = false,
+) {
   const directory = await mkdtemp(join(tmpdir(), 'foundation-boundaries-'));
   try {
     await writeFile(
@@ -21,6 +25,7 @@ export async function checkFixture(files: Record<string, string>) {
       await mkdir(dirname(path), { recursive: true });
       await writeFile(path, content);
     }
+    if (inProcess) return await checkBoundaries(directory);
     const result = spawnSync(
       process.execPath,
       ['--import', 'tsx', resolve('scripts/check-boundaries.ts'), directory],

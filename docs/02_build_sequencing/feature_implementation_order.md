@@ -156,6 +156,11 @@ Exit criteria:
 
 Related initial Kanban task: **K-017**. V1 model map: `gpt-6.1-sol` for interview turns, approach assessment, hint support, and feedback; `gpt-6-luna` for focused intent/stage classification; `gpt-6-astra` only as a quality-tested, budget-approved escalation; `gpt-transcribe` for voice input; and `gpt-4o-mini-tts` for speech output. All calls use central Model Gateway configuration.
 
+ADR-024 permits opt-in local Groq `openai/gpt-oss-120b` testing with synthetic
+inputs only; staging/production remain OpenAI-only. Test mode rejects real-provider
+dispatch. This exception does not establish OpenAI or M2 acceptance.
+
+
 ### Stage 5 — Interview orchestration and conversation policy
 
 **Priority:** P1  

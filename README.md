@@ -38,6 +38,10 @@ Frontend work must follow the owner-selected
 
 Clerk authentication; turn-based voice with visible transcript and speech output; Python/C++/Java; OpenAI via the Model Gateway (`gpt-6.1-sol`, `gpt-6-luna`, conditional `gpt-6-astra`, `gpt-transcribe`, `gpt-4o-mini-tts`); AWS ECS/Fargate + RDS PostgreSQL + SQS Standard; managed E2B sandbox adapter; balanced retention defaults; independent Problem Pack author/reviewer process. See the ADR register for details.
 
+ADR-024 permits opt-in local Groq `openai/gpt-oss-120b` testing with synthetic
+inputs only. Staging/production remain OpenAI-only, and real OpenAI acceptance
+is still required.
+
 ## Current next step
 
 K-001–K-006 foundation acceptance is verified, including hosted CI. K-028/T034 remain deferred to deployment readiness under ADR-022. Feature 2 (Identity and Candidate Access, K-012) has passed development acceptance and all 38 feature tasks are complete. Feature 1 retains 47/48 completed tasks; only external-environment evidence T034 remains open. Follow the canonical feature order and dependency evidence for subsequent work; later session consumers and cloud release gates retain their scope. See the [local/real-service matrix](docs/development.md#local-and-real-service-test-matrix) and the [Kanban](project_management/kanban_board.md); its CSV export remains aligned.

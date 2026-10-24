@@ -42,6 +42,7 @@ When a decision changes, update this record and all affected contracts/designs i
 | ADR-021 | Use TypeScript + Next.js for the trusted application | Accepted owner choice, 2026-10-17 |
 | ADR-022 | Develop locally with explicit provider and cloud verification gates | Accepted owner choice, 2026-10-18 |
 | ADR-023 | Use verified operator identity plus configuration allowlists for initial content permissions | Accepted owner choice, 2026-10-23 |
+| ADR-024 | Allow Groq for explicit local Model Gateway development | Accepted owner choice, 2026-10-23 |
 
 ## 3. Decisions
 
@@ -275,7 +276,7 @@ When a decision changes, update this record and all affected contracts/designs i
 
 **Context:** The product requires structured text interpretation plus transcription and speech synthesis, and model choices must be consistent, auditable, and cost-controlled.
 
-**Decision:** OpenAI is the sole approved model provider for V1. All calls go through a Model Gateway. Initial operation mapping: `gpt-6.1-sol` for interviewer turns, approach assessment, hint support, and feedback; `gpt-6-luna` for focused intent/stage classification; `gpt-6-astra` is not on the default path and may be enabled only as a benchmarked, budget-approved escalation; `gpt-transcribe` for bounded audio transcription; `gpt-4o-mini-tts` for interviewer speech output. All IDs live in central configuration, not feature code. Model ID availability and behavior are re-verified before deploy; prompt/model versions and usage are recorded.
+**Decision:** OpenAI is the sole approved model provider for V1 staging/production. ADR-024 permits an explicit local-development Groq exception using synthetic inputs only. All calls go through a Model Gateway. Initial operation mapping: `gpt-6.1-sol` for interviewer turns, approach assessment, hint support, and feedback; `gpt-6-luna` for focused intent/stage classification; `gpt-6-astra` is not on the default path and may be enabled only as a benchmarked, budget-approved escalation; `gpt-transcribe` for bounded audio transcription; `gpt-4o-mini-tts` for interviewer speech output. All IDs live in central configuration, not feature code. Model ID availability and behavior are re-verified before deploy; prompt/model versions and usage are recorded.
 
 **Alternatives considered:**
 - Direct SDK calls from each feature: rejected due to coupling and inconsistent controls.
@@ -284,7 +285,7 @@ When a decision changes, update this record and all affected contracts/designs i
 
 **Consequences:**
 - Domain modules depend on the internal gateway interface, not provider SDKs.
-- Model routing remains operation-specific; no second provider or silent fallback is approved for V1. A failed provider call follows a recoverable failure path unless a deliberately approved same-provider fallback is configured.
+- Model routing remains operation-specific; no second staging/production provider or silent fallback is approved for V1. ADR-024's local synthetic-data exception does not change this production boundary. A failed provider call follows a recoverable failure path unless a deliberately approved same-provider fallback is configured.
 - The gateway should stay small until measured needs justify advanced routing.
 
 **Revisit when:** Model quality, cost, latency, or availability data justifies new provider-routing capabilities.
@@ -554,6 +555,42 @@ separate API-compatibility correction, covered by contract-consumer checks.
 **Revisit when:** Staff count or permission-change frequency justifies a reviewed
 database-backed role workflow under the content-administration feature.
 
+### ADR-024 — Allow Groq for explicit local Model Gateway development
+
+**Status:** Accepted owner choice, 2026-10-23; not a production provider change.
+
+**Context:** The owner obtained a Groq key to test Stage 4 before funding OpenAI
+usage. ADR-012 originally permitted OpenAI only; the owner accepted this narrow
+development exception after consistency review, rather than inferring it from
+API compatibility.
+
+**Decision:** Allow an opt-in Groq text adapter in local development,
+using `openai/gpt-oss-120b` initially. Ordinary tests continue to use synthetic
+fixtures without keys; test mode rejects real-provider dispatch. Groq requires
+`APP_ENV=development` and a trusted synthetic-input harness. Staging/production
+reject fake/Groq adapters. No automatic
+fallback, new production provider, Groq audio, or model escalation is selected.
+
+**Consequences:** Keep keys in
+server-only configuration and use synthetic development inputs. OpenAI's
+operation map, provider data review, separate real-service acceptance and
+deployment gates remain binding. Groq results do not qualify OpenAI operations.
+No quota, unlimited free use, or provider parity is assumed.
+
+**Alternatives:** Fake-only development costs nothing but cannot exercise real
+transport. Funding OpenAI immediately tests the intended provider directly.
+Production multi-provider routing adds scope and remains deferred.
+
+**Impact:** Stage 4's four canonical documents and gateway README describe this
+accepted exception. ADR-012/ADR-022, canonical API/events, session/LLM/voice contracts and
+Kanban status remain in force. No application code or provider calls are made
+by this documentation change. ADR-012, the LLM policy, affected architecture/
+sequencing summaries and the gateway documents reflect the accepted exception
+while preserving their staging/production baseline.
+
+**Revisit when:** OpenAI funding is available or measured development needs
+justify a different provider arrangement.
+
 ## 4. Remaining implementation decisions and validation gates
 
 Major V1 provider/scope choices have been made. The following details remain implementation-level decisions or mandatory verification gates; do not silently invent them where they affect security, cost, or service behavior.
@@ -569,7 +606,7 @@ Major V1 provider/scope choices have been made. The following details remain imp
 | Problem Pack roles | Author + independent technical reviewer; ADR-023 configuration permission allowlists; no self-approval | Assign actual people/role holders, reviewed configuration and escalation process for disputed/defective content | First published catalogue |
 | Capacity/SLOs | 1,000 users, 100 interviews, 10 concurrent executions; initial targets remain provisional | Load-test headroom, autoscaling thresholds, final RPO/RTO and alert thresholds | Release approval |
 
-The following choices are resolved and must not be listed as open: Clerk authentication, turn-based voice in V1, Python/C++/Java, OpenAI-only model provider, AWS ECS/Fargate + RDS PostgreSQL + SQS Standard, E2B-managed sandbox default, the retention defaults above, and author/reviewer content governance.
+The following choices are resolved and must not be listed as open: Clerk authentication, turn-based voice in V1, Python/C++/Java, OpenAI-only staging/production model provider with ADR-024 local exception, AWS ECS/Fargate + RDS PostgreSQL + SQS Standard, E2B-managed sandbox default, the retention defaults above, and author/reviewer content governance.
 
 ## 5. Vendor documentation checked for the selected baseline
 
