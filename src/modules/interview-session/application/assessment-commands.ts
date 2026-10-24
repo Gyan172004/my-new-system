@@ -7,11 +7,12 @@ import { createAssessmentPreparer,createAssessmentStore } from '../../approach-a
 import type { ModelGateway } from '../../model-gateway/public';
 import { createConversationStore } from '../../conversation/public';
 import { createCommandRepository,type CommandSession,type CommandOperation,type CommandResponse,type SafeSession } from '../persistence/commands';
+import { commandResponseSchema,safeSessionSchema } from '../domain/dto';
 import { createHash } from 'node:crypto';
 const requestSchema=z.strictObject({sessionId:z.uuid(),key:z.string().min(1).max(128).regex(/^[A-Za-z0-9_.:-]+$/),expectedVersion:z.number().int().min(0).max(2147483646),payload:z.strictObject({text:z.string().min(1).max(8192).refine(v=>v.trim().length>0&&v.isWellFormed()&&Buffer.byteLength(v)<=8192),modality:z.enum(['text','accepted_transcript'])})});
 const stages=new Set(['initial_approach','approach_clarification','improve_approach']);
 const hash=(v:unknown)=>createHash('sha256').update(JSON.stringify(v)).digest('hex');
-function safeSession(s:CommandSession,latestTurn:{id:string;text:string}|null):SafeSession{return {sessionId:s.sessionId,problemId:s.problemId,problemPackVersion:s.problemPackVersion,status:s.status,currentStage:s.currentStage,version:s.version,createdAt:s.createdAt.toISOString(),updatedAt:s.updatedAt.toISOString(),...(latestTurn?{latestTurn}: {})};}
+function safeSession(s:CommandSession,latestTurn:{id:string;text:string}|null):SafeSession{return safeSessionSchema.parse({sessionId:s.sessionId,problemId:s.problemId,problemPackVersion:s.problemPackVersion,status:s.status,currentStage:s.currentStage,version:s.version,createdAt:s.createdAt.toISOString(),updatedAt:s.updatedAt.toISOString(),...(latestTurn?{latestTurn}: {})});}
 // Trusted server composition. The caller supplies only an owned logical command;
 // admission, preparation and finalization capabilities remain inside this closure.
 export function createAssessmentCommandService(db:TransactionDatabase,dependencies:Readonly<{gateway?:ModelGateway;profile?:unknown}>={}){
@@ -44,7 +45,7 @@ export function createAssessmentCommandService(db:TransactionDatabase,dependenci
     await turns.insert(scope,{id:op.reservedCandidateTurnId!,sessionId:s.sessionId,operationId:op.id,speaker:'candidate',stage:op.sourceStage,modality:candidatePayload.modality,text:candidatePayload.text,version:updated.version});
     await turns.insert(scope,{id:op.reservedInterviewerTurnId,sessionId:s.sessionId,operationId:op.id,speaker:'interviewer',stage:op.sourceStage,modality:'text',text:decision.text,version:updated.version});
     await commands.event(scope,owner,updated,op,assessmentId);
-    const response={session:safeSession(updated,{id:op.reservedInterviewerTurnId,text:decision.text}),etag:`"${updated.version}"`};await commands.success(scope,op,response);return response;
+    const response=commandResponseSchema.parse({session:safeSession(updated,{id:op.reservedInterviewerTurnId,text:decision.text}),etag:`"${updated.version}"`});await commands.success(scope,op,response);return response;
    },signal);
   }catch(error){
    if(work){try{await transaction.run(async scope=>{const {op}=await locked(scope,owner,r,work!);if(op.fence===work!.fence&&op.status==='in_flight')await commands.retryable(scope,op);});}catch{/* The original safe failure remains authoritative; bookkeeping is best effort. */}}

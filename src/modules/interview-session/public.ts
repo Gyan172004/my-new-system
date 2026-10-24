@@ -3,3 +3,9 @@
 export { createSessionService } from './application/service';
 export { createAssessmentCommandService } from './application/assessment-commands';
 export { createHintCommandService } from './application/hint-commands';
+export {
+  safeSessionSchema,
+  commandResponseSchema,
+  approachAssessedEventSchema,
+  hintExposedEventSchema,
+} from './domain/dto';

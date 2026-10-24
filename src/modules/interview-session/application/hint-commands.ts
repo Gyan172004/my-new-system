@@ -8,11 +8,12 @@ import { selectHintLadder } from '../../content-publishing/public';
 import { createConversationStore } from '../../conversation/public';
 import { createExposureStore,nextHint,policyVersion } from '../../hints-variants/public';
 import { createCommandRepository,type CommandSession,type CommandOperation,type CommandResponse,type SafeSession } from '../persistence/commands';
+import { commandResponseSchema,safeSessionSchema } from '../domain/dto';
 import { createHash } from 'node:crypto';
 const requestSchema=z.strictObject({sessionId:z.uuid(),key:z.string().min(1).max(128).regex(/^[A-Za-z0-9_.:-]+$/),expectedVersion:z.number().int().min(0).max(2147483646)});
 const stages=new Set(['initial_approach','approach_clarification','improve_approach']);
 const hash=(v:unknown)=>createHash('sha256').update(JSON.stringify(v)).digest('hex');
-function safeSession(s:CommandSession,latestTurn:{id:string;text:string}|null):SafeSession{return {sessionId:s.sessionId,problemId:s.problemId,problemPackVersion:s.problemPackVersion,status:s.status,currentStage:s.currentStage,version:s.version,createdAt:s.createdAt.toISOString(),updatedAt:s.updatedAt.toISOString(),...(latestTurn?{latestTurn}: {})};}
+function safeSession(s:CommandSession,latestTurn:{id:string;text:string}|null):SafeSession{return safeSessionSchema.parse({sessionId:s.sessionId,problemId:s.problemId,problemPackVersion:s.problemPackVersion,status:s.status,currentStage:s.currentStage,version:s.version,createdAt:s.createdAt.toISOString(),updatedAt:s.updatedAt.toISOString(),...(latestTurn?{latestTurn}: {})});}
 // Trusted server composition. Deterministic, no provider call; the ledger/fence
 // split is retained for symmetry with assessment commands and crash/race safety.
 export function createHintCommandService(db:TransactionDatabase){
@@ -47,7 +48,7 @@ export function createHintCommandService(db:TransactionDatabase){
     await exposures.insert(scope,{id:exposureId,sessionId:s.sessionId,operationId:op.id,turnId:op.reservedInterviewerTurnId,ladderId,routingRevisionHash:routingHash,hintId:hint.id,localOrdinal:s.hintCount+1,sourceVersion:op.sourceVersion,problemId:op.problemId,packVersion:op.packVersion,packChecksum:op.packChecksum,policyVersion});
     await turns.insert(scope,{id:op.reservedInterviewerTurnId,sessionId:s.sessionId,operationId:op.id,speaker:'interviewer',stage:op.sourceStage,modality:'text',text:hint.text,version:updated.version});
     await commands.hintEvent(scope,owner,updated,op,exposureId,hint.id,ladderId,s.hintCount+1);
-    const response={session:safeSession(updated,{id:op.reservedInterviewerTurnId,text:hint.text}),etag:`"${updated.version}"`};await commands.success(scope,op,response);return response;
+    const response=commandResponseSchema.parse({session:safeSession(updated,{id:op.reservedInterviewerTurnId,text:hint.text}),etag:`"${updated.version}"`});await commands.success(scope,op,response);return response;
    },signal);
   }catch(error){
    if(work){try{await transaction.run(async scope=>{const {op}=await locked(scope,owner,r,work!);if(op.fence===work!.fence&&op.status==='in_flight')await commands.retryable(scope,op);});}catch{/* The original safe failure remains authoritative; bookkeeping is best effort. */}}
