@@ -39,6 +39,17 @@ input:focus-visible {
 .topbar a {
   text-decoration: none;
 }
+.topbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.topbar-nav a:not(:first-child) {
+  color: var(--muted);
+}
+.topbar-nav a:not(:first-child):hover {
+  color: var(--cool);
+}
 .signin {
   width: min(400px, calc(100% - 40px));
   margin: clamp(55px, 20vh, 170px) auto 64px;

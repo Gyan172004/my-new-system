@@ -1,7 +1,7 @@
 import { getRuntime } from '../../server/runtime';
 import { runtimeDatabase } from '../../server/database';
 import { createCatalogueReader } from '../../modules/problem-catalogue/public';
-import { AccountControls } from '../../modules/identity-ui/public';
+import { Topbar } from '../_components/topbar';
 
 export default async function ProblemsPage() {
   const runtime = getRuntime();
@@ -18,14 +18,7 @@ export default async function ProblemsPage() {
   }
   return (
     <>
-      <header className="topbar">
-        <a aria-label="DSA Interview home" href="/">
-          ~/dsa-interview
-        </a>
-        <nav aria-label="Account">
-          {enabled ? <AccountControls /> : <a href="/sign-in">Sign in</a>}
-        </nav>
-      </header>
+      <Topbar identityEnabled={enabled} />
       <main className="problems">
         <p className="path">~/dsa-interview / problems</p>
         <h1>Problems</h1>

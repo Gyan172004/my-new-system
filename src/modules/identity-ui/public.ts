@@ -3,6 +3,7 @@ export {
   IdentityProvider,
   EmbeddedSignIn,
   AccountControls,
+  useIsSignedIn,
 } from './adapters/components';
 
 export {

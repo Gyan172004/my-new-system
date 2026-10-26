@@ -5,20 +5,7 @@ import {
   createCatalogueReader,
   CatalogueFailure,
 } from '../../../modules/problem-catalogue/public';
-import { AccountControls } from '../../../modules/identity-ui/public';
-
-function Topbar({ enabled }: { enabled: boolean }) {
-  return (
-    <header className="topbar">
-      <a aria-label="DSA Interview home" href="/">
-        ~/dsa-interview
-      </a>
-      <nav aria-label="Account">
-        {enabled ? <AccountControls /> : <a href="/sign-in">Sign in</a>}
-      </nav>
-    </header>
-  );
-}
+import { Topbar } from '../../_components/topbar';
 
 export default async function ProblemPage({
   params,
@@ -41,7 +28,7 @@ export default async function ProblemPage({
       notFound();
     return (
       <>
-        <Topbar enabled={enabled} />
+        <Topbar identityEnabled={enabled} />
         <main className="problem-detail">
           <section className="unavailable">
             <p role="status">
@@ -54,7 +41,7 @@ export default async function ProblemPage({
   }
   return (
     <>
-      <Topbar enabled={enabled} />
+      <Topbar identityEnabled={enabled} />
       <main className="problem-detail">
         <p className="path">
           <a href="/problems">~/dsa-interview / problems</a> /{' '}
