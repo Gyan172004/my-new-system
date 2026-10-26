@@ -65,6 +65,13 @@ it('reports reproducible precision/coverage/abstention and the exact failure sli
       outcome: string;
       matchedReferenceId: string | null;
     }> = [];
+    // Usage/latency per case, for SC-06's "precision, coverage/abstention, false
+    // matches, latency and usage" reporting requirement. The fake adapter reports
+    // no real usage (completeness stays 'unknown') and vitest timing is not a
+    // provider latency signal, so only attempt counts are meaningful locally;
+    // real latency/usage is a real-provider-run artifact, not a synthetic one.
+    const usage: Array<{ id: string; attempts: number; usageCompleteness: string }> =
+      [];
     for (const c of cases) {
       const result = await s.evaluate(
         auth,
@@ -82,6 +89,22 @@ it('reports reproducible precision/coverage/abstention and the exact failure sli
         outcome: result.classification.outcome,
         matchedReferenceId: result.classification.matchedReferenceId,
       });
+      const metadata = result.metadata as {
+        attempts: number;
+        durationMs: number;
+        usage: { completeness: string };
+      };
+      usage.push({
+        id: c.id,
+        attempts: metadata.attempts,
+        usageCompleteness: metadata.usage.completeness,
+      });
+      expect(metadata.durationMs).toBeGreaterThanOrEqual(0);
+    }
+    expect(usage).toHaveLength(cases.length);
+    for (const row of usage) {
+      expect(row.attempts).toBe(1);
+      expect(row.usageCompleteness).toBe('unknown');
     }
 
     const total = cases.length;

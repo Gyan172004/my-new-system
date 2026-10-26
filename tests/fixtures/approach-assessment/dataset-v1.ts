@@ -4,6 +4,21 @@ import { createHash } from 'node:crypto';
 // self-contained (no real candidate transcripts, no provider output). This
 // dataset measures classifier MECHANICS against known labels, never real-provider
 // qualification: see tests/contract/approach-assessment/evaluation.test.ts.
+//
+// FR-16 category mapping (this dataset's 10 cases against the spec's named
+// fixture categories; a case stands in for the nearest category it exercises):
+//   correct      -> matched-correct-1, matched-correct-2
+//   incorrect    -> matched-wrong-1, matched-wrong-2 (adversarial: a plausible
+//                   but wrong top match, the reason precision isn't trivially 1.0)
+//   incomplete   -> ambiguous-interpretation (interpretation:'incomplete')
+//   ambiguous    -> ambiguous-tied, ambiguous-margin
+//   paraphrased  -> not separately exercised here (classify.ts has no
+//                   paraphrase-specific branch; paraphrase tolerance lives in
+//                   the matcher's semantic interpretation, which this synthetic
+//                   fixed-proposal dataset cannot exercise without a real
+//                   provider -- see K017/T270)
+//   novel        -> novel
+//   abstained    -> abstained-low-confidence, abstained-no-evidence
 export const datasetVersion = 'reviewed-synthetic-v1';
 export const authorId = '00000000-0000-4000-8000-0000000000a1';
 export const reviewerId = '00000000-0000-4000-8000-0000000000a2';

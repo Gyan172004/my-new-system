@@ -11,7 +11,7 @@ import { createCommandRepository,type CommandSession,type CommandOperation,type 
 import { commandResponseSchema,safeSessionSchema } from '../domain/dto';
 import { createHash } from 'node:crypto';
 const requestSchema=z.strictObject({sessionId:z.uuid(),key:z.string().min(1).max(128).regex(/^[A-Za-z0-9_.:-]+$/),expectedVersion:z.number().int().min(0).max(2147483646)});
-const stages=new Set(['initial_approach','approach_clarification','improve_approach']);
+const stages=new Set(['hints']);
 const hash=(v:unknown)=>createHash('sha256').update(JSON.stringify(v)).digest('hex');
 function safeSession(s:CommandSession,latestTurn:{id:string;text:string}|null):SafeSession{return safeSessionSchema.parse({sessionId:s.sessionId,problemId:s.problemId,problemPackVersion:s.problemPackVersion,status:s.status,currentStage:s.currentStage,version:s.version,createdAt:s.createdAt.toISOString(),updatedAt:s.updatedAt.toISOString(),...(latestTurn?{latestTurn}: {})});}
 // Trusted server composition. Deterministic, no provider call; the ledger/fence

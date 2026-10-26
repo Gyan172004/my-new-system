@@ -42,6 +42,7 @@ it('composes the real assessment and hint services on canonical safe-DTO/event s
   result=await createAssessmentCommandService(f.db,{gateway:g,profile:qualified}).execute(f.author,{sessionId:id,key:randomUUID(),expectedVersion:0,payload:{text:'I will scan linearly and compare pairs.',modality:'text' as const}},signal());
  } finally { await g.close(); }
  expect(commandResponseSchema.safeParse(result).success).toBe(true);
+ await f.db.withClient(c=>c.query("UPDATE interview_sessions SET current_stage='hints' WHERE id=$1",[id]));
 
  const hintService=createHintCommandService(f.db);
  const first=await hintService.execute(f.author,{sessionId:id,key:randomUUID(),expectedVersion:1},signal());
@@ -89,6 +90,7 @@ it('fails closed without leaking anything when no hint routing has been reviewed
   const s=await createSessionService(g2.db).createPublishedSession(g2.author,g2.pack.problemId);
   await g2.db.withClient(c=>c.query("UPDATE interview_sessions SET current_stage='initial_approach',status='active' WHERE id=$1",[s.sessionId]));
   await createAssessmentCommandService(g2.db).execute(g2.author,{sessionId:s.sessionId,key:randomUUID(),expectedVersion:0,payload:{text:'I will scan linearly and compare pairs.',modality:'text' as const}},signal());
+  await g2.db.withClient(c=>c.query("UPDATE interview_sessions SET current_stage='hints' WHERE id=$1",[s.sessionId]));
   await expect(createHintCommandService(g2.db).execute(g2.author,{sessionId:s.sessionId,key:randomUUID(),expectedVersion:1},signal())).rejects.toThrow('hint_unavailable');
   const rows=await g2.db.withClient(c=>c.query('SELECT version,hint_count,selected_ladder_id FROM interview_sessions WHERE id=$1',[s.sessionId]));
   expect(rows.rows[0]).toMatchObject({version:1,hint_count:0,selected_ladder_id:null});
