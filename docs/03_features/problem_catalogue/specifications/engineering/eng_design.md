@@ -767,3 +767,34 @@ K-008/K-009 are Done for this local feature acceptance; Kanban and CSV agree.
 Hosted checks for this follow-up, the interrupted broader suite, production
 identity/least-privilege/deployment and later K-014/K-016 consumers are not
 represented as newly passed. ADR-025 remains limited to the initial seed.
+
+### Problems/Problem candidate pages — 2026-10-26
+
+`src/app/problems/page.tsx` and `src/app/problems/[problemId]/page.tsx` (wireframe
+screens 04/05) were added against the already-Done K-009 catalogue read API.
+Both are Server Components calling `createCatalogueReader` directly (the same
+pattern `src/app/page.tsx` and the sign-in page already use for other
+server-side modules), not a client-side `fetch`; this stays inside the
+`check:architecture` same-origin-literal-path rule without needing it. The list
+page renders every published problem with its difficulty badge and topic tags;
+the detail page renders the real statement/constraints/examples/pack version.
+Neither page claims functionality that does not exist: the "Start interview"
+control on the detail page is rendered disabled with an explanatory tooltip,
+since session creation (K-010–016) is not implemented. Unavailable/empty states
+are handled without leaking error detail, mirroring `catalogueGet`'s mapping.
+
+Verified against the real local dev database (migrated, with the sealed
+`two-sum@1` release from the ADR-025 seed): `npm run dev` served both routes
+and the rendered HTML contained the real title, difficulty, constraints,
+examples and pack version — inspected directly via `curl` (no interactive
+browser was available in this environment for a screenshot). `tsc --noEmit`,
+scoped `eslint`, `prettier --check` and `npm run check:architecture` (`[]`) all
+passed; a full `APP_ENV=test npm test` afterward passed 105 files/1176 tests,
+confirming no regression (these pages have no test coverage of their own yet
+and are not exercised by that suite).
+
+This is not a K-ticket task; it closes a gap identified during review — the
+wireframe's feature-ownership table assigns these two screens to this feature,
+the backing API has been Done since K-009, and no page had ever been built
+against it. K-014/K-016 (session creation/journey) remain the gate for every
+other candidate-facing screen this feature's group does not yet cover.
