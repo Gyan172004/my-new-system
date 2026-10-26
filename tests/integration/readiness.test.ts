@@ -116,7 +116,7 @@ it(
             join(root, name + '.sql'),
           );
         await writeFile(
-          join(root, '1792713600001_unknown.sql'),
+          join(root, '1792800000003_unknown.sql'),
           '-- Up Migration\nSELECT 1;\n-- Down Migration\nSELECT 1;',
         );
         await runMigrations({
@@ -126,7 +126,7 @@ it(
         });
         expect((await probe(db)).body.checks.schema).toBe('unavailable');
         expect(
-          (await probe(db, [...acceptedMigrations, '1792713600001_unknown']))
+          (await probe(db, [...acceptedMigrations, '1792800000003_unknown']))
             .httpStatus,
         ).toBe(200);
       } finally {

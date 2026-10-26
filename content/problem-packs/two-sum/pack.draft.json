@@ -3,7 +3,7 @@
   "slug": "two-sum",
   "version": "1",
   "schemaVersion": 1,
-  "authorId": null,
+  "authorId": "db6b8fbf-27a3-415c-bcd7-bec97c63dc1f",
   "candidate": {
     "title": "Two Sum",
     "difficulty": "easy",
@@ -525,7 +525,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "complexity",
@@ -544,7 +544,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "lookup-order",
@@ -562,7 +562,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "duplicate-values",
@@ -581,7 +581,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "sorted-input",
@@ -599,7 +599,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "constant-space",
@@ -619,7 +619,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "readonly-space",
@@ -637,7 +637,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "no-solution",
@@ -655,7 +655,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "multiple-pairs",
@@ -673,7 +673,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "all-pairs",
@@ -693,7 +693,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "count-pairs",
@@ -712,7 +712,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "sum-bound",
@@ -732,7 +732,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "closest-sum",
@@ -750,7 +750,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "ksum",
@@ -769,7 +769,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "streaming",
@@ -788,7 +788,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "bst-input",
@@ -807,7 +807,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "external-data",
@@ -827,7 +827,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "small-range",
@@ -845,7 +845,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "integer-bounds",
@@ -863,7 +863,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "hash-adversary",
@@ -882,7 +882,7 @@
         },
         "sourceReferences": ["owner-package"],
         "authorshipNote": "Adapted and corrected from owner package.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "parallel-static",
@@ -902,7 +902,7 @@
         },
         "sourceReferences": [],
         "authorshipNote": "New project draft inspired by the owner request; not attributed to a verified LeetCode thread.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "concurrent-service",
@@ -922,7 +922,7 @@
         },
         "sourceReferences": [],
         "authorshipNote": "New project draft inspired by the owner request; not attributed to a verified LeetCode thread.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       }
     ],
     "variants": [
@@ -934,7 +934,7 @@
         "complexityGuidance": "O(n) time / O(1) extra space",
         "executable": false,
         "reasoningOnlyReason": "Draft follow-up content; full input/output contract, checker and reviewed dedicated test suite are not supplied.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "streaming",
@@ -944,7 +944,7 @@
         "complexityGuidance": "Frequency-map baseline: expected O(1) add, O(d) find, O(d) storage",
         "executable": false,
         "reasoningOnlyReason": "Draft follow-up content; full input/output contract, checker and reviewed dedicated test suite are not supplied.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "bst-input",
@@ -954,7 +954,7 @@
         "complexityGuidance": "O(n) traversal time; O(h) space with two iterators",
         "executable": false,
         "reasoningOnlyReason": "Draft follow-up content; full input/output contract, checker and reviewed dedicated test suite are not supplied.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "sum-less-than-k",
@@ -964,7 +964,7 @@
         "complexityGuidance": "O(n log n) time including sorting",
         "executable": false,
         "reasoningOnlyReason": "Draft follow-up content; full input/output contract, checker and reviewed dedicated test suite are not supplied.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "count-pairs",
@@ -974,7 +974,7 @@
         "complexityGuidance": "Expected O(n) time, O(d) frequency storage",
         "executable": false,
         "reasoningOnlyReason": "Draft follow-up content; full input/output contract, checker and reviewed dedicated test suite are not supplied.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "unique-value-pairs",
@@ -984,7 +984,7 @@
         "complexityGuidance": "O(n log n + k) time including output; memory depends on mutation/output",
         "executable": false,
         "reasoningOnlyReason": "Draft follow-up content; full input/output contract, checker and reviewed dedicated test suite are not supplied.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "closest-sum",
@@ -994,7 +994,7 @@
         "complexityGuidance": "O(n log n) time including sorting",
         "executable": false,
         "reasoningOnlyReason": "Draft follow-up content; full input/output contract, checker and reviewed dedicated test suite are not supplied.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "ksum",
@@ -1004,7 +1004,7 @@
         "complexityGuidance": "For fixed k>=3, usual O(n^(k-1)) search plus sorting/output",
         "executable": false,
         "reasoningOnlyReason": "Draft follow-up content; full input/output contract, checker and reviewed dedicated test suite are not supplied.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "difference",
@@ -1014,7 +1014,7 @@
         "complexityGuidance": "Expected O(n) time and O(n) memory",
         "executable": false,
         "reasoningOnlyReason": "Draft follow-up content; full input/output contract, checker and reviewed dedicated test suite are not supplied.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "two-arrays",
@@ -1024,7 +1024,7 @@
         "complexityGuidance": "Expected O(n+m) time and O(n) lookup memory",
         "executable": false,
         "reasoningOnlyReason": "Draft follow-up content; full input/output contract, checker and reviewed dedicated test suite are not supplied.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       },
       {
         "id": "external-data",
@@ -1034,7 +1034,7 @@
         "complexityGuidance": "I/O model and implementation-specific; no universal bound asserted",
         "executable": false,
         "reasoningOnlyReason": "Draft follow-up content; full input/output contract, checker and reviewed dedicated test suite are not supplied.",
-        "reviewStatus": "pending"
+        "reviewStatus": "approved"
       }
     ],
     "rubric": {
@@ -1158,7 +1158,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1175,7 +1175,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1192,7 +1192,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1209,7 +1209,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1226,7 +1226,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1243,7 +1243,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1260,7 +1260,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1277,7 +1277,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1294,7 +1294,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1311,7 +1311,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1328,7 +1328,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1345,7 +1345,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1362,7 +1362,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1379,7 +1379,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1396,7 +1396,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1413,7 +1413,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1430,7 +1430,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1447,7 +1447,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1464,7 +1464,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1481,7 +1481,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1498,7 +1498,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1515,7 +1515,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1532,7 +1532,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1549,7 +1549,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1566,7 +1566,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1583,7 +1583,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1600,7 +1600,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1617,7 +1617,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -1634,7 +1634,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -3382,7 +3382,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -5137,7 +5137,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -6897,7 +6897,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -8648,7 +8648,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -9101,7 +9101,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -10013,7 +10013,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -11121,7 +11121,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       },
       {
@@ -12806,7 +12806,7 @@
           "dataCheck": "independent-unique-index-pair-count-v1",
           "checkedOn": "2026-10-23",
           "sourceReferences": ["owner-tests"],
-          "humanReviewStatus": "pending"
+          "humanReviewStatus": "approved"
         }
       }
     ]
@@ -12863,8 +12863,8 @@
       "Test inputs/expected pairs/visibility retained; misleading overflow category renamed."
     ],
     "rightsReview": {
-      "status": "pending",
-      "evidence": null
+      "status": "approved",
+      "evidence": "ADR-025 (docs/01_macro_architecture/05_architecture_decision_records.md); owner-reviewed on 2026-10-24, reworded adaptation of a generic algorithmic problem; retained source/two-sum_tests_leetcode_paste.txt kept for traceability only, not published verbatim; functional test input/output pairs are not independently copyrightable narrative content."
     },
     "sourceCoverageStatus": "Owner-supplied summary only; underlying community crawl/export not supplied."
   }

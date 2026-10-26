@@ -70,3 +70,8 @@ export function AccountControls() {
   if (!isLoaded) return <span role="status">Loading account…</span>;
   return isSignedIn ? <UserButton /> : <a href="/sign-in">Sign in</a>;
 }
+/** Generic sign-in state for app-layer UI; never exposes Clerk types directly. */
+export function useIsSignedIn(): { isLoaded: boolean; isSignedIn: boolean } {
+  const { isLoaded, isSignedIn } = useAuth();
+  return { isLoaded, isSignedIn: Boolean(isSignedIn) };
+}

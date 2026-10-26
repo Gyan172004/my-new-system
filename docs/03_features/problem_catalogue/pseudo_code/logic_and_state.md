@@ -1,11 +1,16 @@
 # Problem Catalogue and Immutable Problem Packs — Pseudocode
 
-**Status:** Reviewed implementation passes local code acceptance; genuine seed and external release gates remain pending.  
+**Status:** Reviewed local code acceptance; initial seed published locally under ADR-025 on 2026-10-24. External release gates remain pending.
 **Feature:** 3. **Kanban:** K-007–K-009. **Date:** 2026-10-22.
 **Reconciled:** 2026-10-23; owner-accepted audit corrections and ADR-023.  
 **Inputs:** [requirements](../requirements/feature_req.md),
 [technical design](../specifications/technical/tech_design.md),
 [engineering design](../specifications/engineering/eng_design.md).
+
+The initial seed's human-role exception is ADR-025 only. Its local publication
+uses separate development test identities for the same owner; UUID separation
+does not prove independent human review. Runtime self-review checks remain
+unchanged. See the engineering design's local seed evidence.
 
 ## 1. Conventions and state
 

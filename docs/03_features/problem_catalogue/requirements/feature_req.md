@@ -1,13 +1,19 @@
 # Problem Catalogue and Immutable Problem Packs — Requirements
 
-**Status:** Reviewed implementation passes local code acceptance; genuine seed and external release gates remain pending.  
+**Status:** Reviewed local code acceptance; initial seed published locally under ADR-025 on 2026-10-24. External release gates remain pending.
 **Feature:** 3 in delivery order (Stage 2). **Kanban:** K-007, K-008, K-009.  
 **Date:** 2026-10-22.
 
 **Revision:** 2026-10-23. Owner accepted the audit recommendations, including
 configuration-based staff permissions. The owner subsequently authorized the
 Spec Kit orchestration and implementation. This does not approve or publish the
-seed; independent human content approval remains required.
+seed. Subsequently, ADR-025 accepted the owner's correctness/source-rights review
+for the initial Two Sum seed only. On 2026-10-24 the authorized local publication
+used development test identities for the owner's two roles; it does not establish
+two independent human reviewers or production Clerk acceptance. See the
+engineering design's local seed evidence for the checksum and receipt. The
+standard independent-review requirement below applies to every later version
+and pack.
 
 ## 1. What this module must achieve
 
@@ -135,17 +141,17 @@ ADR-022 permits local work against the verified local configuration baseline;
 T034/K-028 cloud evidence remains deferred and is not waived.
 
 The owner's answers establish one initial problem, later reuse of the format,
-and a future separate authoring flow. The supplied material has been adapted
-into a structured Two Sum draft; it has not received independent human approval
-or been published.
+and a future separate authoring flow. The supplied material was adapted into the
+Two Sum seed and published locally on 2026-10-24 after the owner's review under
+ADR-025. Local staff assignments and exact-checksum review/publication evidence
+are recorded in the engineering design. Independent human review remains the
+standard for later content; the initial seed is the explicitly accepted exception.
 
-Before publication, assign actual author/reviewer/publisher identities and
-approve source use and content correctness. The permission mechanism is selected
-in ADR-023; actual allowlist assignments remain an operational gate. The
-canonical catalogue operations declare `400` for malformed query/path input;
-implementation must pass the corresponding contract and handler tests. The strict runtime schema and synthetic publication path have reviewed engineering
-evidence in the engineering design. Genuine content approval remains pending;
-executable checker/harness qualification belongs to the later execution gates.
+The permission mechanism is selected in ADR-023. Production operator identities
+and allowlists require their own environment evidence. The canonical catalogue
+operations declare `400` for malformed query/path input; implementation must pass
+the corresponding contract and handler tests. Executable checker/harness
+qualification belongs to the later execution gates.
 
 ### Clarifications — 2026-10-23
 

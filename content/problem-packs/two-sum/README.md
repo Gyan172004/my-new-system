@@ -88,8 +88,10 @@ approval or proof that every approach/hint/follow-up is correct.
    multithreaded follow-up is not present in these supplied files.
 7. **The structured draft adapts the raw inputs.** It supplies stable IDs,
    schema/content/suite/rubric versions and explicit eligibility/exposure rules.
-   The sorting hint has its own ladder. Verified author identity and independent
-   exact-content/source-rights approval remain pending.
+   The sorting hint has its own ladder. At intake, verified author identity and
+   exact-content/source-rights approval were pending. The initial seed was
+   subsequently published locally on 2026-10-24 under ADR-025's owner-review
+   exception; see the canonical engineering design's local seed evidence.
 
 ## Owning requirements and next use
 

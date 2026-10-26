@@ -103,15 +103,22 @@ it(
           )
         ).rows.map((row) => row.tablename),
       ).toEqual([
+        'approach_assessments',
+        'catalogue_hint_routing_current',
+        'catalogue_hint_routing_revisions',
         'catalogue_problems',
         'catalogue_release_availability',
         'catalogue_releases',
         'catalogue_test_cases',
+        'content_hint_routing_reviews',
         'content_publication_audit',
         'content_publications',
         'content_reviews',
+        'conversation_turns',
+        'hint_exposures',
         'interview_sessions',
         'pgmigrations',
+        'session_command_operations',
         'session_events',
         'users',
       ]);

@@ -1,9 +1,14 @@
 # Problem Catalogue and Immutable Problem Packs — Technical Design
 
-**Status:** Reviewed implementation passes local code acceptance; genuine seed and external release gates remain pending.  
+**Status:** Reviewed local code acceptance; initial seed published locally under ADR-025 on 2026-10-24. External release gates remain pending.
 **Feature:** 3. **Kanban:** K-007–K-009. **Date:** 2026-10-22.
 **Reconciled:** 2026-10-23 following owner acceptance of the audit recommendations.  
 **Behavior:** [requirements](../../requirements/feature_req.md).
+
+The initial seed's human-role exception is ADR-025 only. Its local publication
+uses separate development test identities for the same owner; UUID separation
+does not prove independent human review. Runtime self-review checks remain
+unchanged. See the engineering design's local seed evidence.
 
 ## 1. Design in one view
 
@@ -390,9 +395,10 @@ probes. Do not claim cloud isolation, release capacity or provider evidence from
 local fixtures.
 
 The permission choice and the audit corrections are selected planning decisions
-under ADR-023 and the owner's 2026-10-23 clarification. Remaining gates are actual
-staff assignments, independent content/source approval, and remaining engineering
-acceptance. The selected strict schema, metadata registries and synthetic
+under ADR-023 and the owner's 2026-10-23 clarification. ADR-025 and the engineering
+design record the initial seed's owner content/source approval, local staff
+assignments and publication. Production operator/permission and deployment gates
+still need environment-specific evidence. The selected strict schema, metadata registries and synthetic
 review/publication path have passed their reviewed implementation checks. Executable evaluation still waits for its owning execution gates;
 metadata-only publication does not imply candidate execution is enabled. Any
 material departure from ADR-006/020/021/022/023 goes through the existing register.

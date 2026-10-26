@@ -2,16 +2,20 @@ import type { z } from 'zod';
 import type { Completeness, GatewayUsage } from './metadata';
 import type { EnabledDefinition, OperationRegistry } from './operations';
 import type {
+  approachAssessmentInputSchema,
+  approachAssessmentOutputSchema,
   interviewTurnInputSchema,
   interviewTurnOutputSchema,
 } from './validation';
 
 export type EnabledOperation =
+  | 'approach_assessment'
   | 'gateway_probe'
   | 'interview_turn'
   | 'stage_classification'
   | 'intent_classification';
 export type OperationInput = {
+  approach_assessment: Readonly<z.infer<typeof approachAssessmentInputSchema>>;
   gateway_probe: Readonly<{ text: string }>;
   interview_turn: Readonly<z.infer<typeof interviewTurnInputSchema>>;
   // Deferred classification operations stay disabled stubs; these are minimal placeholders.
@@ -19,6 +23,7 @@ export type OperationInput = {
   intent_classification: Readonly<Record<string, unknown>>;
 };
 export type OperationOutput = {
+  approach_assessment: Readonly<z.infer<typeof approachAssessmentOutputSchema>>;
   gateway_probe: Readonly<{ schemaVersion: 1; acknowledged: true }>;
   interview_turn: Readonly<z.infer<typeof interviewTurnOutputSchema>>;
   // Deferred classification operations stay disabled stubs; these are minimal placeholders.
